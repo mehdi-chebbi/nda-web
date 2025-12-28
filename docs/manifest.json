@@ -1,0 +1,23 @@
+{
+  "gcf": [
+    {
+      "id": "gcf-001",
+      "name": "car.pdf",
+      "displayName": "car",
+      "size": 18810,
+      "modified": "2025-12-28T18:50:26.265Z",
+      "category": "gcf"
+    }
+  ],
+  "policy": [
+    {
+      "id": "policy-001",
+      "name": "aze.pdf",
+      "displayName": "aze",
+      "size": 18810,
+      "modified": "2025-12-28T18:50:08.203Z",
+      "category": "policy"
+    }
+  ],
+  "lastUpdated": "2025-12-28T18:50:26.265Z"
+}
