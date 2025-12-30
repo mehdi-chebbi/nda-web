@@ -17,14 +17,13 @@ project/
 │       ├── vite.config.ts
 │       └── tailwind.config.js
 ├── backend/
-│   ├── server.js               # Express server with all APIs
-│   └── package.json
-├── docs/
-│   ├── gcf/                    # GCF PDF documents
-│   ├── policy/                 # Policy PDF documents
-│   └── manifest.json           # Document registry (auto-generated)
-└── database/
-    └── schema.sql              # PostgreSQL schema (for Phase 2)
+│   ├── server.js               # Express server with PostgreSQL integration
+│   ├── package.json
+│   └── .env.example            # Environment variables template
+└── docs/
+    ├── gcf/                    # GCF PDF documents
+    ├── policy/                 # Policy PDF documents
+    └── manifest.json           # Document registry (auto-generated from DB)
 ```
 
 ## Features
@@ -32,15 +31,17 @@ project/
 ### Frontend
 - **Home Page**: Hero section, mission/vision, focus areas, statistics
 - **Resources Page**: Document browser with filtering, search, and download
-- **About Us Page**: Information about the NDA and Readiness Program
+- **About Us Page**: Information about NDA and Readiness Program
 - **Contact Us Page**: Contact information and form
 - **Admin Dashboard**: Document upload, delete, and management
 
 ### Backend
 - Express.js server with REST APIs
+- **PostgreSQL database** for storing documents and admin users
 - Document management (upload/delete only - no update)
 - Admin authentication with JWT
-- Auto-generated manifest.json
+- **Auto-generated manifest.json** from database
+- Audit logging for all document operations
 - Static file serving for React app and documents
 
 ### Design System
@@ -60,35 +61,69 @@ project/
 
 ### Backend
 - Node.js with Express.js
+- **PostgreSQL** (direct pg driver, no ORM)
 - JWT authentication
 - Multer for file uploads
 - CORS enabled
-- File-based manifest system (Phase 1)
-
-### Database (Phase 2)
-- PostgreSQL (schema prepared)
+- **Dual storage system**:
+  - PostgreSQL for data persistence
+  - manifest.json for frontend compatibility
 
 ## Setup Instructions
 
 ### Prerequisites
 - Node.js 18+ and npm
-- PostgreSQL (for Phase 2)
+- **PostgreSQL database** (required)
 
-### 1. Install Frontend Dependencies
+### 1. Database Setup
+
+First, create a PostgreSQL database:
+
+```sql
+CREATE DATABASE eritrea_readiness;
+```
+
+### 2. Install Frontend Dependencies
 
 ```bash
 cd project/frontend/react
 npm install
 ```
 
-### 2. Install Backend Dependencies
+### 3. Install Backend Dependencies
 
 ```bash
 cd project/backend
 npm install
 ```
 
-### 3. Development Setup
+### 4. Configure Environment Variables
+
+Copy the example environment file and update it:
+
+```bash
+cp .env.example .env
+```
+
+Edit `.env` with your database credentials:
+
+```env
+# Server Configuration
+PORT=3000
+NODE_ENV=development
+
+# JWT Secret (change this in production!)
+JWT_SECRET=your-secret-key-change-in-production
+
+# PostgreSQL Database Configuration
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=eritrea_readiness
+DB_USER=postgres
+DB_PASSWORD=your_password
+```
+
+### 5. Development Setup
 
 **Backend (Terminal 1):**
 ```bash
@@ -98,6 +133,12 @@ npm start
 
 Backend will run on `http://localhost:3000`
 
+The server will:
+- Connect to PostgreSQL database
+- Create all necessary tables automatically
+- Initialize default admin user
+- Regenerate manifest.json from database
+
 **Frontend (Terminal 2):**
 ```bash
 cd project/frontend/react
@@ -106,7 +147,7 @@ npm run dev
 
 Frontend will run on `http://localhost:5173`
 
-### 4. Production Build
+### 6. Production Build
 
 ```bash
 # Build frontend
@@ -124,7 +165,7 @@ npm start
 - Username: `admin`
 - Password: `admin123`
 
-To change credentials, modify the `initializeAdminUser()` function in `backend/server.js`.
+The admin user is stored in PostgreSQL. You can add additional admin users directly in the database.
 
 ## Document Management
 
@@ -142,9 +183,10 @@ To change credentials, modify the `initializeAdminUser()` function in `backend/s
    - To update a document: Delete old, then add new version
    - No "update" or "replace" operation exists
 
-4. **Manifest.json is Truth**
-   - Always stays in sync with actual files
-   - Auto-updated on any document change
+4. **Dual Storage System**
+   - PostgreSQL stores document metadata with full audit trail
+   - manifest.json is auto-generated from database for frontend compatibility
+   - Both are kept in sync automatically
 
 ### Upload Process
 
@@ -160,7 +202,9 @@ The system will:
 - Generate a unique ID
 - Create a stable filename from display name
 - Save file to `/docs/gcf/` or `/docs/policy/`
-- Update `manifest.json` automatically
+- **Insert into PostgreSQL database**
+- **Update manifest.json automatically**
+- **Log the action in audit trail**
 
 ### Delete Process
 
@@ -171,14 +215,16 @@ The system will:
 
 The system will:
 - Delete file from disk
-- Remove entry from `manifest.json`
+- **Remove from PostgreSQL database**
+- **Update manifest.json automatically**
+- **Log the action in audit trail**
 - ID is never reused
 
 ## API Endpoints
 
 ### Public Endpoints
-- `GET /api/health` - Health check
-- `GET /docs/manifest.json` - Get document manifest
+- `GET /api/health` - Health check (includes database status)
+- `GET /docs/manifest.json` - Get document manifest (from DB)
 - `GET /docs/:category/:filename` - Download PDF
 
 ### Admin Endpoints (Authentication Required)
@@ -188,33 +234,57 @@ The system will:
 - `POST /api/admin/documents` - Upload new document
 - `DELETE /api/admin/documents/:id` - Delete document
 
-## Database Integration (Phase 2)
+## Database Schema
 
-### Set Up PostgreSQL
+The server automatically creates these tables on first run:
 
-1. Create database:
-```sql
-CREATE DATABASE eritrea_readiness;
-```
+### documents
+- `id` (VARCHAR) - Primary key
+- `name` (VARCHAR) - Filename
+- `display_name` (VARCHAR) - User-facing name
+- `category` (VARCHAR) - "gcf" or "policy"
+- `size` (INTEGER) - File size in bytes
+- `modified` (TIMESTAMP) - Last modified timestamp
+- `created_at` (TIMESTAMP) - Creation timestamp
+- `updated_at` (TIMESTAMP) - Last update timestamp
 
-2. Run schema:
-```bash
-psql -U your_username -d eritrea_readiness -f database/schema.sql
-```
+### admin_users
+- `id` (SERIAL) - Primary key
+- `username` (VARCHAR) - Unique username
+- `password_hash` (VARCHAR) - Bcrypt hash
+- `email` (VARCHAR) - Email address
+- `created_at` (TIMESTAMP) - Creation timestamp
+- `updated_at` (TIMESTAMP) - Last update timestamp
+- `last_login` (TIMESTAMP) - Last login time
 
-3. Update backend to use PostgreSQL:
-   - Install `pg` package: `npm install pg`
-   - Add database connection logic
-   - Modify endpoints to use database instead of manifest.json
+### document_audit_log
+- `id` (SERIAL) - Primary key
+- `document_id` (VARCHAR) - Foreign key to documents
+- `action` (VARCHAR) - "upload" or "delete"
+- `performed_by` (VARCHAR) - Username who performed action
+- `performed_at` (TIMESTAMP) - Action timestamp
+- `details` (JSONB) - Additional information
 
-### Database Schema
+## How the Dual Storage Works
 
-The schema includes:
-- `documents` table - Document metadata
-- `admin_users` table - Admin credentials
-- `document_audit_log` table - Audit trail
+1. **Primary Storage (PostgreSQL)**
+   - All document metadata is stored in the database
+   - All admin operations query and update the database
+   - Complete audit trail is maintained
+   - Database is the source of truth
 
-See `database/schema.sql` for complete schema.
+2. **Secondary Storage (manifest.json)**
+   - Auto-generated from database on server startup
+   - Regenerated after every upload/delete operation
+   - Used by frontend for quick access
+   - Always in sync with database
+
+3. **Synchronization Process**
+   ```
+   Upload → DB Insert → Regenerate manifest.json
+   Delete → DB Delete → Regenerate manifest.json
+   Server Start → Load DB → Regenerate manifest.json
+   ```
 
 ## Design System
 
@@ -245,8 +315,14 @@ Create `.env` file in backend directory:
 
 ```env
 PORT=3000
-JWT_SECRET=your-secret-key-here
 NODE_ENV=production
+JWT_SECRET=your-secure-secret-key-here
+
+DB_HOST=your-db-host
+DB_PORT=5432
+DB_NAME=eritrea_readiness
+DB_USER=your-db-user
+DB_PASSWORD=your-db-password
 ```
 
 ### Build and Deploy
@@ -268,21 +344,43 @@ npm install --production
 npm start
 ```
 
+The server will:
+- Connect to production database
+- Auto-create tables if they don't exist
+- Initialize admin user if needed
+- Regenerate manifest from database
+- Serve production React build
+
 ## Troubleshooting
 
+### Database Connection Issues
+- Verify PostgreSQL is running: `pg_isready`
+- Check database credentials in `.env`
+- Ensure database exists: `psql -U postgres -l`
+- Check firewall/network settings
+
 ### Port Already in Use
-If port 3000 is already in use:
 - Change `PORT` in backend/.env
 - Or stop the process using port 3000
 
 ### PDF Upload Fails
 - Check file size (max 50MB)
 - Ensure it's a valid PDF
-- Check disk permissions
+- Check disk permissions on `/docs` directory
+- Verify database connection
 
 ### Manifest.json Issues
-- Backend auto-creates manifest.json on first run
-- If corrupted, delete it and restart server
+- Manifest is auto-generated from database
+- If corrupted, restart server to regenerate
+- Check database if manifest doesn't update
+
+## Security Notes
+
+- Change `JWT_SECRET` in production
+- Change default admin password immediately
+- Use strong database passwords
+- Enable SSL/TLS for database connections in production
+- Consider using connection pooling for production
 
 ## Support
 

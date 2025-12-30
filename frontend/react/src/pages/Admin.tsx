@@ -28,6 +28,10 @@ const Admin = () => {
     category: 'gcf',
     displayName: ''
   })
+  const [bulkUploadForm, setBulkUploadForm] = useState({
+    files: null as FileList | null,
+    category: 'gcf'
+  })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [successMessage, setSuccessMessage] = useState('')
@@ -110,6 +114,42 @@ const Admin = () => {
       fetchDocuments()
     } catch (err: any) {
       setError(err.response?.data?.error || 'Upload failed. Please try again.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleBulkUpload = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!bulkUploadForm.files || bulkUploadForm.files.length === 0) {
+      setError('Please select files to upload')
+      return
+    }
+
+    setLoading(true)
+    setError('')
+    setSuccessMessage('')
+
+    try {
+      const token = localStorage.getItem('adminToken')
+      const formData = new FormData()
+      for (let i = 0; i < bulkUploadForm.files.length; i++) {
+        formData.append('files', bulkUploadForm.files[i])
+      }
+      formData.append('category', bulkUploadForm.category)
+
+      const response = await axios.post('/api/admin/documents/bulk', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${token}`
+        }
+      })
+
+      setSuccessMessage(`Successfully uploaded ${response.data.totalUploaded} file${response.data.totalUploaded !== 1 ? 's' : ''}!`)
+      setBulkUploadForm({ files: null, category: 'gcf' })
+      fetchDocuments()
+    } catch (err: any) {
+      setError(err.response?.data?.error || 'Bulk upload failed. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -226,7 +266,7 @@ const Admin = () => {
           </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
           {/* Upload Form */}
           <Card className="p-6">
             <h2 className="font-heading font-semibold text-2xl text-primary mb-6">
@@ -292,6 +332,62 @@ const Admin = () => {
             </div>
           </Card>
 
+          {/* Bulk Upload */}
+          <Card className="p-6">
+            <h2 className="font-heading font-semibold text-2xl text-primary mb-6">
+              Bulk Upload
+            </h2>
+            <form onSubmit={handleBulkUpload} className="space-y-4">
+              <div>
+                <label className="font-body text-sm font-medium text-text-primary mb-1 block">
+                  PDF Files <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="file"
+                  accept=".pdf"
+                  multiple
+                  onChange={(e) => setBulkUploadForm({
+                    ...bulkUploadForm,
+                    files: e.target.files
+                  })}
+                  className="w-full px-4 py-2 border border-border rounded-md font-body text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                  required
+                />
+                <p className="font-body text-xs text-text-muted mt-1">
+                  {bulkUploadForm.files?.length || 0} file{bulkUploadForm.files?.length !== 1 ? 's' : ''} selected
+                </p>
+              </div>
+
+              <div>
+                <label className="font-body text-sm font-medium text-text-primary mb-1 block">
+                  Category <span className="text-red-500">*</span>
+                </label>
+                <select
+                  value={bulkUploadForm.category}
+                  onChange={(e) => setBulkUploadForm({
+                    ...bulkUploadForm,
+                    category: e.target.value
+                  })}
+                  className="w-full px-4 py-2 border border-border rounded-md font-body text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                >
+                  <option value="gcf">GCF Document</option>
+                  <option value="policy">Policy & Regulation</option>
+                </select>
+              </div>
+
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? 'Uploading...' : 'Upload All Files'}
+              </Button>
+            </form>
+
+            <div className="mt-6 p-4 bg-bg-secondary rounded-md">
+              <p className="font-body text-xs text-text-secondary">
+                <strong>Bulk Upload:</strong> Display names are extracted from filenames automatically.
+                All files will be assigned to the same category. Max 50 files at once.
+              </p>
+            </div>
+          </Card>
+
           {/* Document List */}
           <Card className="p-6">
             <h2 className="font-heading font-semibold text-2xl text-primary mb-6">
@@ -348,8 +444,8 @@ const Admin = () => {
             )}
           </Card>
         </div>
+        </div>
       </div>
-    </div>
   )
 }
 

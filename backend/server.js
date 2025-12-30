@@ -1,4 +1,5 @@
 const express = require('express');
+const { Pool } = require('pg');
 const path = require('path');
 const fs = require('fs').promises;
 const crypto = require('crypto');
@@ -12,6 +13,15 @@ const PORT = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
 const DOCS_DIR = path.join(__dirname, '..', 'docs');
 const MANIFEST_PATH = path.join(DOCS_DIR, 'manifest.json');
+
+// PostgreSQL connection
+const pool = new Pool({
+  host: process.env.DB_HOST || 'localhost',
+  port: process.env.DB_PORT || 5432,
+  database: process.env.DB_NAME || 'eritrea_readiness',
+  user: process.env.DB_USER || 'postgres',
+  password: process.env.DB_PASSWORD || 'postgres',
+});
 
 // Middleware
 app.use(cors());
@@ -34,11 +44,12 @@ const upload = multer({
     }
   },
   limits: {
-    fileSize: 50 * 1024 * 1024 // 50MB limit
+    fileSize: 50 * 1024 * 1024, // 50MB limit per file
+    files: 50 // Max 50 files at once
   }
 });
 
-// Initialize manifest.json if it doesn't exist
+// Helper functions for manifest
 async function initializeManifest() {
   try {
     await fs.access(MANIFEST_PATH);
@@ -53,7 +64,6 @@ async function initializeManifest() {
   }
 }
 
-// Helper functions
 async function readManifest() {
   const data = await fs.readFile(MANIFEST_PATH, 'utf8');
   return JSON.parse(data);
@@ -64,27 +74,176 @@ async function writeManifest(manifest) {
   await fs.writeFile(MANIFEST_PATH, JSON.stringify(manifest, null, 2));
 }
 
-function generateId(category, manifest) {
-  const prefix = category === 'gcf' ? 'gcf' : 'policy';
-  const docs = manifest[category];
-  const count = docs.length + 1;
-  const paddedCount = count.toString().padStart(3, '0');
-  return `${prefix}-${paddedCount}`;
+async function regenerateManifestFromDB() {
+  try {
+    const result = await pool.query(
+      'SELECT id, name, display_name, category, size, modified FROM documents ORDER BY modified DESC'
+    );
+
+    const manifest = {
+      gcf: [],
+      policy: [],
+      lastUpdated: new Date().toISOString()
+    };
+
+    for (const row of result.rows) {
+      const document = {
+        id: row.id,
+        name: row.name,
+        displayName: row.display_name,
+        size: parseInt(row.size),
+        modified: row.modified,
+        category: row.category
+      };
+      manifest[row.category].push(document);
+    }
+
+    await writeManifest(manifest);
+    console.log('Regenerated manifest.json from database');
+    return manifest;
+  } catch (error) {
+    console.error('Error regenerating manifest from DB:', error);
+    throw error;
+  }
 }
 
-// Admin user management (in-memory for now)
-const adminUsers = new Map();
+function generateId(category) {
+  const prefix = category === 'gcf' ? 'gcf' : 'policy';
+  const timestamp = Date.now();
+  const random = crypto.randomBytes(2).toString('hex');
+  return `${prefix}-${timestamp}-${random}`;
+}
 
-// Initialize default admin user (username: admin, password: admin123)
+// Database initialization
+async function initializeDatabase() {
+  try {
+    // Create tables if they don't exist
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS documents (
+        id VARCHAR(50) PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        display_name VARCHAR(255) NOT NULL,
+        category VARCHAR(20) NOT NULL,
+        size INTEGER NOT NULL,
+        modified TIMESTAMP NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        CONSTRAINT valid_category CHECK (category IN ('gcf', 'policy'))
+      )
+    `);
+
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_documents_category ON documents(category)
+    `);
+
+    await pool.query(`
+      CREATE UNIQUE INDEX IF NOT EXISTS idx_documents_category_name ON documents(category, name)
+    `);
+
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_documents_modified ON documents(modified DESC)
+    `);
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS admin_users (
+        id SERIAL PRIMARY KEY,
+        username VARCHAR(50) UNIQUE NOT NULL,
+        password_hash VARCHAR(255) NOT NULL,
+        email VARCHAR(255),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        last_login TIMESTAMP
+      )
+    `);
+
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_admin_users_username ON admin_users(username)
+    `);
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS document_audit_log (
+        id SERIAL PRIMARY KEY,
+        document_id VARCHAR(50),
+        action VARCHAR(20) NOT NULL,
+        performed_by VARCHAR(50),
+        performed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        details JSONB,
+        FOREIGN KEY (document_id) REFERENCES documents(id) ON DELETE SET NULL
+      )
+    `);
+
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_audit_log_document_id ON document_audit_log(document_id)
+    `);
+
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_audit_log_action ON document_audit_log(action)
+    `);
+
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_audit_log_performed_at ON document_audit_log(performed_at DESC)
+    `);
+
+    // Create trigger function for updated_at
+    await pool.query(`
+      CREATE OR REPLACE FUNCTION update_updated_at_column()
+      RETURNS TRIGGER AS $$
+      BEGIN
+        NEW.updated_at = CURRENT_TIMESTAMP;
+        RETURN NEW;
+      END;
+      $$ LANGUAGE plpgsql
+    `);
+
+    await pool.query(`
+      DROP TRIGGER IF EXISTS update_documents_updated_at ON documents
+    `);
+    await pool.query(`
+      CREATE TRIGGER update_documents_updated_at
+        BEFORE UPDATE ON documents
+        FOR EACH ROW
+        EXECUTE FUNCTION update_updated_at_column()
+    `);
+
+    await pool.query(`
+      DROP TRIGGER IF EXISTS update_admin_users_updated_at ON admin_users
+    `);
+    await pool.query(`
+      CREATE TRIGGER update_admin_users_updated_at
+        BEFORE UPDATE ON admin_users
+        FOR EACH ROW
+        EXECUTE FUNCTION update_updated_at_column()
+    `);
+
+    console.log('Database tables initialized');
+  } catch (error) {
+    console.error('Error initializing database:', error);
+    throw error;
+  }
+}
+
 async function initializeAdminUser() {
-  const saltRounds = 10;
-  const hashedPassword = await bcrypt.hash('admin123', saltRounds);
-  adminUsers.set('admin', {
-    username: 'admin',
-    password: hashedPassword,
-    createdAt: new Date().toISOString()
-  });
-  console.log('Initialized default admin user (username: admin, password: admin123)');
+  try {
+    const existingUser = await pool.query(
+      'SELECT id FROM admin_users WHERE username = $1',
+      ['admin']
+    );
+
+    if (existingUser.rows.length === 0) {
+      const saltRounds = 10;
+      const hashedPassword = await bcrypt.hash('admin123', saltRounds);
+      await pool.query(
+        'INSERT INTO admin_users (username, password_hash, email) VALUES ($1, $2, $3)',
+        ['admin', hashedPassword, 'admin@readiness-eritrea.er']
+      );
+      console.log('Initialized default admin user (username: admin, password: admin123)');
+    } else {
+      console.log('Admin user already exists');
+    }
+  } catch (error) {
+    console.error('Error initializing admin user:', error);
+    throw error;
+  }
 }
 
 // Authentication middleware
@@ -108,8 +267,23 @@ function authenticateToken(req, res, next) {
 // API Routes
 
 // Health check
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+app.get('/api/health', async (req, res) => {
+  try {
+    const dbCheck = await pool.query('SELECT NOW()');
+    res.json({ 
+      status: 'ok', 
+      timestamp: new Date().toISOString(),
+      database: 'connected',
+      dbTime: dbCheck.rows[0].now
+    });
+  } catch (error) {
+    res.status(500).json({ 
+      status: 'error', 
+      timestamp: new Date().toISOString(),
+      database: 'disconnected',
+      error: error.message
+    });
+  }
 });
 
 // Admin login
@@ -121,14 +295,29 @@ app.post('/api/admin/login', async (req, res) => {
       return res.status(400).json({ error: 'Username and password are required.' });
     }
 
-    const user = adminUsers.get(username);
+    const result = await pool.query(
+      'SELECT * FROM admin_users WHERE username = $1',
+      [username]
+    );
 
-    if (!user || !(await bcrypt.compare(password, user.password))) {
+    if (result.rows.length === 0) {
       return res.status(401).json({ error: 'Invalid credentials.' });
     }
 
+    const user = result.rows[0];
+
+    if (!(await bcrypt.compare(password, user.password_hash))) {
+      return res.status(401).json({ error: 'Invalid credentials.' });
+    }
+
+    // Update last_login
+    await pool.query(
+      'UPDATE admin_users SET last_login = CURRENT_TIMESTAMP WHERE id = $1',
+      [user.id]
+    );
+
     const token = jwt.sign(
-      { username: user.username },
+      { username: user.username, id: user.id },
       JWT_SECRET,
       { expiresIn: '24h' }
     );
@@ -141,8 +330,22 @@ app.post('/api/admin/login', async (req, res) => {
 });
 
 // Verify admin session
-app.post('/api/admin/verify', authenticateToken, (req, res) => {
-  res.json({ authenticated: true, username: req.user.username });
+app.post('/api/admin/verify', authenticateToken, async (req, res) => {
+  try {
+    const result = await pool.query(
+      'SELECT username, email FROM admin_users WHERE username = $1',
+      [req.user.username]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(401).json({ authenticated: false });
+    }
+
+    res.json({ authenticated: true, username: result.rows[0].username });
+  } catch (error) {
+    console.error('Verify error:', error);
+    res.status(500).json({ error: 'Internal server error.' });
+  }
 });
 
 // Get all documents (admin only)
@@ -158,7 +361,10 @@ app.get('/api/admin/documents', authenticateToken, async (req, res) => {
 
 // Upload new document (admin only)
 app.post('/api/admin/documents', authenticateToken, upload.single('file'), async (req, res) => {
+  const client = await pool.connect();
   try {
+    await client.query('BEGIN');
+
     if (!req.file) {
       return res.status(400).json({ error: 'No file uploaded.' });
     }
@@ -166,7 +372,6 @@ app.post('/api/admin/documents', authenticateToken, upload.single('file'), async
     const { category = 'gcf', displayName } = req.body;
 
     if (!displayName) {
-      // Delete uploaded file if displayName is missing
       await fs.unlink(req.file.path);
       return res.status(400).json({ error: 'Display name is required.' });
     }
@@ -176,11 +381,8 @@ app.post('/api/admin/documents', authenticateToken, upload.single('file'), async
       return res.status(400).json({ error: 'Invalid category. Must be "gcf" or "policy".' });
     }
 
-    // Update manifest
-    const manifest = await readManifest();
-
-    // Generate unique sequential ID
-    const id = generateId(category, manifest);
+    // Generate unique ID
+    const id = generateId(category);
 
     // Generate stable filename from displayName
     const ext = path.extname(req.file.originalname);
@@ -203,24 +405,42 @@ app.post('/api/admin/documents', authenticateToken, upload.single('file'), async
     // Get file stats
     const fileStats = await fs.stat(destPath);
 
-    // Create document entry
+    const modified = new Date().toISOString();
+
+    // Insert into database
+    await client.query(
+      `INSERT INTO documents (id, name, display_name, category, size, modified)
+       VALUES ($1, $2, $3, $4, $5, $6)`,
+      [id, filename, displayName, category, fileStats.size, modified]
+    );
+
+    // Log audit entry
+    await client.query(
+      `INSERT INTO document_audit_log (document_id, action, performed_by, details)
+       VALUES ($1, $2, $3, $4)`,
+      [id, 'upload', req.user.username, JSON.stringify({ displayName, category, size: fileStats.size })]
+    );
+
+    await client.query('COMMIT');
+
+    // Update manifest
+    const manifest = await regenerateManifestFromDB();
+
     const document = {
       id,
       name: filename,
       displayName,
       size: fileStats.size,
-      modified: new Date().toISOString(),
+      modified,
       category
     };
-
-    manifest[category].push(document);
-    await writeManifest(manifest);
 
     res.json({
       message: 'Document uploaded successfully.',
       document
     });
   } catch (error) {
+    await client.query('ROLLBACK');
     console.error('Upload error:', error);
     if (req.file) {
       try {
@@ -230,35 +450,174 @@ app.post('/api/admin/documents', authenticateToken, upload.single('file'), async
       }
     }
     res.status(500).json({ error: 'Failed to upload document.' });
+  } finally {
+    client.release();
+  }
+});
+
+// Bulk upload documents (admin only)
+app.post('/api/admin/documents/bulk', authenticateToken, upload.array('files', 50), async (req, res) => {
+  const client = await pool.connect();
+  const uploadedFiles = [];
+  const errors = [];
+
+  try {
+    await client.query('BEGIN');
+
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ error: 'No files uploaded.' });
+    }
+
+    const { category = 'gcf' } = req.body;
+
+    if (!['gcf', 'policy'].includes(category)) {
+      // Delete all uploaded files
+      for (const file of req.files) {
+        try {
+          await fs.unlink(file.path);
+        } catch (e) {}
+      }
+      return res.status(400).json({ error: 'Invalid category. Must be "gcf" or "policy".' });
+    }
+
+    // Create category directory
+    const categoryDir = path.join(DOCS_DIR, category);
+    await fs.mkdir(categoryDir, { recursive: true });
+
+    // Process each file
+    for (const file of req.files) {
+      try {
+        // Extract display name from filename (remove extension and clean up)
+        const baseName = path.basename(file.originalname, path.extname(file.originalname));
+        const displayName = baseName
+          .replace(/[-_]/g, ' ')
+          .replace(/\s+/g, ' ')
+          .trim();
+
+        // Generate unique ID
+        const id = generateId(category);
+
+        // Generate stable filename
+        const ext = path.extname(file.originalname);
+        const sanitizedName = displayName
+          .toLowerCase()
+          .replace(/[^a-z0-9]/g, '-')
+          .replace(/-+/g, '-')
+          .replace(/^-|-$/g, '');
+        const filename = `${sanitizedName}${ext}`;
+
+        // Move file from uploads/ to final destination
+        const sourcePath = file.path;
+        const destPath = path.join(categoryDir, filename);
+        await fs.rename(sourcePath, destPath);
+
+        // Get file stats
+        const fileStats = await fs.stat(destPath);
+
+        const modified = new Date().toISOString();
+
+        // Insert into database
+        await client.query(
+          `INSERT INTO documents (id, name, display_name, category, size, modified)
+           VALUES ($1, $2, $3, $4, $5, $6)`,
+          [id, filename, displayName, category, fileStats.size, modified]
+        );
+
+        // Log audit entry
+        await client.query(
+          `INSERT INTO document_audit_log (document_id, action, performed_by, details)
+           VALUES ($1, $2, $3, $4)`,
+          [id, 'upload', req.user.username, JSON.stringify({ displayName, category, size: fileStats.size, bulkUpload: true })]
+        );
+
+        uploadedFiles.push({
+          id,
+          name: filename,
+          displayName,
+          size: fileStats.size,
+          modified,
+          category
+        });
+      } catch (err) {
+        console.error('Error processing file:', file.originalname, err);
+        errors.push({
+          filename: file.originalname,
+          error: err.message
+        });
+        // Delete failed file
+        try {
+          await fs.unlink(file.path);
+        } catch (e) {}
+      }
+    }
+
+    await client.query('COMMIT');
+
+    // Update manifest
+    await regenerateManifestFromDB();
+
+    res.json({
+      message: `Successfully uploaded ${uploadedFiles.length} file${uploadedFiles.length !== 1 ? 's' : ''}.`,
+      uploaded: uploadedFiles,
+      errors,
+      totalUploaded: uploadedFiles.length,
+      totalFailed: errors.length
+    });
+  } catch (error) {
+    await client.query('ROLLBACK');
+    console.error('Bulk upload error:', error);
+    // Delete all uploaded files
+    if (req.files) {
+      for (const file of req.files) {
+        try {
+          await fs.unlink(file.path);
+        } catch (e) {}
+      }
+    }
+    res.status(500).json({ error: 'Failed to upload documents.' });
+  } finally {
+    client.release();
   }
 });
 
 // Delete document (admin only)
 app.delete('/api/admin/documents/:id', authenticateToken, async (req, res) => {
+  const client = await pool.connect();
   try {
+    await client.query('BEGIN');
+
     const { id } = req.params;
-    const manifest = await readManifest();
 
-    // Find document in both categories
-    let document = null;
-    let category = null;
+    // Get document info before deletion
+    const docResult = await client.query(
+      'SELECT * FROM documents WHERE id = $1',
+      [id]
+    );
 
-    for (const cat of ['gcf', 'policy']) {
-      const index = manifest[cat].findIndex(doc => doc.id === id);
-      if (index !== -1) {
-        document = manifest[cat][index];
-        category = cat;
-        manifest[cat].splice(index, 1);
-        break;
-      }
-    }
-
-    if (!document) {
+    if (docResult.rows.length === 0) {
+      await client.query('ROLLBACK');
       return res.status(404).json({ error: 'Document not found.' });
     }
 
+    const document = docResult.rows[0];
+
+    // Log audit entry
+    await client.query(
+      `INSERT INTO document_audit_log (document_id, action, performed_by, details)
+       VALUES ($1, $2, $3, $4)`,
+      [id, 'delete', req.user.username, JSON.stringify({ 
+        displayName: document.display_name, 
+        category: document.category 
+      })]
+    );
+
+    // Delete from database
+    await client.query('DELETE FROM documents WHERE id = $1', [id]);
+
+    await client.query('COMMIT');
+
     // Delete file from disk
-    const filePath = path.join(DOCS_DIR, category, document.name);
+    const filePath = path.join(DOCS_DIR, document.category, document.name);
     try {
       await fs.unlink(filePath);
     } catch (error) {
@@ -267,12 +626,15 @@ app.delete('/api/admin/documents/:id', authenticateToken, async (req, res) => {
     }
 
     // Update manifest
-    await writeManifest(manifest);
+    await regenerateManifestFromDB();
 
     res.json({ message: 'Document deleted successfully.' });
   } catch (error) {
+    await client.query('ROLLBACK');
     console.error('Delete error:', error);
     res.status(500).json({ error: 'Failed to delete document.' });
+  } finally {
+    client.release();
   }
 });
 
@@ -291,7 +653,6 @@ app.get('/docs/manifest.json', async (req, res) => {
 app.get('/docs/:category/:filename', async (req, res) => {
   const { category, filename } = req.params;
 
-  // Validate category
   if (!['gcf', 'policy'].includes(category)) {
     return res.status(400).json({ error: 'Invalid category.' });
   }
@@ -323,6 +684,16 @@ app.use((error, req, res, next) => {
 // Initialize and start server
 async function startServer() {
   try {
+    // Test database connection
+    await pool.query('SELECT NOW()');
+    console.log('Connected to PostgreSQL database');
+
+    // Initialize database schema
+    await initializeDatabase();
+
+    // Initialize admin user
+    await initializeAdminUser();
+
     // Create necessary directories
     await fs.mkdir(path.join(DOCS_DIR, 'gcf'), { recursive: true });
     await fs.mkdir(path.join(DOCS_DIR, 'policy'), { recursive: true });
@@ -330,13 +701,14 @@ async function startServer() {
     // Initialize manifest
     await initializeManifest();
 
-    // Initialize admin user
-    await initializeAdminUser();
+    // Regenerate manifest from database (in case of existing data)
+    await regenerateManifestFromDB();
 
     // Start server
     app.listen(PORT, () => {
       console.log(`Server running on http://localhost:${PORT}`);
       console.log(`Docs directory: ${DOCS_DIR}`);
+      console.log(`Database: ${process.env.DB_NAME || 'eritrea_readiness'}`);
       console.log(`Default admin: username=admin, password=admin123`);
     });
   } catch (error) {
@@ -344,5 +716,18 @@ async function startServer() {
     process.exit(1);
   }
 }
+
+// Graceful shutdown
+process.on('SIGINT', async () => {
+  console.log('\nShutting down gracefully...');
+  await pool.end();
+  process.exit(0);
+});
+
+process.on('SIGTERM', async () => {
+  console.log('\nShutting down gracefully...');
+  await pool.end();
+  process.exit(0);
+});
 
 startServer();
