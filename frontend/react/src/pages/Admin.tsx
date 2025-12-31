@@ -24,11 +24,6 @@ const Admin = () => {
   const [loginForm, setLoginForm] = useState({ username: '', password: '' })
   const [manifest, setManifest] = useState<Manifest | null>(null)
   const [uploadForm, setUploadForm] = useState({
-    file: null as File | null,
-    category: 'gcf',
-    displayName: ''
-  })
-  const [bulkUploadForm, setBulkUploadForm] = useState({
     files: null as FileList | null,
     category: 'gcf'
   })
@@ -86,42 +81,7 @@ const Admin = () => {
 
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!uploadForm.file) {
-      setError('Please select a file to upload')
-      return
-    }
-
-    setLoading(true)
-    setError('')
-    setSuccessMessage('')
-
-    try {
-      const token = localStorage.getItem('adminToken')
-      const formData = new FormData()
-      formData.append('file', uploadForm.file)
-      formData.append('category', uploadForm.category)
-      formData.append('displayName', uploadForm.displayName)
-
-      await axios.post('/api/admin/documents', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          Authorization: `Bearer ${token}`
-        }
-      })
-
-      setSuccessMessage('Document uploaded successfully!')
-      setUploadForm({ file: null, category: 'gcf', displayName: '' })
-      fetchDocuments()
-    } catch (err: any) {
-      setError(err.response?.data?.error || 'Upload failed. Please try again.')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const handleBulkUpload = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!bulkUploadForm.files || bulkUploadForm.files.length === 0) {
+    if (!uploadForm.files || uploadForm.files.length === 0) {
       setError('Please select files to upload')
       return
     }
@@ -133,10 +93,10 @@ const Admin = () => {
     try {
       const token = localStorage.getItem('adminToken')
       const formData = new FormData()
-      for (let i = 0; i < bulkUploadForm.files.length; i++) {
-        formData.append('files', bulkUploadForm.files[i])
+      for (let i = 0; i < uploadForm.files.length; i++) {
+        formData.append('files', uploadForm.files[i])
       }
-      formData.append('category', bulkUploadForm.category)
+      formData.append('category', uploadForm.category)
 
       const response = await axios.post('/api/admin/documents/bulk', formData, {
         headers: {
@@ -146,10 +106,10 @@ const Admin = () => {
       })
 
       setSuccessMessage(`Successfully uploaded ${response.data.totalUploaded} file${response.data.totalUploaded !== 1 ? 's' : ''}!`)
-      setBulkUploadForm({ files: null, category: 'gcf' })
+      setUploadForm({ files: null, category: 'gcf' })
       fetchDocuments()
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Bulk upload failed. Please try again.')
+      setError(err.response?.data?.error || 'Upload failed. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -246,7 +206,7 @@ const Admin = () => {
               Admin Dashboard
             </h1>
             <p className="font-body text-text-secondary">
-              Manage documents and content for the Readiness Eritrea platform
+              Manage documents and content for Readiness Eritrea platform
             </p>
           </div>
           <Button onClick={handleLogout} variant="outline">
@@ -266,27 +226,31 @@ const Admin = () => {
           </div>
         )}
 
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Upload Form */}
-          <Card className="p-6">
+          <Card className="p-6 lg:col-span-1">
             <h2 className="font-heading font-semibold text-2xl text-primary mb-6">
-              Add New Document
+              Upload Documents
             </h2>
             <form onSubmit={handleUpload} className="space-y-4">
               <div>
                 <label className="font-body text-sm font-medium text-text-primary mb-1 block">
-                  PDF File <span className="text-red-500">*</span>
+                  PDF Files <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="file"
                   accept=".pdf"
+                  multiple
                   onChange={(e) => setUploadForm({
                     ...uploadForm,
-                    file: e.target.files?.[0] || null
+                    files: e.target.files
                   })}
                   className="w-full px-4 py-2 border border-border rounded-md font-body text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                   required
                 />
+                <p className="font-body text-xs text-text-muted mt-1">
+                  {uploadForm.files?.length || 0} file{uploadForm.files?.length !== 1 ? 's' : ''} selected
+                </p>
               </div>
 
               <div>
@@ -306,90 +270,22 @@ const Admin = () => {
                 </select>
               </div>
 
-              <Input
-                label="Display Name"
-                type="text"
-                value={uploadForm.displayName}
-                onChange={(e) => setUploadForm({
-                  ...uploadForm,
-                  displayName: e.target.value
-                })}
-                placeholder="Enter document title"
-                required
-              />
-
               <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? 'Uploading...' : 'Upload Document'}
+                {loading ? 'Uploading...' : 'Upload Documents'}
               </Button>
             </form>
 
             <div className="mt-6 p-4 bg-bg-secondary rounded-md">
               <p className="font-body text-xs text-text-secondary">
-                <strong>Note:</strong> Filenames are generated automatically from the display name.
-                Documents are assigned unique IDs that never change. To update a document,
-                delete it and upload a new version.
-              </p>
-            </div>
-          </Card>
-
-          {/* Bulk Upload */}
-          <Card className="p-6">
-            <h2 className="font-heading font-semibold text-2xl text-primary mb-6">
-              Bulk Upload
-            </h2>
-            <form onSubmit={handleBulkUpload} className="space-y-4">
-              <div>
-                <label className="font-body text-sm font-medium text-text-primary mb-1 block">
-                  PDF Files <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="file"
-                  accept=".pdf"
-                  multiple
-                  onChange={(e) => setBulkUploadForm({
-                    ...bulkUploadForm,
-                    files: e.target.files
-                  })}
-                  className="w-full px-4 py-2 border border-border rounded-md font-body text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                  required
-                />
-                <p className="font-body text-xs text-text-muted mt-1">
-                  {bulkUploadForm.files?.length || 0} file{bulkUploadForm.files?.length !== 1 ? 's' : ''} selected
-                </p>
-              </div>
-
-              <div>
-                <label className="font-body text-sm font-medium text-text-primary mb-1 block">
-                  Category <span className="text-red-500">*</span>
-                </label>
-                <select
-                  value={bulkUploadForm.category}
-                  onChange={(e) => setBulkUploadForm({
-                    ...bulkUploadForm,
-                    category: e.target.value
-                  })}
-                  className="w-full px-4 py-2 border border-border rounded-md font-body text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                >
-                  <option value="gcf">GCF Document</option>
-                  <option value="policy">Policy & Regulation</option>
-                </select>
-              </div>
-
-              <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? 'Uploading...' : 'Upload All Files'}
-              </Button>
-            </form>
-
-            <div className="mt-6 p-4 bg-bg-secondary rounded-md">
-              <p className="font-body text-xs text-text-secondary">
-                <strong>Bulk Upload:</strong> Display names are extracted from filenames automatically.
-                All files will be assigned to the same category. Max 50 files at once.
+                <strong>Note:</strong> Display names are automatically extracted from filenames.
+                You can upload one or multiple files at once. All files will be assigned to the same category.
+                Max 50 files at once.
               </p>
             </div>
           </Card>
 
           {/* Document List */}
-          <Card className="p-6">
+          <Card className="p-6 lg:col-span-2">
             <h2 className="font-heading font-semibold text-2xl text-primary mb-6">
               Documents ({manifest?.gcf.length && manifest?.policy.length
                 ? manifest.gcf.length + manifest.policy.length
@@ -402,7 +298,7 @@ const Admin = () => {
                 <p className="mt-4 font-body text-text-secondary text-sm">Loading documents...</p>
               </div>
             ) : (
-              <div className="space-y-3 max-h-96 overflow-y-auto pr-2">
+              <div className="space-y-3 max-h-[600px] overflow-y-auto pr-2">
                 {[...manifest?.gcf, ...manifest?.policy]?.length === 0 ? (
                   <p className="font-body text-text-secondary text-center py-8">
                     No documents uploaded yet
@@ -432,6 +328,7 @@ const Admin = () => {
                       <button
                         onClick={() => handleDelete(doc.id)}
                         className="ml-4 text-red-500 hover:text-red-700 transition-colors"
+                        title="Delete document"
                       >
                         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -444,8 +341,8 @@ const Admin = () => {
             )}
           </Card>
         </div>
-        </div>
       </div>
+    </div>
   )
 }
 
