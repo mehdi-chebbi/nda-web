@@ -564,11 +564,11 @@
        $('.slide').addClass('is-loaded');
 
        $('.slideshow .arrows .arrow').on('click',function(){
-        slideshowNext($(this).closest('.slideshow'),$(this).hasClass('prev'));
+        slideshowNext($(this).closest('.slideshow'),$(this).hasClass('prev'), true);
       });
 
        $('.slideshow .pagination .item').on('click',function(){
-        slideshowSwitch($(this).closest('.slideshow'),$(this).index());
+        slideshowSwitch($(this).closest('.slideshow'),$(this).index(), true);
       });
 
        $('.slideshow .pagination').on('check',function(){
