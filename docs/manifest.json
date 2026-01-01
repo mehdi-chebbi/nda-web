@@ -1,167 +1,46 @@
 {
-  "gcf": [
-    {
-      "id": "gcf-1767088330533-d7d3",
-      "name": "gcf-nol-examples.pdf",
-      "displayName": "GCF NOL examples",
-      "size": 2051207,
-      "modified": "2025-12-30T08:52:10.533Z",
-      "category": "gcf"
-    },
-    {
-      "id": "gcf-1767088330531-6773",
-      "name": "module-1-introduction-to-key-concepts-to-climate-change-and-climate-finance.pdf",
-      "displayName": "Module 1 Introduction to key concepts to Climate Change and Climate Finance",
-      "size": 1794360,
-      "modified": "2025-12-30T08:52:10.532Z",
-      "category": "gcf"
-    },
-    {
-      "id": "gcf-1767088330529-ff08",
-      "name": "module-2-introduction-to-gcf.pdf",
-      "displayName": "Module 2 Introduction to GCF",
-      "size": 4103188,
-      "modified": "2025-12-30T08:52:10.530Z",
-      "category": "gcf"
-    },
-    {
-      "id": "gcf-1767088330526-ffb2",
-      "name": "module-3-fiduciary-standards.pdf",
-      "displayName": "Module 3 Fiduciary standards",
-      "size": 4109035,
-      "modified": "2025-12-30T08:52:10.527Z",
-      "category": "gcf"
-    },
-    {
-      "id": "gcf-1767084947752-2eed",
-      "name": "eritrea-gcf-capacity-building-workshop-report-final-1oct2025.pdf",
-      "displayName": "Eritrea GCF Capacity Building Workshop Report Final 1Oct2025",
-      "size": 1615433,
-      "modified": "2025-12-30T07:55:47.753Z",
-      "category": "gcf"
-    },
-    {
-      "id": "gcf-1767084947750-6610",
-      "name": "eritrea-in-person-workshop-concept-note-and-agenda-19aug2025.pdf",
-      "displayName": "Eritrea In person Workshop Concept Note and Agenda 19Aug2025",
-      "size": 266563,
-      "modified": "2025-12-30T07:55:47.751Z",
-      "category": "gcf"
-    },
-    {
-      "id": "gcf-1767084947748-5993",
-      "name": "methodological-note-eritrea-capacity-building-11july2025.pdf",
-      "displayName": "Methodological Note Eritrea Capacity Building 11July2025",
-      "size": 750457,
-      "modified": "2025-12-30T07:55:47.749Z",
-      "category": "gcf"
-    },
-    {
-      "id": "gcf-1767084947745-eb35",
-      "name": "nda-needs-assessment-report-final-1oct2025.pdf",
-      "displayName": "NDA Needs Assessment Report Final 1Oct2025",
-      "size": 1436229,
-      "modified": "2025-12-30T07:55:47.746Z",
-      "category": "gcf"
-    },
-    {
-      "id": "gcf-1767084947742-fca1",
-      "name": "stakeholder-map-and-draft-institutionalframework-final.pdf",
-      "displayName": "Stakeholder Map and Draft InstitutionalFramework final",
-      "size": 547952,
-      "modified": "2025-12-30T07:55:47.743Z",
-      "category": "gcf"
-    }
-  ],
+  "gcf": [],
   "policy": [
     {
-      "id": "policy-1767084757946-51ed",
-      "name": "policies-presentation.pdf",
-      "displayName": "Policies presentation",
-      "size": 381781,
-      "modified": "2025-12-30T07:52:37.947Z",
+      "id": "policy-1767204030723-4e87",
+      "name": "sample-copy-4.pdf",
+      "displayName": "sample Copy (4)",
+      "size": 18810,
+      "modified": "2025-12-31T17:00:30.725Z",
       "category": "policy"
     },
     {
-      "id": "policy-1767084746882-db8f",
-      "name": "policy-on-fees-03-2018.pdf",
-      "displayName": "Policy on fees (03 2018)",
-      "size": 403946,
-      "modified": "2025-12-30T07:52:26.883Z",
+      "id": "policy-1767204030717-ff5f",
+      "name": "sample-copy-3.pdf",
+      "displayName": "sample Copy (3)",
+      "size": 18810,
+      "modified": "2025-12-31T17:00:30.719Z",
       "category": "policy"
     },
     {
-      "id": "policy-1767084746881-a3e8",
-      "name": "monitoring-and-accountability-framework-for-accredited-entities-11-2015.pdf",
-      "displayName": "Monitoring and accountability framework for Accredited Entities (11 2015)",
-      "size": 482538,
-      "modified": "2025-12-30T07:52:26.881Z",
+      "id": "policy-1767204030710-4a10",
+      "name": "sample-copy-2.pdf",
+      "displayName": "sample Copy (2)",
+      "size": 18810,
+      "modified": "2025-12-31T17:00:30.712Z",
       "category": "policy"
     },
     {
-      "id": "policy-1767084746879-1ea3",
-      "name": "legal-and-formal-arrangements-with-accredited-entities-03-2015.pdf",
-      "displayName": "Legal and formal arrangements with Accredited Entities (03 2015)",
-      "size": 432863,
-      "modified": "2025-12-30T07:52:26.880Z",
+      "id": "policy-1767204030703-76f6",
+      "name": "sample-copy.pdf",
+      "displayName": "sample Copy",
+      "size": 18810,
+      "modified": "2025-12-31T17:00:30.705Z",
       "category": "policy"
     },
     {
-      "id": "policy-1767084746877-75ed",
-      "name": "initial-guiding-framework-for-the-fund-s-05-2025.pdf",
-      "displayName": "Initial guiding framework for the Fundâs (05 2025)",
-      "size": 762474,
-      "modified": "2025-12-30T07:52:26.878Z",
-      "category": "policy"
-    },
-    {
-      "id": "policy-1767084746875-537b",
-      "name": "initial-fiduciary-principles-and-standards-of-the-fund-05-2014.pdf",
-      "displayName": "Initial fiduciary principles and standards of the Fund (05 2014)",
-      "size": 490496,
-      "modified": "2025-12-30T07:52:26.876Z",
-      "category": "policy"
-    },
-    {
-      "id": "policy-1767084746873-b0f6",
-      "name": "guidelines-for-the-operationalization-of-the-fit-for-purpose-accreditation-approach-10-2014.pdf",
-      "displayName": "Guidelines for the operationalization of the fit for purpose accreditation approach (10 2014)",
-      "size": 548483,
-      "modified": "2025-12-30T07:52:26.874Z",
-      "category": "policy"
-    },
-    {
-      "id": "policy-1767084746871-3105",
-      "name": "general-principles-and-indicative-list-of-eligible-costs-covered-under-gcf-fees-and-project-management-costs-03-2018.pdf",
-      "displayName": "General principles and indicative list of eligible costs covered under GCF fees and project management costs (03 2018)",
-      "size": 426440,
-      "modified": "2025-12-30T07:52:26.872Z",
-      "category": "policy"
-    },
-    {
-      "id": "policy-1767084746870-961d",
-      "name": "contents-of-the-application-documents-for-submissions-of-applications-for-accreditation-10-2014.pdf",
-      "displayName": "Contents of the application documents for submissions of applications for accreditation (10 2014)",
-      "size": 507734,
-      "modified": "2025-12-30T07:52:26.870Z",
-      "category": "policy"
-    },
-    {
-      "id": "policy-1767084746867-86ec",
-      "name": "additional-policy-guidance-for-the-purpose-of-accreditation-master-agreements-03-2016.pdf",
-      "displayName": "Additional policy guidance for the purpose of Accreditation Master Agreements (03 2016)",
-      "size": 391631,
-      "modified": "2025-12-30T07:52:26.868Z",
-      "category": "policy"
-    },
-    {
-      "id": "policy-1767084746863-9d9d",
-      "name": "accreditation-framework-03-2022.pdf",
-      "displayName": "Accreditation framework (03 2022)",
-      "size": 6756049,
-      "modified": "2025-12-30T07:52:26.864Z",
+      "id": "policy-1767204030692-18d4",
+      "name": "sample.pdf",
+      "displayName": "sample",
+      "size": 18810,
+      "modified": "2025-12-31T17:00:30.695Z",
       "category": "policy"
     }
   ],
-  "lastUpdated": "2025-12-30T09:52:10.563Z"
+  "lastUpdated": "2026-01-01T10:31:10.602Z"
 }

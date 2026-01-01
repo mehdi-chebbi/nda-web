@@ -1,7 +1,39 @@
 import { Link } from 'react-router-dom'
 import Card from '../components/Card'
+import Slideshow from '../components/Slideshow'
 
 const Home = () => {
+  const slides = [
+    {
+      title: 'Readiness Eritrea',
+      description: 'National Designated Authority - Advancing climate action, building resilience, and securing a sustainable future for Eritrea through Green Climate Fund',
+      image: 'https://images.unsplash.com/photo-1466692476868-aef1dfb1e735?auto=format&fit=crop&w=1920&q=80',
+      link: '/about',
+      linkText: 'Learn More'
+    },
+    {
+      title: 'Climate Finance',
+      description: 'Facilitating access to climate finance and supporting transformative projects that enhance climate resilience across Eritrea',
+      image: 'https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?auto=format&fit=crop&w=1920&q=80',
+      link: '/resources',
+      linkText: 'Explore Resources'
+    },
+    {
+      title: 'Sustainable Development',
+      description: 'Building climate-resilient communities through strategic partnerships and effective climate finance mechanisms',
+      image: 'https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?auto=format&fit=crop&w=1920&q=80',
+      link: '/about',
+      linkText: 'Discover More'
+    },
+    {
+      title: 'Water Security',
+      description: 'Enhancing water management and access across Eritrea through innovative climate-resilient solutions',
+      image: 'https://images.unsplash.com/photo-1541185934-01b600ea069c?auto=format&fit=crop&w=1920&q=80',
+      link: '/resources',
+      linkText: 'View Projects'
+    }
+  ]
+
   const focusAreas = [
     { title: 'Water Security', description: 'Enhancing water management and access across Eritrea' },
     { title: 'Agriculture', description: 'Building climate-resilient agricultural systems' },
@@ -20,37 +52,8 @@ const Home = () => {
 
   return (
     <div className="bg-bg-primary">
-      {/* Hero Section */}
-      <section className="relative bg-primary overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32">
-          <div className="text-center">
-            <h1 className="font-heading font-bold text-4xl md:text-5xl lg:text-6xl text-white mb-6">
-              Readiness Eritrea
-            </h1>
-            <p className="font-body text-xl md:text-2xl text-gray-200 mb-4">
-              National Designated Authority
-            </p>
-            <p className="font-body text-lg text-gray-300 max-w-3xl mx-auto mb-8">
-              Advancing climate action, building resilience, and securing a sustainable future for Eritrea
-              through the Green Climate Fund
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/resources">
-                <button className="bg-secondary hover:bg-secondary-light text-white font-body font-medium px-6 py-3 rounded-md transition-colors duration-200 shadow-md">
-                  Explore Resources
-                </button>
-              </Link>
-              <Link to="/about">
-                <button className="border-2 border-white text-white hover:bg-white hover:text-primary font-body font-medium px-6 py-3 rounded-md transition-colors duration-200">
-                  Learn More
-                </button>
-              </Link>
-            </div>
-          </div>
-        </div>
-        {/* Decorative Elements */}
-        <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-bg-primary to-transparent"></div>
-      </section>
+      {/* Slideshow Hero Section */}
+      <Slideshow slides={slides} />
 
       {/* Mission & Vision */}
       <section className="py-16 md:py-24">
@@ -61,7 +64,7 @@ const Home = () => {
                 Our Mission
               </h2>
               <p className="font-body text-text-secondary leading-relaxed">
-                To serve as Eritrea's National Designated Authority for the Green Climate Fund,
+                To serve as Eritrea's National Designated Authority for Green Climate Fund,
                 facilitating access to climate finance and supporting the implementation of
                 transformative projects that enhance climate resilience and promote low-emission
                 development across the nation.
