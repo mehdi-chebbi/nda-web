@@ -31,6 +31,16 @@
             --sec4-s10: #F97316;
         }
 
+        /* --- ADDED: Hide Main Scrollbar --- */
+        html {
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none;  /* IE/Edge */
+        }
+        body::-webkit-scrollbar {
+            display: none; /* Chrome/Safari/Opera */
+        }
+        /* --------------------------------- */
+
         * {
             box-sizing: border-box;
             margin: 0;
