@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-const Slideshow = () => {
+const cycle = () => {
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -20,8 +20,8 @@ const Slideshow = () => {
   return (
     <div className="w-full h-screen">
       <iframe
-        src="/slideshow.html"
-        title="Slideshow"
+        src="/cycle.html"
+        title="cycle"
         className="w-full h-full border-0"
         style={{
           width: '100%',
@@ -33,4 +33,4 @@ const Slideshow = () => {
   )
 }
 
-export default Slideshow
+export default cycle

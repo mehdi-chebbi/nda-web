@@ -6,6 +6,9 @@ import Resources from './pages/Resources'
 import About from './pages/About'
 import Contact from './pages/Contact'
 import Admin from './pages/Admin'
+import Mission from './pages/Mission'
+import GCFProject from './pages/GCFProject'
+import SustainableDevelopment from './pages/SustainableDevelopment'
 
 function App() {
   return (
@@ -19,6 +22,9 @@ function App() {
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/admin" element={<Admin />} />
+            <Route path="/mission" element={<Mission />} />
+            <Route path="/gcf-project" element={<GCFProject />} />
+            <Route path="/sustainable-development" element={<SustainableDevelopment />} />
           </Routes>
         </main>
         <Footer />

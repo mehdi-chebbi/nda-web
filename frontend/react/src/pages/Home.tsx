@@ -3,36 +3,7 @@ import Card from '../components/Card'
 import Slideshow from '../components/Slideshow'
 
 const Home = () => {
-  const slides = [
-    {
-      title: 'Readiness Eritrea',
-      description: 'National Designated Authority - Advancing climate action, building resilience, and securing a sustainable future for Eritrea through Green Climate Fund',
-      image: 'https://images.unsplash.com/photo-1466692476868-aef1dfb1e735?auto=format&fit=crop&w=1920&q=80',
-      link: '/about',
-      linkText: 'Learn More'
-    },
-    {
-      title: 'Climate Finance',
-      description: 'Facilitating access to climate finance and supporting transformative projects that enhance climate resilience across Eritrea',
-      image: 'https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?auto=format&fit=crop&w=1920&q=80',
-      link: '/resources',
-      linkText: 'Explore Resources'
-    },
-    {
-      title: 'Sustainable Development',
-      description: 'Building climate-resilient communities through strategic partnerships and effective climate finance mechanisms',
-      image: 'https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?auto=format&fit=crop&w=1920&q=80',
-      link: '/about',
-      linkText: 'Discover More'
-    },
-    {
-      title: 'Water Security',
-      description: 'Enhancing water management and access across Eritrea through innovative climate-resilient solutions',
-      image: 'https://images.unsplash.com/photo-1541185934-01b600ea069c?auto=format&fit=crop&w=1920&q=80',
-      link: '/resources',
-      linkText: 'View Projects'
-    }
-  ]
+  
 
   const focusAreas = [
     { title: 'Water Security', description: 'Enhancing water management and access across Eritrea' },
@@ -53,7 +24,7 @@ const Home = () => {
   return (
     <div className="bg-bg-primary">
       {/* Slideshow Hero Section */}
-      <Slideshow slides={slides} />
+      <Slideshow/>
 
       {/* Mission & Vision */}
       <section className="py-16 md:py-24">

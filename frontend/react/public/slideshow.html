@@ -304,13 +304,13 @@
                   <div class="title">Readiness Eritrea</div>
                   <div class="text">
                     <p>National Designated Authority - Advancing climate action, building resilience, and securing a sustainable future for Eritrea through Green Climate Fund</p>
-                  </div> 
-                  <a href="#" class="btn">
+                  </div>
+                  <a href="/mission" class="btn">
                     <span class="btn-inner">Learn More</span>
                   </a>
                 </div>
               </div>
-              <div class="image-container"> 
+              <div class="image-container">
 <img src="/readiness eritrea.jpg" alt="" class="image" />              </div>
             </div>
             <div class="slide">
@@ -319,9 +319,9 @@
                   <div class="title">Climate Finance</div>
                   <div class="text">
                     <p>Facilitating access to climate finance and supporting transformative projects that enhance climate resilience across Eritrea</p>
-                  </div> 
-                  <a href="#" class="btn">
-                    <span class="btn-inner">Learn More</span>
+                  </div>
+                  <a href="/gcf-project" class="btn">
+                    <span class="btn-inner">Explore Resources</span>
                   </a>
                 </div>
               </div>
@@ -334,29 +334,14 @@
                   <div class="title">Sustainable Development</div>
                   <div class="text">
                     <p>Building climate-resilient communities through strategic partnerships and effective climate finance mechanisms</p>
-                  </div> 
-                  <a href="#" class="btn">
-                    <span class="btn-inner">Learn More</span>
+                  </div>
+                  <a href="/sustainable-development" class="btn">
+                    <span class="btn-inner">Discover More</span>
                   </a>
                 </div>
               </div>
               <div class="image-container">
 <img src="/Sustainable Development.jpg" alt="" class="image" />              </div>
-            </div>
-            <div class="slide">
-              <div class="slide-content">
-                <div class="caption">
-                  <div class="title">Water Security</div>
-                  <div class="text">
-                    <p>Enhancing water management and access across Eritrea through innovative climate-resilient solutions</p>
-                  </div> 
-                  <a href="#" class="btn">
-                    <span class="btn-inner">Learn More</span>
-                  </a>
-                </div>
-              </div>
-              <div class="image-container"> 
-<img src="/Water Security.jpg" alt="" class="image" />              </div>
             </div>
           </div>
       
@@ -577,6 +562,18 @@
         var index=slideshow.find('.slides .is-active').index();
         pages.removeClass('is-active');
         pages.eq(index).addClass('is-active');
+      });
+
+      // Handle button clicks to navigate in parent window
+      $('.slideshow .btn').on('click', function(e) {
+        e.preventDefault();
+        var href = $(this).attr('href');
+        if (href && window.parent) {
+          window.parent.postMessage({
+            type: 'navigate',
+            path: href
+          }, '*');
+        }
       });
 
       /* Lazyloading
