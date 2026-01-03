@@ -15,7 +15,7 @@ function App() {
     <Router>
       <div className="min-h-screen flex flex-col">
         <Navigation />
-        <main className="flex-1">
+        <main className="flex-1 pt-16">
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/resources" element={<Resources />} />

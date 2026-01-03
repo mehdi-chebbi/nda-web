@@ -1,0 +1,1141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Climate Change is REAL</title>
+    <style>
+        /* -------------------------------------------------------------------------- */
+        /* CSS PROPERTIES (Kept original logic)                                      */
+        /* -------------------------------------------------------------------------- */
+        @property --scroll-progress {
+            inherits: true;
+            initial-value: 0;
+            syntax: "<number>";
+        }
+
+        @property --layer-index {
+            syntax: "<integer>";
+            inherits: true;
+            initial-value: 1;
+        }
+
+        @property --layer-count {
+            syntax: "<integer>";
+            inherits: true;
+            initial-value: 1;
+        }
+
+        @property --divider-index {
+            syntax: "<integer>";
+            inherits: true;
+            initial-value: 1;
+        }
+
+        @property --divider-count {
+            syntax: "<integer>";
+            inherits: true;
+            initial-value: 1;
+        }
+
+        @layer reset,
+        base,
+        typography,
+        layout,
+        comparator,
+        navigation,
+        links,
+        cards; /* NEW LAYER FOR REACT STYLE CARDS */
+
+        @layer reset {
+            *,
+            *::after,
+            *::before {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+
+            html {
+                color-scheme: light;
+                -webkit-text-size-adjust: 100%;
+                -moz-text-size-adjust: 100%;
+                text-size-adjust: 100%;
+                overflow-y: scroll;
+            }
+        }
+
+        @layer base {
+            :root {
+                /* INSPIRED BY REACT COMPONENT: Emerald & Grays */
+                --color-primary: #059669;      /* Emerald 600 */
+                --color-primary-light: #ecfdf5; /* Emerald 50 */
+                --color-secondary: #f59e0b;    /* Amber 500 */
+                
+                --color-white: #ffffff;
+                --color-bg-page: #f9fafb;      /* Gray 50 */
+                --color-bg-alt: #f3f4f6;       /* Gray 100 */
+                
+                --color-text-main: #111827;    /* Gray 900 */
+                --color-text-muted: #6b7280;   /* Gray 500 */
+
+                --space-md: 1rem;
+                --space-lg: 1.5rem;
+                --space-xl: 2rem;
+                --space-xxl: 3rem;
+                
+                --line-tight: 1.2;
+                --line-base: 1.5;
+                --line-loose: 1.75;
+                
+                --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+                
+                /* Original Size Variables (kept for logic) */
+                --ts-xxs: clamp(0.75rem, -4cqw + 0.35rem, 0.9rem);
+                --ts-xs: clamp(0.81rem, -3cqw + 0.35rem, 1.035rem);
+                --ts-sm: clamp(0.9113rem, -1.5cqw + 0.35rem, 1.1644rem);
+                --ts-base: clamp(1.0125rem, 0cqw + 0.35rem, 1.2938rem);
+                --ts-md: clamp(1.1391rem, 1.5cqw + 0.35rem, 1.4555rem);
+                --ts-lg: clamp(1.2656rem, 3cqw + 0.35rem, 1.6172rem);
+                --ts-xl: clamp(1.582rem, 6cqw + 0.35rem, 2.0215rem);
+                --ts-xxl: clamp(1.9775rem, 9cqw + 0.35rem, 2.5269rem);
+                --ts-xxxl: clamp(2.4719rem, 12cqw + 0.35rem, 3.1586rem);
+
+                /* Original Animation Variables (kept for logic) */
+                --comparator-duration: 400vh;
+                --comparator-offset: 35vh;
+                --comparator-max-width: 56.25rem;
+                --comparator-max-height: 100vh;
+                --comparator-aspect-ratio: 4/3;
+
+                accent-color: var(--color-primary);
+            }
+
+            @media (max-width: 48em) {
+                :root {
+                    --comparator-aspect-ratio: 3/4;
+                }
+            }
+
+            ::selection {
+                background: var(--color-primary-light);
+                color: var(--color-text-main);
+            }
+
+            body {
+                background-color: var(--color-bg-page);
+                color: var(--color-text-main);
+                font-family: var(--font-sans);
+                font-size: var(--ts-base);
+                -webkit-font-smoothing: antialiased;
+                -moz-osx-font-smoothing: grayscale;
+                line-height: var(--line-base);
+                min-block-size: 100vh;
+                padding-block-start: var(--space-xl);
+                text-rendering: optimizeLegibility;
+            }
+        }
+
+        @layer typography {
+            :where(section, article) > * + * {
+                margin-block-start: var(--space-lg);
+            }
+
+            :is(h1, h2, h3, h4, h5, h6) {
+                font-weight: 800;
+                letter-spacing: -0.025em;
+                line-height: var(--line-tight);
+                color: var(--color-text-main);
+            }
+
+            h1 {
+                font-size: var(--ts-xxxl);
+                letter-spacing: -0.03em;
+                margin-block-end: var(--space-lg);
+                text-align: center;
+                color: var(--color-primary);
+            }
+
+            p {
+                hyphens: auto;
+                line-height: var(--line-loose);
+                text-wrap: pretty;
+                word-wrap: break-word;
+                color: var(--color-text-muted);
+                font-size: var(--ts-lg);
+            }
+
+            code {
+                background: var(--color-bg-alt);
+                border-radius: 0.25em;
+                font-family: ui-monospace, "SFMono-Regular", "SF Mono", Menlo, Monaco,
+                    Consolas, monospace;
+                font-size: 0.9em;
+                padding: 0.125em 0.25em;
+                color: var(--color-primary);
+            }
+
+            a {
+                color: var(--color-primary);
+                text-decoration: none;
+                font-weight: 600;
+                position: relative;
+            }
+
+            a::after {
+                content: '';
+                position: absolute;
+                width: 100%;
+                height: 2px;
+                bottom: -2px;
+                left: 0;
+                background-color: var(--color-primary);
+                transform: scaleX(0);
+                transform-origin: bottom right;
+                transition: transform 0.25s ease-out;
+            }
+
+            a:hover::after {
+                transform: scaleX(1);
+                transform-origin: bottom left;
+            }
+
+            small {
+                font-size: var(--ts-sm);
+            }
+        }
+
+        @layer layout {
+            @supports not ((animation-timeline: scroll()) and (z-index: sibling-count())) {
+                .intro::before {
+                    background: #374151;
+                    border-radius: 0.5rem;
+                    color: #fff;
+                    content: "Your browser doesn't support the advanced CSS features required for this interactive layout. Please use the latest Chrome or Edge.";
+                    display: block;
+                    font-size: var(--ts-base);
+                    font-weight: 600;
+                    margin-block: var(--space-xl);
+                    padding: var(--space-md);
+                    position: relative;
+                }
+            }
+
+            .intro {
+                display: block;
+                inline-size: calc(100% - var(--space-xl));
+                margin: 0 auto;
+                max-inline-size: 56.25rem;
+                padding-block-end: var(--space-xxl);
+                position: relative;
+            }
+
+            /* Container for the new card grids */
+            .grid-container {
+                inline-size: calc(100% - var(--space-xl));
+                margin: 0 auto;
+                max-inline-size: 80rem; /* Wider than intro text */
+                padding-block: var(--space-xxl);
+            }
+
+            .scroll-section {
+                block-size: calc(var(--comparator-duration) + 100vh);
+                position: relative;
+            }
+
+            .spacer {
+                block-size: 50vh;
+            }
+
+            .scroll-indicator {
+                font-family: var(--font-sans);
+                font-size: var(--ts-sm);
+                text-transform: uppercase;
+                letter-spacing: 0.1em;
+                color: var(--color-text-muted);
+                max-inline-size: 100%;
+                text-align: center;
+                opacity: 0.8;
+            }
+        }
+
+        @layer comparator {
+            .comparator-container {
+                align-items: center;
+                block-size: 100vh;
+                display: flex;
+                inset-block-start: 0;
+                justify-content: center;
+                overflow: hidden;
+                position: sticky;
+            }
+
+            .comparator-wrapper {
+                animation: comparator-3d-flip linear both;
+                animation-range: calc(var(--comparator-offset) - 50vh)
+                    calc(var(--comparator-offset) + var(--comparator-duration) + 50vh);
+                animation-timeline: scroll(root);
+                aspect-ratio: var(--comparator-aspect-ratio);
+                border-radius: 1rem;
+                inline-size: 100%;
+                margin-inline: var(--space-md);
+                max-block-size: var(--comparator-max-height);
+                max-inline-size: var(--comparator-max-width);
+                overflow: hidden;
+                position: relative;
+                background-color: var(--color-white);
+                box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+                border: 1px solid var(--color-bg-alt);
+            }
+
+            .comparator-wrapper.flip-reverse {
+                animation-name: comparator-3d-flip-reverse;
+            }
+
+            .comparator {
+                animation: progress-calc linear both;
+                animation-range: var(--comparator-offset)
+                    calc(var(--comparator-offset) + var(--comparator-duration));
+                animation-timeline: scroll(root);
+                block-size: 100%;
+                display: grid;
+                inline-size: 100%;
+                position: relative;
+            }
+
+            .image-layers,
+            .divider-lines {
+                grid-area: 1 / -1;
+                display: grid;
+                position: relative;
+            }
+
+            .image-layer {
+                display: grid;
+                grid-area: 1 / -1;
+                position: relative;
+                z-index: calc(sibling-count() - sibling-index() + 1);
+            }
+
+            .image-layer:not(:last-child) {
+                --layer-index: sibling-index();
+                --layer-count: sibling-count();
+                --layer-start: calc((var(--layer-index) - 1) / (var(--layer-count) - 1));
+                --layer-end: calc(var(--layer-index) / (var(--layer-count) - 1));
+
+                animation: clip-reveal linear both;
+                animation-timeline: scroll(root);
+                animation-range: calc(
+                        var(--comparator-offset) + (var(--comparator-duration) * var(--layer-start))
+                    )
+                    calc(
+                        var(--comparator-offset) + (var(--comparator-duration) * var(--layer-end))
+                    );
+            }
+
+            picture {
+                grid-area: 1 / -1;
+                max-block-size: var(--comparator-max-height);
+                inline-size: 100%;
+                block-size: 100%;
+                display: block;
+            }
+
+            .image-layer img {
+                block-size: 100%;
+                display: block;
+                inline-size: 100%;
+                object-fit: cover;
+                object-position: center;
+                aspect-ratio: var(--comparator-aspect-ratio);
+                background: var(--color-bg-alt);
+            }
+
+            .divider-line {
+                --divider-index: sibling-index();
+                --divider-count: sibling-count();
+                --layer-start: calc((var(--divider-index) - 1) / var(--divider-count));
+                --layer-end: calc(var(--divider-index) / var(--divider-count));
+
+                background: transparent;
+                block-size: 100%;
+                border-inline-start: 2px solid var(--color-white);
+                box-shadow: 0 0 10px rgba(0,0,0,0.1);
+                grid-area: 1 / -1;
+                inline-size: 2px;
+                pointer-events: none;
+                position: relative;
+                z-index: calc(20 - var(--divider-index));
+
+                animation: divider-move linear both;
+                animation-timeline: scroll(root);
+                animation-range: calc(
+                        var(--comparator-offset) + (var(--comparator-duration) * var(--layer-start))
+                    )
+                    calc(
+                        var(--comparator-offset) + (var(--comparator-duration) * var(--layer-end))
+                    );
+            }
+
+            .comparator-overlay {
+                block-size: 100%;
+                display: flex;
+                flex-direction: column;
+                grid-area: 1 / -1;
+                inline-size: 100%;
+                max-block-size: var(--comparator-max-height);
+                position: relative;
+                transform: translateZ(30px);
+            }
+
+            .label {
+                backdrop-filter: blur(0.375rem);
+                background: rgba(255, 255, 255, 0.85);
+                border: 1px solid rgba(255,255,255,0.5);
+                border-radius: 2rem;
+                color: var(--color-primary);
+                font-size: var(--ts-xs);
+                font-weight: 700;
+                inline-size: fit-content;
+                letter-spacing: 0.05em;
+                margin-block: var(--space-md) auto;
+                margin-inline: var(--space-md) auto;
+                padding: 0.5rem 1rem;
+                pointer-events: none;
+                position: relative;
+                text-transform: uppercase;
+                white-space: nowrap;
+                z-index: 11;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+
+            .image-text {
+                animation: text-reveal 0.6s ease-out both;
+                animation-range: var(--comparator-offset)
+                    calc(var(--comparator-offset) + 20vh);
+                animation-timeline: scroll(root);
+                margin-block: auto var(--space-md);
+                margin-inline: var(--space-md) auto;
+                pointer-events: none;
+                position: relative;
+                white-space: nowrap;
+                z-index: 10;
+                text-align: center;
+            }
+
+            .image-text h2 {
+                font-size: var(--ts-xl);
+                font-weight: 800;
+                letter-spacing: -0.02em;
+                line-height: 1.2;
+                margin: 0;
+                color: var(--color-white);
+                text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            }
+
+            .image-text h3 {
+                font-size: var(--ts-md);
+                font-weight: 500;
+                line-height: 1.4;
+                margin: 0;
+                color: var(--color-white);
+                text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+            }
+
+            .comparison-percentage {
+                background: rgba(255, 255, 255, 0.9);
+                color: var(--color-primary);
+                bottom: var(--space-md);
+                font-size: var(--ts-sm);
+                font-variant-numeric: tabular-nums;
+                font-weight: 700;
+                line-height: 1.4;
+                pointer-events: none;
+                position: absolute;
+                right: var(--space-md);
+                z-index: 20;
+                padding: 0.25rem 0.75rem;
+                border-radius: 999px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+
+            @keyframes comparator-3d-flip {
+                0% {
+                    opacity: 0.5;
+                    transform: perspective(1200px) rotateX(10deg) rotateY(-10deg) rotateZ(-3deg)
+                        scale(0.95);
+                }
+                15%,
+                85% {
+                    opacity: 1;
+                    transform: perspective(1200px) rotateX(0deg) rotateY(0deg) rotateZ(0deg)
+                        scale(1);
+                }
+                100% {
+                    opacity: 0.5;
+                    transform: perspective(1200px) rotateX(-10deg) rotateY(10deg) rotateZ(3deg)
+                        scale(0.95);
+                }
+            }
+
+            @keyframes comparator-3d-flip-reverse {
+                0% {
+                    opacity: 0.5;
+                    transform: perspective(1200px) rotateX(-10deg) rotateY(10deg) rotateZ(3deg)
+                        scale(0.95);
+                }
+                15%,
+                85% {
+                    opacity: 1;
+                    transform: perspective(1200px) rotateX(0deg) rotateY(0deg) rotateZ(0deg)
+                        scale(1);
+                }
+                100% {
+                    opacity: 0.5;
+                    transform: perspective(1200px) rotateX(10deg) rotateY(-10deg) rotateZ(-3deg)
+                        scale(0.95);
+                }
+            }
+
+            @keyframes progress-calc {
+                from {
+                    --scroll-progress: 0;
+                }
+                to {
+                    --scroll-progress: 100;
+                }
+            }
+
+            @keyframes clip-reveal {
+                from {
+                    clip-path: inset(0 0 0 0);
+                }
+                to {
+                    clip-path: inset(0 100% 0 0);
+                }
+            }
+
+            @keyframes divider-move {
+                0% {
+                    inset-inline-start: 100%;
+                    opacity: 0;
+                }
+                2% {
+                    opacity: 1;
+                }
+                98% {
+                    opacity: 1;
+                }
+                100% {
+                    inset-inline-start: 0%;
+                    opacity: 0;
+                }
+            }
+
+            @keyframes text-reveal {
+                0% {
+                    opacity: 0;
+                    transform: translateY(20px);
+                }
+                100% {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+        }
+
+        @layer cards {
+            /* NEW STYLES TO MIMIC REACT COMPONENT */
+
+            /* 1. Stats Grid */
+            .stats-grid {
+                display: grid;
+                grid-template-columns: repeat(1, 1fr);
+                gap: var(--space-lg);
+            }
+
+            @media (min-width: 48em) {
+                .stats-grid {
+                    grid-template-columns: repeat(3, 1fr);
+                }
+            }
+
+            .stat-card {
+                background-color: var(--color-white);
+                padding: var(--space-xl);
+                border-radius: 0.75rem; /* rounded-xl */
+                border: 2px solid rgba(5, 150, 105, 0.2); /* primary/20 */
+                transition: all 0.3s ease;
+                text-align: center;
+                cursor: default;
+            }
+
+            .stat-card:hover {
+                transform: scale(1.05);
+                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+                border-color: rgba(5, 150, 105, 0.4);
+            }
+
+            .stat-icon {
+                font-size: 2.5rem;
+                margin-bottom: 0.5rem;
+                display: block;
+            }
+
+            .stat-value {
+                font-size: 2rem;
+                font-weight: 800;
+                color: var(--color-primary);
+                margin-bottom: 0.25rem;
+                display: block;
+            }
+
+            .stat-label {
+                font-size: 1rem;
+                font-weight: 500;
+                color: var(--color-text-muted);
+                display: block;
+            }
+
+            /* 2. Impact Grid */
+            .impact-grid {
+                display: grid;
+                grid-template-columns: repeat(1, 1fr);
+                gap: var(--space-lg);
+            }
+
+            @media (min-width: 48em) {
+                .impact-grid {
+                    grid-template-columns: repeat(3, 1fr);
+                }
+            }
+
+            .impact-card {
+                background-color: var(--color-white);
+                padding: var(--space-xl);
+                border-radius: 0.75rem;
+                border: 2px solid #f3f4f6; /* border-gray-100 */
+                transition: all 0.3s ease;
+                display: flex;
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .impact-card:hover {
+                border-color: rgba(245, 158, 11, 0.3); /* secondary/30 */
+                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            }
+
+            .impact-icon-wrapper {
+                font-size: 2.5rem;
+                margin-bottom: 1rem;
+                transition: transform 0.3s ease;
+                display: inline-block;
+            }
+
+            .impact-card:hover .impact-icon-wrapper {
+                transform: scale(1.1);
+            }
+
+            .impact-title {
+                font-size: 1.25rem;
+                font-weight: 700;
+                color: var(--color-primary);
+                margin-bottom: 0.75rem;
+            }
+
+            .impact-description {
+                font-size: 1rem;
+                color: var(--color-text-muted);
+                line-height: 1.625;
+            }
+
+            /* 3. Mission Box (The text in a square style) */
+            .mission-box {
+                background-color: rgba(5, 150, 105, 0.1); /* primary/10 */
+                border-left: 4px solid var(--color-primary);
+                border-radius: 0 0.75rem 0.75rem 0;
+                padding: var(--space-lg);
+                margin-top: var(--space-lg);
+            }
+
+            .mission-box p {
+                margin-bottom: 1rem;
+                color: var(--color-text-main);
+                font-weight: 500;
+            }
+
+            .mission-box p:last-child {
+                margin-bottom: 0;
+            }
+        }
+
+        @layer navigation {
+            .stage-nav {
+                display: flex;
+                flex-direction: column;
+                gap: 0.5rem;
+                position: absolute;
+                right: var(--space-md);
+                top: 50%;
+                transform: translateY(-50%);
+                z-index: 25;
+                pointer-events: auto;
+            }
+
+            .stage-indicator {
+                appearance: none;
+                background: rgba(255,255,255,0.6);
+                border: none;
+                border-radius: 0.25rem;
+                cursor: pointer;
+                height: 0.5rem;
+                padding: 0;
+                transition: all 0.2s ease;
+                width: 0.5rem;
+                box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            }
+
+            .stage-indicator:hover {
+                background: var(--color-primary);
+                transform: scale(1.3);
+            }
+
+            .stage-indicator.active {
+                background: var(--color-primary);
+                height: 1rem;
+            }
+
+            .stage-indicator:focus-visible {
+                outline: 2px solid var(--color-primary);
+                outline-offset: 2px;
+            }
+
+            @media (max-width: 48em) {
+                .stage-nav {
+                    flex-direction: row;
+                    right: 50%;
+                    top: auto;
+                    bottom: calc(var(--space-md) * 3);
+                    transform: translateX(50%);
+                }
+
+                .stage-indicator.active {
+                    height: 0.5rem;
+                    width: 1rem;
+                }
+            }
+        }
+
+        @layer links {
+            .links-layer {
+                inset-block-end: 0;
+                inset-inline-end: 0;
+                pointer-events: none;
+                position: fixed;
+                z-index: 1000;
+            }
+
+            .links {
+                backdrop-filter: blur(0.375rem);
+                background: rgba(255, 255, 255, 0.9);
+                border-top-left-radius: 0.5rem;
+                border: 1px solid var(--color-bg-alt);
+                display: grid;
+                font-size: 0.75rem;
+                gap: 0;
+                grid-auto-flow: column;
+                line-height: 1.3;
+                padding-block: 0.375rem;
+                padding-inline: 0.625rem;
+                pointer-events: auto;
+            }
+
+            .links a {
+                border-inline-start: thin solid
+                    var(--color-text-muted);
+                color: var(--color-text-main);
+                padding-inline: 0.5rem;
+                text-decoration: none;
+                transition: color 0.25s ease, opacity 0.25s ease;
+            }
+
+            .links a:first-child {
+                border: none;
+            }
+
+            .links a:hover,
+            .links a:focus-visible {
+                color: var(--color-primary);
+                opacity: 0.85;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <main>
+        <article>
+            <!-- Intro Section with Mission Box -->
+            <section class="intro">
+                <h1>Climate Change is REAL</h1>
+                <p>
+                    Look around—the evidence is everywhere. Severe droughts. Coastal erosion. Deforestation. Disappearing water sources. These aren't just statistics or distant warnings—this is happening RIGHT NOW to our land, our neighbors, our children's future. But here's the thing: we're not sitting back and watching it happen.
+                </p>
+                
+                <!-- NEW: Mission Box -->
+                <div class="mission-box">
+                    <p>
+                        💪 We're FIGHTERS, not victims. Eritrea's National Designated Authority is on the front lines every single day—launching resilience projects, driving sustainable development, forging powerful partnerships. We're reclaiming our land. We're protecting what matters. And we're building a future that our grandchildren will be proud of. This is OUR moment. This is OUR fight. And together? We're unstoppable.
+                    </p>
+                    <p>
+                        Every single person in Eritrea has a role to play in this transformation. Whether you're a farmer adopting new techniques, a community leader mobilizing neighbors, a student learning about climate solutions, or a supporter spreading the word—you matter. Your actions ripple outward, creating waves of change that will reshape our nation's future. We're not just adapting to climate change; we're pioneering solutions that the whole world can learn from!
+                    </p>
+                </div>
+            </section>
+
+            <section>
+                <p class="scroll-indicator">Scroll down ↓</p>
+            </section>
+
+            <!-- Image Comparisons -->
+            <section class="scroll-section">
+                <div class="comparator-container">
+                    <div class="comparator-wrapper">
+                        <div class="comparator">
+                            <div class="comparison-percentage"></div>
+                            <div class="image-layers">
+                                <div class="image-layer">
+                                    <picture>
+                                        <source media="(max-width: 48em)" srcset="https://i.postimg.cc/Y03xpHkq/Chat-GPT-Image-3-janv-2026-12-32-26.png">
+                                        <img src="https://i.postimg.cc/Y03xpHkq/Chat-GPT-Image-3-janv-2026-12-32-26.png" decoding="async" fetchpriority="high" alt="Stage 1">
+                                    </picture>
+                                    <div class="comparator-overlay">
+                                        <span class="label">Before</span>
+                                        <div class="image-text">
+                                            <h2>Devastated</h2>
+                                            <h3>— The harsh reality</h3>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="image-layer">
+                                    <picture>
+                                        <source media="(max-width: 48em)" srcset="https://i.postimg.cc/2ywxzDm3/Chat-GPT-Image-3-janv-2026-12-32-22.png">
+                                        <img src="https://i.postimg.cc/2ywxzDm3/Chat-GPT-Image-3-janv-2026-12-32-22.png" decoding="async" fetchpriority="high" alt="Stage 2">
+                                    </picture>
+                                    <div class="comparator-overlay">
+                                        <span class="label">After</span>
+                                        <div class="image-text">
+                                            <h2>Recovered</h2>
+                                            <h3>— New growth emerges</h3>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="divider-lines">
+                                <div class="divider-line"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <p class="scroll-indicator">Scroll down ↓</p>
+            </section>
+
+            <section class="scroll-section">
+                <div class="comparator-container">
+                    <div class="comparator-wrapper flip-reverse">
+                        <div class="comparator">
+                            <div class="comparison-percentage"></div>
+                            <div class="image-layers">
+                                <div class="image-layer">
+                                    <picture>
+                                        <source media="(max-width: 48em)" srcset="https://i.postimg.cc/Y03xpHkq/Chat-GPT-Image-3-janv-2026-12-32-26.png">
+                                        <img src="https://i.postimg.cc/Y03xpHkq/Chat-GPT-Image-3-janv-2026-12-32-26.png" decoding="async" loading="lazy" alt="Stage 1">
+                                    </picture>
+                                    <div class="comparator-overlay">
+                                        <span class="label">Before</span>
+                                        <div class="image-text">
+                                            <h2>Arid Land</h2>
+                                            <h3>— Struggling to survive</h3>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="image-layer">
+                                    <picture>
+                                        <source media="(max-width: 48em)" srcset="https://i.postimg.cc/2ywxzDm3/Chat-GPT-Image-3-janv-2026-12-32-22.png">
+                                        <img src="https://i.postimg.cc/2ywxzDm3/Chat-GPT-Image-3-janv-2026-12-32-22.png" decoding="async" loading="lazy" alt="Stage 2">
+                                    </picture>
+                                    <div class="comparator-overlay">
+                                        <span class="label">After</span>
+                                        <div class="image-text">
+                                            <h2>Thriving</h2>
+                                            <h3>— Life returns</h3>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="divider-lines">
+                                <div class="divider-line"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <p class="scroll-indicator">Scroll up ↑</p>
+            </section>
+
+            <!-- NEW: Stats Section -->
+            <section class="grid-container">
+                <div style="text-align: center; margin-bottom: 2rem;">
+                    <h2>Look at What We've Already Accomplished! 🎯</h2>
+                    <p style="max-width: 60ch; margin: 0 auto;">
+                        These aren't just numbers—they represent real families, real communities, and real hope. 
+                        And we're just getting started!
+                    </p>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <span class="stat-icon">🌱</span>
+                        <span class="stat-value">15+</span>
+                        <span class="stat-label">Active Projects</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-icon">👥</span>
+                        <span class="stat-value">50K+</span>
+                        <span class="stat-label">Lives Impacted</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-icon">🌳</span>
+                        <span class="stat-value">200K+</span>
+                        <span class="stat-label">Trees Planted</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- NEW: Impact Areas Section -->
+            <section class="grid-container">
+                <div style="text-align: center; margin-bottom: 2rem;">
+                    <h2>Our Impact Areas: Where We're Making Magic Happen ✨</h2>
+                    <p style="max-width: 60ch; margin: 0 auto;">
+                        Climate change is complex, but our response is clear and powerful. We're attacking this 
+                        challenge from every angle—water, agriculture, and community strength.
+                    </p>
+                </div>
+                <div class="impact-grid">
+                    <div class="impact-card">
+                        <div class="impact-icon-wrapper">💧</div>
+                        <h3 class="impact-title">Water Conservation</h3>
+                        <p class="impact-description">
+                            We're not letting our communities go thirsty! Our sustainable water systems are turning the tide on drought—bringing life-giving water security to families who need it most.
+                        </p>
+                    </div>
+                    <div class="impact-card">
+                        <div class="impact-icon-wrapper">🌾</div>
+                        <h3 class="impact-title">Sustainable Agriculture</h3>
+                        <p class="impact-description">
+                            Our farmers are climate warriors! We're empowering them with smart farming techniques that don't just survive climate change—they THRIVE through it.
+                        </p>
+                    </div>
+                    <div class="impact-card">
+                        <div class="impact-icon-wrapper">🏘️</div>
+                        <h3 class="impact-title">Community Resilience</h3>
+                        <p class="impact-description">
+                            Strong communities = unstoppable future! We're building the capacity, infrastructure, and spirit our people need to face climate challenges head-on and come out winning.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Final CTA -->
+            <section class="intro">
+                <h2>Ready to Be Part of Something BIGGER?</h2>
+                <p>
+                    Every single action matters. Every person counts. Join us and let's make history together! 🚀
+                </p>
+                <p>
+                    The journey to a climate-resilient Eritrea isn't easy, but nothing worth fighting for ever is. We've already proven what's possible—now it's time to scale up, reach further, and impact more lives. Whether you want to get involved directly, support our projects, or simply learn more about what we're doing, there's a place for you in this movement. Don't wait for change—BE the change!
+                </p>
+                <p>
+                    <strong>Let's Do This! <a href="#">See Our Projects →</a></strong>
+                </p>
+            </section>
+            <section class="spacer"></section>
+        </article>
+    </main>
+
+
+    <script>
+    (function () {
+        "use strict";
+        let velocity = 0;
+        const ease = 0.12;
+        const friction = 0.92;
+        const sections = document.querySelectorAll(".scroll-section");
+        const sectionsLen = sections.length;
+        const wrappers = [];
+        const comparatorData = [];
+        let i, s, w, c, p;
+
+        for (i = 0; i < sectionsLen; i++) {
+            s = sections[i];
+            w = s.querySelector(".comparator-wrapper");
+            if (w) wrappers.push({ section: s, wrapper: w });
+            c = s.querySelector(".comparator");
+            if (!c) continue;
+            p = c.querySelector(".comparison-percentage");
+            if (p) {
+                const layers = c.querySelectorAll(".image-layer");
+                comparatorData.push({
+                    comp: c,
+                    pct: p,
+                    section: s,
+                    layerCount: layers.length,
+                    wrapper: w
+                });
+            }
+        }
+
+        const wrappersLen = wrappers.length;
+        const compLen = comparatorData.length;
+        let d, v;
+
+        function createStageIndicators() {
+            for (i = 0; i < compLen; i++) {
+                d = comparatorData[i];
+                const nav = document.createElement("div");
+                nav.className = "stage-nav";
+
+                const indicators = [];
+                for (let j = 0; j < d.layerCount; j++) {
+                    const indicator = document.createElement("button");
+                    indicator.className = "stage-indicator";
+                    indicator.setAttribute("aria-label", `Go to stage ${j + 1}`);
+                    indicator.dataset.stage = j;
+                    indicator.dataset.comparatorIndex = i;
+                    indicators.push(indicator);
+                    nav.appendChild(indicator);
+                }
+
+                d.comp.appendChild(nav);
+                d.indicators = indicators;
+            }
+        }
+
+        function getComparatorDuration() {
+            const style = getComputedStyle(document.documentElement);
+            const duration = style.getPropertyValue("--comparator-duration").trim();
+            return (parseFloat(duration) * window.innerHeight) / 100;
+        }
+
+        let targetScrollPosition = null;
+        const scrollEase = 0.08;
+
+        function scrollToStage(comparatorIndex, stageIndex) {
+            const data = comparatorData[comparatorIndex];
+            if (!data) return;
+
+            const offset = data.section.offsetTop;
+            const duration = getComparatorDuration();
+            const stageCount = data.layerCount;
+
+            stageIndex = Math.max(0, Math.min(stageIndex, stageCount - 1));
+
+            const stageDuration = duration / (stageCount - 1);
+            targetScrollPosition = offset + stageDuration * stageIndex;
+        }
+
+        function onIndicatorClick(e) {
+            const btn = e.target.closest(".stage-indicator");
+            if (!btn) return;
+
+            const stage = parseInt(btn.dataset.stage, 10);
+            const compIndex = parseInt(btn.dataset.comparatorIndex, 10);
+
+            scrollToStage(compIndex, stage);
+        }
+
+        function updateOffsets() {
+            for (i = 0; i < wrappersLen; i++) {
+                w = wrappers[i];
+                w.wrapper.style.setProperty(
+                    "--comparator-offset",
+                    w.section.offsetTop + "px"
+                );
+            }
+        }
+
+        function onWheel(e) {
+            e.preventDefault();
+            targetScrollPosition = null;
+            velocity += e.deltaY;
+        }
+
+        let resizeTimeout;
+
+        function onResize() {
+            targetScrollPosition = null;
+
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                updateOffsets();
+            }, 150);
+        }
+
+        function onMouseDown(e) {
+            if (!e.target.closest(".comparator-wrapper")) {
+                targetScrollPosition = null;
+            }
+        }
+
+        function frame() {
+            if (targetScrollPosition !== null) {
+                const current = window.scrollY;
+                const delta = targetScrollPosition - current;
+
+                if (Math.abs(delta) > 1) {
+                    window.scrollBy(0, delta * scrollEase);
+                } else {
+                    targetScrollPosition = null;
+                }
+            }
+
+            velocity *= friction;
+            if (velocity > 0.2 || velocity < -0.2) {
+                window.scrollBy(0, velocity * ease);
+            }
+
+            for (i = 0; i < compLen; i++) {
+                d = comparatorData[i];
+                v =
+                    parseFloat(
+                        getComputedStyle(d.comp).getPropertyValue("--scroll-progress")
+                    ) || 0;
+                d.pct.textContent = (Math.round(v) + "").padStart(2, "0") + "%";
+
+                const currentStage = Math.round((v / 100) * (d.layerCount - 1));
+                d.indicators.forEach((indicator, idx) => {
+                    indicator.classList.toggle("active", idx === currentStage);
+                });
+            }
+            requestAnimationFrame(frame);
+        }
+
+        window.addEventListener("wheel", onWheel, { passive: false });
+        window.addEventListener("resize", onResize, { passive: true });
+        window.addEventListener("mousedown", onMouseDown, { passive: true });
+        document.addEventListener("click", onIndicatorClick);
+
+        window.addEventListener("load", () => {
+            createStageIndicators();
+            updateOffsets();
+            requestAnimationFrame(frame);
+        });
+    })();
+    </script>
+</body>
+</html>

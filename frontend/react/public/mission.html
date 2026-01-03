@@ -16,8 +16,47 @@
             font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
             line-height: 1.6;
             color: #1a1a1a;
-            background: #0a0a0a;
+            background: linear-gradient(180deg, #0d1b13 0%, #0a1a0f 25%, #0d2819 50%, #0a1a0f 75%, #0d1b13 100%);
             overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, rgba(13, 74, 46, 0.4) 0%, rgba(21, 102, 66, 0.2) 40%, transparent 70%);
+            border-radius: 50%;
+            top: -200px;
+            right: -200px;
+            z-index: 0;
+            pointer-events: none;
+            animation: float 15s infinite ease-in-out;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            width: 1000px;
+            height: 1000px;
+            background: radial-gradient(circle, rgba(201, 162, 39, 0.2) 0%, rgba(13, 74, 46, 0.15) 40%, transparent 70%);
+            border-radius: 50%;
+            bottom: -400px;
+            left: -400px;
+            z-index: 0;
+            pointer-events: none;
+            animation: float 20s infinite ease-in-out reverse;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(150px, -150px) scale(1.1); }
+        }
+
+        section {
+            position: relative;
+            z-index: 1;
         }
 
         /* Hero Section - Split layout with image */
@@ -28,7 +67,7 @@
             gap: 3rem;
             padding: 3rem 2rem;
             align-items: center;
-            background: linear-gradient(135deg, #0a0a0a 0%, #0d1b13 100%);
+            background: linear-gradient(135deg, rgba(13, 27, 19, 0.6) 0%, rgba(13, 74, 46, 0.3) 100%);
             position: relative;
         }
 
@@ -216,8 +255,21 @@
         /* Pillars Section - Bento Grid Style */
         .pillars {
             padding: 8rem 2rem;
-            background: linear-gradient(180deg, #0a0a0a 0%, #0d1b13 100%);
+            background: linear-gradient(180deg, rgba(13, 40, 28, 0.7) 0%, rgba(10, 26, 15, 0.8) 100%);
             position: relative;
+        }
+
+        .pillars::after {
+            content: '';
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(21, 102, 66, 0.2) 0%, transparent 70%);
+            border-radius: 50%;
+            top: 20%;
+            right: 10%;
+            z-index: 0;
+            pointer-events: none;
         }
 
         .pillars::before {
@@ -234,6 +286,7 @@
             text-align: center;
             margin-bottom: 5rem;
             position: relative;
+            z-index: 1;
         }
 
         .section-label {
@@ -271,12 +324,14 @@
             gap: 2rem;
             max-width: 1400px;
             margin: 0 auto;
+            position: relative;
+            z-index: 1;
         }
 
         .pillar-card {
             padding: 3rem;
-            background: linear-gradient(135deg, rgba(13, 74, 46, 0.1) 0%, rgba(13, 74, 46, 0.05) 100%);
-            border: 1px solid rgba(13, 74, 46, 0.2);
+            background: linear-gradient(135deg, rgba(13, 74, 46, 0.25) 0%, rgba(13, 74, 46, 0.15) 100%);
+            border: 1px solid rgba(13, 74, 46, 0.4);
             border-radius: 24px;
             backdrop-filter: blur(10px);
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -298,8 +353,9 @@
 
         .pillar-card:hover {
             transform: translateY(-8px);
-            border-color: rgba(201, 162, 39, 0.4);
-            background: linear-gradient(135deg, rgba(13, 74, 46, 0.15) 0%, rgba(13, 74, 46, 0.08) 100%);
+            border-color: rgba(201, 162, 39, 0.6);
+            background: linear-gradient(135deg, rgba(13, 74, 46, 0.35) 0%, rgba(13, 74, 46, 0.2) 100%);
+            box-shadow: 0 20px 40px rgba(13, 74, 46, 0.3);
         }
 
         .pillar-card:hover::before {
@@ -340,8 +396,22 @@
         /* Vision Section - Split Layout */
         .vision {
             padding: 8rem 2rem;
-            background: linear-gradient(180deg, #0d1b13 0%, #0a0a0a 100%);
+            background: linear-gradient(180deg, rgba(10, 26, 15, 0.8) 0%, rgba(13, 40, 28, 0.7) 100%);
             position: relative;
+        }
+
+        .vision::before {
+            content: '';
+            position: absolute;
+            width: 700px;
+            height: 700px;
+            background: radial-gradient(circle, rgba(13, 74, 46, 0.25) 0%, rgba(21, 102, 66, 0.1) 50%, transparent 70%);
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 0;
+            pointer-events: none;
         }
 
         .vision-container {
@@ -351,6 +421,8 @@
             grid-template-columns: 1fr;
             gap: 4rem;
             align-items: center;
+            position: relative;
+            z-index: 1;
         }
 
         @media (min-width: 1024px) {
@@ -375,11 +447,12 @@
         }
 
         .focus-box {
-            background: linear-gradient(135deg, rgba(13, 74, 46, 0.15) 0%, rgba(13, 74, 46, 0.05) 100%);
+            background: linear-gradient(135deg, rgba(13, 74, 46, 0.3) 0%, rgba(13, 74, 46, 0.15) 100%);
             padding: 3rem;
             border-radius: 24px;
             border-left: 4px solid #c9a227;
             backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(13, 74, 46, 0.2);
         }
 
         .focus-box h3 {
@@ -420,10 +493,10 @@
             line-height: 1.7;
         }
 
-        /* Stats Section - Full width dramatic */
+        /* Stats Section - Compact */
         .stats-section {
-            padding: 8rem 2rem;
-            background: linear-gradient(135deg, #0d4a2e 0%, #156642 100%);
+            padding: 5rem 2rem;
+            background: linear-gradient(135deg, rgba(13, 74, 46, 0.95) 0%, rgba(21, 102, 66, 0.95) 100%);
             position: relative;
             overflow: hidden;
         }
@@ -435,7 +508,7 @@
             left: -50%;
             width: 200%;
             height: 100%;
-            background: radial-gradient(circle at center, rgba(201, 162, 39, 0.1) 0%, transparent 70%);
+            background: radial-gradient(circle at center, rgba(201, 162, 39, 0.15) 0%, transparent 60%);
             animation: pulse 8s infinite;
         }
 
@@ -454,28 +527,28 @@
 
         .stats-container h2 {
             font-family: "Playfair Display", Georgia, serif;
-            font-size: clamp(2.5rem, 5vw, 3.5rem);
+            font-size: clamp(2rem, 4vw, 2.75rem);
             color: white;
-            margin-bottom: 1.5rem;
+            margin-bottom: 1rem;
         }
 
         .stats-container > p {
-            font-size: 1.25rem;
-            max-width: 800px;
-            margin: 0 auto 4rem;
+            font-size: 1.0625rem;
+            max-width: 700px;
+            margin: 0 auto 3rem;
             color: rgba(255, 255, 255, 0.9);
-            line-height: 1.8;
+            line-height: 1.7;
         }
 
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 3rem;
-            margin-top: 4rem;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
         }
 
         .stat-card {
-            padding: 2rem;
+            padding: 1.5rem;
             transition: transform 0.4s;
         }
 
@@ -484,25 +557,25 @@
         }
 
         .stat-number {
-            font-size: clamp(3.5rem, 8vw, 5rem);
+            font-size: clamp(2.5rem, 6vw, 3.5rem);
             font-weight: 800;
             color: #dbb84a;
-            margin-bottom: 1rem;
+            margin-bottom: 0.5rem;
             line-height: 1;
             text-shadow: 0 0 30px rgba(201, 162, 39, 0.3);
         }
 
         .stat-label {
             color: rgba(255, 255, 255, 0.95);
-            font-size: 1.125rem;
+            font-size: 0.9375rem;
             font-weight: 500;
-            line-height: 1.6;
+            line-height: 1.5;
         }
 
         /* CTA Section - Modern centered */
         .cta {
-            padding: 10rem 2rem;
-            background: #0a0a0a;
+            padding: 8rem 2rem;
+            background: linear-gradient(180deg, rgba(13, 40, 28, 0.7) 0%, rgba(10, 26, 15, 0.8) 100%);
             text-align: center;
             position: relative;
         }
@@ -514,12 +587,28 @@
             left: 0;
             right: 0;
             height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(201, 162, 39, 0.3), transparent);
+            background: linear-gradient(90deg, transparent, rgba(201, 162, 39, 0.5), transparent);
+        }
+
+        .cta::after {
+            content: '';
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(201, 162, 39, 0.2) 0%, rgba(13, 74, 46, 0.15) 50%, transparent 70%);
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 0;
+            pointer-events: none;
         }
 
         .cta-content {
             max-width: 900px;
             margin: 0 auto;
+            position: relative;
+            z-index: 1;
         }
 
         .cta h2 {
