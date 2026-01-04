@@ -3,56 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GCF Project Cycle - Unified Scroll</title>
+    <title>GCF Project Cycle</title>
     <style>
-        :root {
-            /* Colors */
-            --bg-color: #f9f9f9;
-            --text-primary: #1a1a1a;
-            --text-secondary: #444444;
-
-            /* Section Colors */
-            --sec1-title: #3B82F6;
-            --sec1-s1: #93C5FD;
-            --sec1-s2: #60A5FA;
-            --sec1-s3: #3B82F6;
-
-            --sec2-title: #10B981;
-            --sec2-s4: #6EE7B7;
-            --sec2-s5: #34D399;
-
-            --sec3-title: #8B5CF6;
-            --sec3-s6: #C4B5FD;
-            --sec3-s7: #A78BFA;
-
-            --sec4-title: #F97316;
-            --sec4-s8: #FDBA74;
-            --sec4-s9: #FB923C;
-            --sec4-s10: #F97316;
-        }
-
-        /* --- ADDED: Hide Main Scrollbar --- */
-        html {
-            scrollbar-width: none; /* Firefox */
-            -ms-overflow-style: none;  /* IE/Edge */
-        }
-        body::-webkit-scrollbar {
-            display: none; /* Chrome/Safari/Opera */
-        }
-        /* --------------------------------- */
-
         * {
-            box-sizing: border-box;
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        body::-webkit-scrollbar {
+            display: none;
         }
 
         body {
-            background-color: var(--bg-color);
-            color: var(--text-primary);
-            font-family: 'Segoe UI', Helvetica, Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0f1419;
+            color: #fff;
             overflow-x: hidden;
-            overscroll-behavior: none;
+        }
+
+        /* Animated gradient background */
+        .bg-gradient {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            background: linear-gradient(135deg, #059669 0%, #10b981 25%, #34d399 50%, #fbbf24 75%, #f59e0b 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            opacity: 0.18;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        /* Floating particles */
+        .particle {
+            position: fixed;
+            width: 3px;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 1;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
         }
 
         #viewport {
@@ -63,7 +65,6 @@
             height: 100vh;
             z-index: 10;
             overflow: hidden;
-            background: var(--bg-color);
         }
 
         #canvas-wrapper {
@@ -81,101 +82,7 @@
 
         canvas {
             display: block;
-            image-rendering: -webkit-optimize-contrast; 
-        }
-
-        #info-panel {
-            position: absolute;
-            top: 0;
-            right: -50vw;
-            width: 50%;
-            height: 100%;
-            background: #ffffff;
-            color: #333;
-            backdrop-filter: blur(10px);
-            border-left: 1px solid rgba(0, 0, 0, 0.1);
-            transition: right 1.2s cubic-bezier(0.22, 1, 0.36, 1);
-            z-index: 20;
-            overflow-y: auto;
-            overflow-x: hidden;
-        }
-
-        #info-panel.visible {
-            right: 0;
-        }
-
-        /* Custom Scrollbar */
-        #info-panel::-webkit-scrollbar {
-            width: 6px;
-        }
-        #info-panel::-webkit-scrollbar-track {
-            background: rgba(0,0,0,0.05);
-        }
-        #info-panel::-webkit-scrollbar-thumb {
-            background: rgba(0,0,0,0.2);
-            border-radius: 3px;
-        }
-
-        /* Stage sections */
-        .stage-section {
-            min-height: 100vh;
-            padding: 4rem;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        .section-badge {
-            display: inline-block;
-            padding: 0.5rem 1rem;
-            border-radius: 4px;
-            color: #fff;
-            font-weight: bold;
-            text-transform: uppercase;
-            font-size: 0.9rem;
-            margin-bottom: 1rem;
-            letter-spacing: 1px;
-            background: #333;
-        }
-
-        .stage-number {
-            font-size: 6rem;
-            line-height: 1;
-            margin-bottom: 0.5rem;
-            font-weight: 700;
-            opacity: 0.1;
-            color: #000;
-            font-variant-numeric: tabular-nums;
-        }
-
-        .stage-title {
-            font-size: 2rem;
-            margin-bottom: 1rem;
-            line-height: 1.2;
-            font-weight: 700;
-            color: #111;
-        }
-
-        .stage-desc {
-            font-size: 1rem;
-            line-height: 1.7;
-            color: #555;
-            max-width: 90%;
-        }
-
-        .stage-desc strong {
-            color: #000;
-            display: block;
-            margin-top: 1rem;
-            margin-bottom: 0.25rem;
-            font-size: 0.9em;
-        }
-        .stage-desc ul {
-            margin: 0.5rem 0 1rem 1.5rem;
-            color: #444;
-        }
-        .stage-desc li {
-            margin-bottom: 0.5rem;
+            filter: drop-shadow(0 0 40px rgba(16, 185, 129, 0.3));
         }
 
         #intro-text {
@@ -189,6 +96,141 @@
             z-index: 30;
         }
 
+        #intro-text h1 {
+            font-size: clamp(3rem, 8vw, 6rem);
+            font-weight: 900;
+            background: linear-gradient(135deg, #059669 0%, #10b981 50%, #fbbf24 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+            letter-spacing: -0.02em;
+            animation: titlePulse 3s ease-in-out infinite;
+        }
+
+        @keyframes titlePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        #intro-text p {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.6);
+            font-weight: 300;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        #info-panel {
+            position: absolute;
+            top: 0;
+            right: -50vw;
+            width: 50%;
+            height: 100%;
+            background: rgba(15, 20, 25, 0.75);
+            backdrop-filter: blur(40px);
+            -webkit-backdrop-filter: blur(40px);
+            border-left: 1px solid rgba(16, 185, 129, 0.2);
+            transition: right 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+            z-index: 20;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        #info-panel.visible {
+            right: 0;
+        }
+
+        #info-panel::-webkit-scrollbar {
+            width: 8px;
+        }
+        #info-panel::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        #info-panel::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #059669, #10b981);
+            border-radius: 4px;
+        }
+
+        .stage-section {
+            min-height: 100vh;
+            padding: 4rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+
+        .stage-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(180deg, transparent, var(--accent-color), transparent);
+            opacity: 0.5;
+        }
+
+        .section-badge {
+            display: inline-block;
+            padding: 0.6rem 1.2rem;
+            border-radius: 20px;
+            color: #fff;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            margin-bottom: 1.5rem;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.4), rgba(52, 211, 153, 0.3));
+            border: 1px solid rgba(16, 185, 129, 0.4);
+            backdrop-filter: blur(10px);
+        }
+
+        .stage-number {
+            font-size: 8rem;
+            line-height: 1;
+            margin-bottom: 1rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #10b981 0%, #fbbf24 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            opacity: 0.35;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .stage-title {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+            font-weight: 800;
+            color: #fff;
+            text-shadow: 0 2px 30px rgba(16, 185, 129, 0.4);
+        }
+
+        .stage-desc {
+            font-size: 1.05rem;
+            line-height: 1.8;
+            color: rgba(255, 255, 255, 0.85);
+            max-width: 90%;
+        }
+
+        .stage-desc strong {
+            color: rgba(255, 255, 255, 1);
+            display: block;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            font-size: 1em;
+        }
+        .stage-desc ul {
+            margin: 1rem 0 1rem 2rem;
+            color: rgba(255, 255, 255, 0.85);
+        }
+        .stage-desc li {
+            margin-bottom: 0.75rem;
+        }
+
         #scroll-spacer {
             height: 200vh;
             position: relative;
@@ -196,39 +238,52 @@
             pointer-events: none;
         }
 
+        /* Progress bar */
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #059669 0%, #10b981 50%, #fbbf24 100%);
+            z-index: 1000;
+            transform-origin: left;
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.6);
+        }
+
         @media (max-width: 768px) {
             #info-panel { 
                 width: 100%; 
                 right: -100%; 
                 top: auto; 
-                height: 50vh; 
-                bottom: -50vh; 
+                height: 60vh; 
+                bottom: -60vh; 
             }
             #info-panel.visible { right: 0; bottom: 0; }
-            #canvas-wrapper.zoomed { transform: translateY(-25%) scale(1) !important; }
+            #canvas-wrapper.zoomed { transform: translateY(-20%) scale(1) !important; }
             .stage-section { padding: 2rem; }
-            .stage-title { font-size: 1.4rem; }
-            .stage-number { font-size: 4rem; }
+            .stage-title { font-size: 1.8rem; }
+            .stage-number { font-size: 5rem; }
         }
     </style>
 </head>
 <body>
 
-    <div id="viewport">
+    <div class="bg-gradient"></div>
+    <div class="progress-bar" id="progressBar"></div>
 
+    <div id="viewport">
         <div id="canvas-wrapper">
             <canvas id="orbitCanvas"></canvas>
 
             <div id="intro-text">
-                <h1 style="font-size: 3rem; margin-bottom: 1rem; letter-spacing: 2px; color: #1a1a1a;">PROJECT CYCLE</h1>
-                <p style="color: #555; opacity: 0.8;">Scroll to Begin</p>
+                <h1>PROJECT CYCLE</h1>
+                <p>Scroll to Explore</p>
             </div>
         </div>
 
         <div id="info-panel">
             <!-- Content dynamically generated -->
         </div>
-
     </div>
 
     <div id="scroll-spacer"></div>
@@ -240,88 +295,92 @@
         {
             id: 1,
             title: "Strategy, origination and structuring",
-            colorTitle: "#3B82F6",
+            colorTitle: "#10b981",
+            accentColor: "#10b981",
             stages: [
                 { 
                     id: 1, 
                     title: "Country engagement", 
-                    color: "#93C5FD", 
-                    desc: `<strong>Stage 1. Country engagement</strong><br><strong>Actors:</strong> NDAs, AEs, GCF Secretariat<br><br>Stage 1 is the beginning of all GCF projects. It requires country engagement to ensure that all projects and programmes are aligned with the climate objectives of developing countries and with our strategic plan. This work is supported by the Readiness and Preparatory Support Programme, which provides multi-annual grants to build the capacity of developing countries, and to support the development of country investment platforms which can be financed by GCF and other financial actors.<br><br>During this stage, a country's government and National Designated Authorities (NDAs) or focal points set national priorities, analyse financial needs and gaps, and identify Accredited Entities (AEs) or partners to design and implement funding proposals and projects. This stage also requires that NDAs engage various stakeholders when developing their country priorities to ensure that environmental and social safeguards are in force.<br><br>Country missions and regional structured dialogues are facilitated by the Secretariat to identify country programming priorities and ensure alignment with GCF's investment criteria and the expertise and capabilities of AEs. GCF also supports NDAs/focal points and direct access entities (DAEs) through the Readiness and Preparatory Support Programme to transform project ideas into concrete Concept Notes and Funding Proposals.<br><br>The GCF Secretariat works closely with NDAs and AEs to identify highly impactful project ideas that have the potential to meet all six GCF investment criteria. GCF's early engagement contributes to increasing the "quality at entry" of funding proposals and streamlining the funding proposal approval process.` 
+                    color: "#6ee7b7", 
+                    desc: `<strong>Actors:</strong> NDAs, AEs, GCF Secretariat<br><br>Stage 1 is the beginning of all GCF projects. It requires country engagement to ensure that all projects and programmes are aligned with the climate objectives of developing countries and with our strategic plan. This work is supported by the Readiness and Preparatory Support Programme, which provides multi-annual grants to build the capacity of developing countries, and to support the development of country investment platforms which can be financed by GCF and other financial actors.<br><br>During this stage, a country's government and National Designated Authorities (NDAs) or focal points set national priorities, analyse financial needs and gaps, and identify Accredited Entities (AEs) or partners to design and implement funding proposals and projects. This stage also requires that NDAs engage various stakeholders when developing their country priorities to ensure that environmental and social safeguards are in force.<br><br>Country missions and regional structured dialogues are facilitated by the Secretariat to identify country programming priorities and ensure alignment with GCF's investment criteria and the expertise and capabilities of AEs. GCF also supports NDAs/focal points and direct access entities (DAEs) through the Readiness and Preparatory Support Programme to transform project ideas into concrete Concept Notes and Funding Proposals.<br><br>The GCF Secretariat works closely with NDAs and AEs to identify highly impactful project ideas that have the potential to meet all six GCF investment criteria. GCF's early engagement contributes to increasing the "quality at entry" of funding proposals and streamlining the funding proposal approval process.` 
                 },
                 { 
                     id: 2, 
                     title: "Targeted project generation", 
-                    color: "#60A5FA", 
-                    desc: `<strong>Stage 2. Targeted project generation</strong><br><strong>Actors:</strong> NDAs, AEs, GCF Secretariat<br><br>Stage 2 supports complementary origination channels for project ideas to be developed by National Designated Authorities (NDAs) and Accredited Entities (AEs). This stage fosters additional funding proposals that meet the criteria of the GCF investment framework through two activities:<br><br><strong>Issuance of targeted requests for proposal (RFPs)</strong><br>The Board approves the terms of reference for each RFP, which usually sets aside a dedicated funding envelope and describes the eligibility and project selection criteria and the project approval processes. After Board approval, the Secretariat publishes the RFP on the GCF website and other communication channels. The Secretariat then invites organizations to submit a funding proposal under a specific RFP.<br><br><strong>Generation of bankable project ideas through dedicated platforms and innovative partnerships</strong><br>GCF cooperates as a partner with project preparation platforms to de-risk and demonstrate the scaling-up potential of climate investments. This provides longer-term visibility and certainty for projects that are otherwise considered as "non-bankable" by investors and financiers.<br><br>As project ideas materialize which align with country priorities, they are then submitted to GCF by the AEs through the regular proposal approval process.` 
+                    color: "#34d399", 
+                    desc: `<strong>Actors:</strong> NDAs, AEs, GCF Secretariat<br><br>Stage 2 supports complementary origination channels for project ideas to be developed by National Designated Authorities (NDAs) and Accredited Entities (AEs). This stage fosters additional funding proposals that meet the criteria of the GCF investment framework through two activities:<br><br><strong>Issuance of targeted requests for proposal (RFPs)</strong><br>The Board approves the terms of reference for each RFP, which usually sets aside a dedicated funding envelope and describes the eligibility and project selection criteria and the project approval processes. After Board approval, the Secretariat publishes the RFP on the GCF website and other communication channels. The Secretariat then invites organizations to submit a funding proposal under a specific RFP.<br><br><strong>Generation of bankable project ideas through dedicated platforms and innovative partnerships</strong><br>GCF cooperates as a partner with project preparation platforms to de-risk and demonstrate the scaling-up potential of climate investments. This provides longer-term visibility and certainty for projects that are otherwise considered as "non-bankable" by investors and financiers.<br><br>As project ideas materialize which align with country priorities, they are then submitted to GCF by the AEs through the regular proposal approval process.` 
                 },
                 { 
                     id: 3, 
-                    title: "Concept note submission and screening", 
-                    color: "#3B82F6", 
-                    desc: `<strong>Stage 3. Concept note submission and screening</strong><br><strong>Actors:</strong> NDAs, AEs, GCF Secretariat<br><br>Stage 3 outlines the development, submission, and screening of concept notes (CNs). CNs present a summary of a proposed project/programme and offer an opportunity for the Secretariat to review and provide feedback on initial project/programme concepts.<br><br>Though voluntary*, it is highly encouraged for Accredited Entities (AEs) and National Designated Authorities (NDAs) to submit CNs to reduce review time and lower the transaction costs for all stakeholders. CNs can also lead to higher "quality at entry" for funding proposals.<br><br>The development of CNs should be done in close coordination between AEs and NDAs/focal points to ensure that the proposed activities align with country priorities. The AE will represent the NDA to the GCF Secretariat when submitting a CN. In turn, the Secretariat will notify the NDA/focal point that a CN has been submitted.<br><br>All CNs and related documents submitted to the Secretariat are available on the GCF website.<br><br>The Secretariat is committed to complete our reviews of Concept Notes (stage 3) and Funding Proposals (stage 5) in nine months or less.<br><br>For more information on how to complete a CN, please refer to the Concept Note screening page.<br><br>* Note: For a Project Preparation Facility (PPF) request, the submission of CNs is mandatory.` 
+                    title: "Concept note submission", 
+                    color: "#10b981", 
+                    desc: `<strong>Actors:</strong> NDAs, AEs, GCF Secretariat<br><br>Stage 3 outlines the development, submission, and screening of concept notes (CNs). CNs present a summary of a proposed project/programme and offer an opportunity for the Secretariat to review and provide feedback on initial project/programme concepts.<br><br>Though voluntary*, it is highly encouraged for Accredited Entities (AEs) and National Designated Authorities (NDAs) to submit CNs to reduce review time and lower the transaction costs for all stakeholders. CNs can also lead to higher "quality at entry" for funding proposals.<br><br>The development of CNs should be done in close coordination between AEs and NDAs/focal points to ensure that the proposed activities align with country priorities. The AE will represent the NDA to the GCF Secretariat when submitting a CN. In turn, the Secretariat will notify the NDA/focal point that a CN has been submitted.<br><br>All CNs and related documents submitted to the Secretariat are available on the GCF website.<br><br>The Secretariat is committed to complete our reviews of Concept Notes (stage 3) and Funding Proposals (stage 5) in nine months or less.` 
                 }
             ]
         },
         {
             id: 2,
             title: "Technical review and appraisal",
-            colorTitle: "#10B981",
+            colorTitle: "#059669",
+            accentColor: "#059669",
             stages: [
                 { 
                     id: 4, 
                     title: "Funding proposal development", 
-                    color: "#6EE7B7", 
-                    desc: `<strong>Stage 4. Funding proposal development</strong><br><strong>Actor:</strong> AEs<br><br>Stage 4 covers the development and submission of funding proposals (FPs) by Accredited Entities (AEs). FPs must be prepared in accordance with the considerations and requirements of the investment framework and results management framework. AEs are expected to demonstrate how they will deliver their proposed project activities and results areas with reference to these policy frameworks.<br><br>AEs are responsible for the first-level due diligence of FPs. Project/programme appraisal by the AE involves an in-depth evaluation of the proposed activities and interventions to meet the GCF investment criteria and achieve the desired climate mitigation and/or adaptation results. This helps the AE to determine whether the proposed project/programme offers an effective solution to address the identified problem, and whether it is technically, financially, economically, environmentally and socially sound and cost-effective.<br><br>When preparing FPs, AEs must work within their accreditation scope which defines the allowed financing modalities and project size and identifies the environmental and social safeguards (ESS) risk categories.<br><br>FPs submitted to GCF must be accompanied by no-objection letters (NOL) from respective NDAs/focal points. These NOLs ensure that the proposed funding proposal is consistent with country-driven approaches and national climate strategies and plans, and signal their support.<br><br>FPs must also present the implementation arrangements through Executing Entities (EEs). AEs may act as EEs or may carry out the project/programme with one or more EEs. AEs are responsible for determining, selecting, and engaging EEs based on their due diligence and other assessments required. GCF does not enter a direct contractual relationship with EEs.<br><br>FPs must be submitted through GCF Partner Portal (GPP) platform. Upon receipt of the funding proposal, the Secretariat performs an initial review and completeness check. Furthermore, all activities will be disclosed to GCF stakeholders with regard to GCF's Information Disclosure Policy.<br><br>Note that there won't be submission deadlines ahead of Board meetings. Instead, deadlines will be published related to the dates by which projects need to be ready for key processes that take place shortly before Board meetings which will be highlighted in Stage 5.` 
+                    color: "#84cc16", 
+                    desc: `<strong>Actor:</strong> AEs<br><br>Stage 4 covers the development and submission of funding proposals (FPs) by Accredited Entities (AEs). FPs must be prepared in accordance with the considerations and requirements of the investment framework and results management framework. AEs are expected to demonstrate how they will deliver their proposed project activities and results areas with reference to these policy frameworks.<br><br>AEs are responsible for the first-level due diligence of FPs. Project/programme appraisal by the AE involves an in-depth evaluation of the proposed activities and interventions to meet the GCF investment criteria and achieve the desired climate mitigation and/or adaptation results.` 
                 },
                 { 
                     id: 5, 
                     title: "Funding proposal appraisal", 
-                    color: "#34D399", 
-                    desc: `<strong>Stage 5. Funding proposal appraisal</strong><br><strong>Actors:</strong> GCF Secretariat + iTAP<br><br>Stage 5 of a GCF project/programme refers to its review process.<br><br>The Secretariat's appraisal is a formal assessment process that ends when FPs that are aligned with the investment criteria are submitted to the independent technical advisory panel (independent TAP) and the Board for approval.<br><br>The Secretariat is committed to complete our reviews of Concept Notes (stage 3) and Funding Proposals (stage 5) in nine months or less.<br><br>Upon completion of the independent TAP assessment, the Secretariat compiles the FP package, shares it with the Board, and publishes it on the GCF website. The AE must provide confirmation of disclosure of the information included in the FP.` 
+                    color: "#65a30d", 
+                    desc: `<strong>Actors:</strong> GCF Secretariat + iTAP<br><br>Stage 5 of a GCF project/programme refers to its review process.<br><br>The Secretariat's appraisal is a formal assessment process that ends when FPs that are aligned with the investment criteria are submitted to the independent technical advisory panel (independent TAP) and the Board for approval.<br><br>The Secretariat is committed to complete our reviews of Concept Notes (stage 3) and Funding Proposals (stage 5) in nine months or less.` 
                 }
             ]
         },
         {
             id: 3,
             title: "Approval and legal arrangements",
-            colorTitle: "#8B5CF6",
+            colorTitle: "#fbbf24",
+            accentColor: "#fbbf24",
             stages: [
                 { 
                     id: 6, 
                     title: "Board approval", 
-                    color: "#C4B5FD", 
-                    desc: `<strong>Stage 6. Board approval</strong><br><strong>Actor:</strong> GCF Board<br><br>Stage 6 illustrates how the GCF Board considers and decides which FPs will materialize into projects.<br><br>Following the submission of the FP packages to the Board at least 21 days before each Board meeting, the Board members can ask questions or seek clarifications about the FPs through a dedicated question and answer platform/email account. The Board is given one week to read the documents and send questions to the Secretariat, which are then compiled and forwarded to the accredited entities (AEs). The AEs are given one week to provide written responses to these questions, which are compiled and shared with the Board prior to the Board meeting.<br><br>One day prior to the Board meeting, the Co-Chairs of the Board may organize a consultation/information day. AEs may be requested to attend and respond to any questions from the Board advisers or civil society organizations (CSOs) about their FPs.<br><br>FP considerations will be an agenda item in one of the days allotted for the Board meeting. During this agenda item, a representative from each AE is expected to attend the session, together with the relevant Task Manager and the relevant member of the TAP. The AE representative or TAP member is requested to respond to any questions posed by the Board members and active observers.<br><br>After the funding proposal is approved by the Board, the Secretariat will inform the AE and the NDA/focal point of the Board's decision and the next steps in relation to any agreed approval conditions.<br><br>In case of rejection, NDAs may request for reconsideration from the Independent Redress Mechanism (IRM).` 
+                    color: "#fde047", 
+                    desc: `<strong>Actor:</strong> GCF Board<br><br>Stage 6 illustrates how the GCF Board considers and decides which FPs will materialize into projects.<br><br>Following the submission of the FP packages to the Board at least 21 days before each Board meeting, the Board members can ask questions or seek clarifications about the FPs through a dedicated question and answer platform/email account.` 
                 },
                 { 
                     id: 7, 
                     title: "Legal arrangements", 
-                    color: "#A78BFA", 
-                    desc: `<strong>Stage 7. Legal arrangements</strong><br><strong>Actors:</strong> AEs, GCF Secretariat<br><br>Stage 7 consists of the Funded Activity Agreement (FAA) negotiation and signing process following FP approval by the GCF Board. For each approved FP, the GCF and the relevant AE enter into an FAA.<br><br><strong>Standard timeline for the funded activity agreement process</strong><br>Following FP approval, the Secretariat prepares the first draft of the FAA and sends it to the AE to start the negotiation process. In some cases, a negotiations may start prior to the FP approval as long as key prerequisites are met, such as, where applicable, an effective Accreditation Master Agreement (AMA), and delivery by the AE of a certificate of internal AE approval. Furthermore, there should not be any outstanding project-specific conditions precedent to FAA execution.<br><br><strong>Revised Approach to Legal Arrangements – transitional arrangements</strong><br>Under the transitional arrangements adopted in decision B.42/13, paragraph (m) in respect of the Revised approach to legal arrangements with accredited entities (Revised Approach) adopted in decision B.42/13, paragraph (e), AEs accredited prior to 31 October 2025 (the effective date of the Revised Approach) who have a signed AMA (or amended and restated AMA) may continue to submit funding proposals under their AMA, which would be incorporated in the relevant FAA, provided that (i) the AMA or amended and restated AMA becomes effective and the related FAA is signed before 31 December 2027, which FAA will incorporate the relevant AMA; or (ii) the FAA is signed under the Revised Approach and will incorporate the Standard Conditions (or, where applicable, the relevant framework agreement).<br><br><strong>Revised Approach</strong><br>Under the Revised Approach, the FAA will incorporate the Standard Conditions in effect on the date the related FP was approved and will include any project-specific modifications to the Standard Conditions.<br>In those limited circumstances where GCF and the AE have entered into a framework agreement codifying the Standard Conditions in respect of such AE, the FAA will incorporate the applicable framework agreement.<br><br>FAAs are tailored by the Secretariat to each financial instrument offered by the GCF, such as grant, loan, sub-participation, trust arrangement, and also REDD+ RBPs. It is important to have a comprehensive and consistent FP and Term Sheet to make the FAA negotiation process efficient and effective for both the AE and the GCF.<br><br>After negotiations, the FAA must be signed by the parties within a set period determined by the Board in the decision approving the FP.<br><br>The FAA contains or incorporates a set of conditions to be fulfilled by the AE before the FAA becomes legally effective. Once all conditions for effectiveness have been fulfilled, the Secretariat sends to the AE a Notice of Effectiveness for the FAA.<br><br>Lastly, the FAA also contains or incorporates conditions to be met by the AE before the GCF makes the first disbursement for the implementation of the project. Following fulfillment of these conditions, the disbursement is made by the Fund (by the GCF Trustee) to the bank account opened by the AE.` 
+                    color: "#fbbf24", 
+                    desc: `<strong>Actors:</strong> AEs, GCF Secretariat<br><br>Stage 7 consists of the Funded Activity Agreement (FAA) negotiation and signing process following FP approval by the GCF Board. For each approved FP, the GCF and the relevant AE enter into an FAA.<br><br>Following FP approval, the Secretariat prepares the first draft of the FAA and sends it to the AE to start the negotiation process.` 
                 }
             ]
         },
         {
             id: 4,
             title: "Implementation",
-            colorTitle: "#F97316",
+            colorTitle: "#f59e0b",
+            accentColor: "#f59e0b",
             stages: [
                 { 
                     id: 8, 
-                    title: "Monitoring for performance and compliance", 
-                    color: "#FDBA74", 
-                    desc: `<strong>Stage 8. Monitoring for performance and compliance</strong><br><strong>Actors:</strong> AEs, GCF Secretariat<br><br>Stage 8 describes the GCF Secretariat's monitoring framework and approach. The result management framework provides clear definitions and measurement methodologies for GCF's priority indicators and monitoring and assessment processes.<br><br>In line with the monitoring and accountability framework as updated by decision B.42/13 (MAF), the Secretariat's monitoring function focuses on two components:<br><br><strong>Accredited Entity compliance</strong><br>Self-certification statement on changes potentially affecting compliance with applicable GCF standards and policies. Each AE shall promptly report any changes to its policies, capacities, systems, legal status, or governance structures that may affect its compliance with the GCF standards and policies against which it was assessed – either during the accreditation process or during the funding proposal assessment. These statements may be triggered by changes initiated by an AE as part of its institutional development, such as responses to national regulatory changes, or by updates in GCF standards and policies.<br><br>Self-assessment report on compliance with applicable GCF standards and policies. A self-assessment report on the AE's compliance with the applicable GCF standards and policies must be submitted by the AE to GCF prior to the AE submitting any concept note or funding proposal to the Secretariat, if more than two years and six months have passed since the AE's accreditation decision or its most recent self-assessment, whichever is later. For AEs that have not submitted any concept notes or funding proposals during the relevant period, a self-assessment report shall be required five years after the AE's accreditation decision or its most recent self-assessment, whichever is later.<br><br><strong>Funded activity monitoring</strong><br>AEs have the responsibility of monitoring their respective funded activities. The Secretariat then tracks the implementation progress through the AEs' annual performance reports (APRs), financial statements, rates of disbursement and reporting with reference to specific conditions set out in the legal arrangements between GCF and the AE, and interim evaluation reports.<br><br>If the findings from the risk assessments raise concern, the Secretariat may discuss the results of the monitoring with the AE, which may lead to Stage 9 (adaptive management).<br><br>In accordance with the transitional arrangements adopted in decision B.42/13, paragraph (m) in respect of the updated MAF adopted in decision B.42/13, paragraph (c):<br>Funded activity monitoring with respect to implementation of funding proposals approved at or before B.44 will be in accordance with section1.2 of the monitoring and accountability framework adopted in decision B.11/10, paragraph (a) and the legal arrangements in respect of such funded activity; and<br>Funded activity monitoring with respect to implementation of funding proposals approved at or after B.45 will be in accordance with section 13 of the updated MAF.` 
+                    title: "Monitoring for performance", 
+                    color: "#fbbf24", 
+                    desc: `<strong>Actors:</strong> AEs, GCF Secretariat<br><br>Stage 8 describes the GCF Secretariat's monitoring framework and approach. The result management framework provides clear definitions and measurement methodologies for GCF's priority indicators and monitoring and assessment processes.` 
                 },
                 { 
                     id: 9, 
                     title: "Adaptive management", 
-                    color: "#FB923C", 
-                    desc: `<strong>Stage 9. Adaptive management</strong><br><strong>Actors:</strong> AEs, GCF Secretariat<br><br>Stage 9 details the triggers for adaptive management of GCF projects/programmes and response measures in place.<br><br>The three main triggers for adaptive management are:<br><ul><li>Risk flags arising from GCF monitoring tools (mentioned in Stage 8);</li><li>Proactive AE reporting and engagement due to implementation issues; and</li><li>Complaints relating to integrity and violation of environmental and social safeguards.</li></ul>Once risks are identified, the AE and/or the project/programme will be subjected to a "cure period" to resolve issues and avoid recurrence. If the identified issues remain unresolved by the end of the "cure period," the Secretariat will inform the AE of any additional measures required. The timing and nature of such measures depends on the potential impacts and risks identified, including the reputational risk to GCF. Failure to resolve may result in cancelation of AE accreditation and revoking of FP approval.<br><br>Should modifications be made during this process, the AE is required to inform the GCF. If the proposed change falls within the definition of a Major Change, the Secretariat will request a restructuring paper, a written evidence of the AE's consultation with the relevant NDA/FP, and supporting documentations.<br><br>If the Board approves the Major Change, the FAA will be amended. If not, the AE will either (a) proceed based on the existing Board-approved FP; or (b) withdraw the FP, after informing the NDA/Focal Point.` 
+                    color: "#f59e0b", 
+                    desc: `<strong>Actors:</strong> AEs, GCF Secretariat<br><br>Stage 9 details the triggers for adaptive management of GCF projects/programmes and response measures in place.<br><br>The three main triggers for adaptive management are:<br><ul><li>Risk flags arising from GCF monitoring tools (mentioned in Stage 8);</li><li>Proactive AE reporting and engagement due to implementation issues; and</li><li>Complaints relating to integrity and violation of environmental and social safeguards.</li></ul>` 
                 },
                 { 
                     id: 10, 
-                    title: "Evaluation, learning and project closure", 
-                    color: "#F97316", 
-                    desc: `<strong>Stage 10. Evaluation, learning and project closure</strong><br><strong>Actors:</strong> AEs, GCF Secretariat<br><br>Stage 10 pertains to how lessons learned are evaluated and synthesised towards project closure. There are two levels of evaluations within GCF:<br><br><strong>Project/programme level evaluations</strong><br>It is the obligation of AEs to manage and submit independent final evaluations for approved GCF projects and programmes. These evaluations are expected to produce evidence of results and impacts relative to projections, informing future decision-making, credibility approaches, and investment processes. These will also serve as a reference for when projects are needed to be upscaled or replicated. GCF's results management framework sets indicators and monitoring and assessment processes, ensuring that GCF projects/programmes apply the same approach and generate consistent data that can be aggregated and compared across the entire GCF portfolio.<br><br><strong>GCF level evaluations</strong><br>The Independent Evaluation Unit (IEU) of GCF conducts reviews to help improve the institutional and financial efficiency and effectiveness of GCF for future replenishments.<br><br>Together with AEs, national designated authorities/focal points, peer climate funds, and relevant stakeholders, the Secretariat synthesises and codifies lessons learned to promote the expansion and replication of knowledge on transformative climate investments based on global best practices.<br><br>Additionally, in order to ensure timely knowledge management from GCF operations, GCF conducts knowledge-gathering missions and reviews to select project sites, fostering a deeper understanding of operating realities and impact stories.<br><br>The Secretariat also conducts higher-level reviews such as thematic and country portfolio reviews. This plays a key role in assessing GCF effectiveness in the global climate action. These reviews by the Secretariat can be complemented by the IEU's evaluations.<br><br>In the project closure phase, the AE should confirm that the project activities were executed and completed. This will also entail the submission of a project completion and audit reports and execution of the exit strategy as outlined in the FAA.<br><br>Once the documentations are analysed and validated, the Secretariat will confirm the closure of the project and notify the AE and NDA.<br><br>Complaints can still be submitted to the IRM even after project closure.` 
+                    title: "Evaluation and closure", 
+                    color: "#d97706", 
+                    desc: `<strong>Actors:</strong> AEs, GCF Secretariat<br><br>Stage 10 pertains to how lessons learned are evaluated and synthesised towards project closure. There are two levels of evaluations within GCF: Project/programme level evaluations and GCF level evaluations.` 
                 }
             ]
         }
@@ -335,13 +394,38 @@
     const infoPanel = document.getElementById('info-panel');
     const scrollSpacer = document.getElementById('scroll-spacer');
     const introText = document.getElementById('intro-text');
+    const progressBar = document.getElementById('progressBar');
 
     let isZoomed = false;
     let logicProgress = 0;
     let centerX, centerY, radius;
     let pixelRatio = window.devicePixelRatio || 1;
 
-    // Build info panel content
+    // Generate particles
+    for (let i = 0; i < 40; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.style.left = Math.random() * 100 + '%';
+        particle.style.top = Math.random() * 100 + '%';
+        const duration = 5 + Math.random() * 15;
+        const delay = Math.random() * 5;
+        particle.style.animation = `float-${i} ${duration}s ease-in-out infinite ${delay}s`;
+        
+        const keyframes = `
+            @keyframes float-${i} {
+                0%, 100% { transform: translate(0, 0); opacity: 0.2; }
+                25% { transform: translate(${Math.random() * 100 - 50}px, ${Math.random() * 100 - 50}px); opacity: 0.5; }
+                50% { transform: translate(${Math.random() * 100 - 50}px, ${Math.random() * 100 - 50}px); opacity: 0.8; }
+                75% { transform: translate(${Math.random() * 100 - 50}px, ${Math.random() * 100 - 50}px); opacity: 0.4; }
+            }
+        `;
+        const style = document.createElement('style');
+        style.textContent = keyframes;
+        document.head.appendChild(style);
+        
+        document.body.appendChild(particle);
+    }
+
     function buildInfoPanel() {
         infoPanel.innerHTML = '';
         
@@ -351,9 +435,10 @@
             const stageDiv = document.createElement('div');
             stageDiv.className = 'stage-section';
             stageDiv.dataset.stageIndex = index;
+            stageDiv.style.setProperty('--accent-color', section.accentColor);
             
             stageDiv.innerHTML = `
-                <div class="section-badge" style="background-color: ${section.colorTitle}">${section.title}</div>
+                <div class="section-badge">${section.title}</div>
                 <div class="stage-number">${(index + 1).toString().padStart(2, '0')}</div>
                 <h2 class="stage-title">${stage.title}</h2>
                 <div class="stage-desc">${stage.desc}</div>
@@ -365,21 +450,15 @@
 
     function resetToStart() {
         window.scrollTo(0, 0);
-        document.documentElement.scrollTop = 0;
-        document.body.scrollTop = 0;
-
         isZoomed = false;
         logicProgress = 0;
-
         introText.style.opacity = '1';
         infoPanel.classList.remove('visible');
         wrapper.classList.remove('zoomed');
         wrapper.style.transform = "translateX(0) scale(1)";
-        
         if (infoPanel.children.length > 0) {
             infoPanel.scrollTop = 0;
         }
-
         resize();
     }
 
@@ -406,12 +485,7 @@
         
         centerX = width / 2;
         centerY = height / 2;
-
-        if (isZoomed) {
-            radius = Math.min(width * 0.5, height) * 0.4;
-        } else {
-            radius = Math.min(width, height) * 0.35;
-        }
+        radius = Math.min(width, height) * 0.35;
         draw();
     }
 
@@ -465,22 +539,40 @@
         
         if (sectionIndex >= sectionConfig.length) sectionIndex = sectionConfig.length - 1;
 
-        // Background ring
+        // Glowing background ring
         ctx.beginPath();
         ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
-        ctx.strokeStyle = 'rgba(0, 0, 0, 0.1)';
-        ctx.lineWidth = 12; 
-        ctx.lineCap = 'butt';
+        ctx.strokeStyle = 'rgba(16, 185, 129, 0.15)';
+        ctx.lineWidth = 16;
+        ctx.lineCap = 'round';
         ctx.stroke();
 
-        // Active path
+        // Inner glow
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, radius - 8, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(16, 185, 129, 0.05)';
+        ctx.lineWidth = 4;
+        ctx.stroke();
+
+        // Active gradient path
         if (logicProgress > 0.05) {
+            const gradient = ctx.createLinearGradient(
+                centerX - radius, centerY,
+                centerX + radius, centerY
+            );
+            gradient.addColorStop(0, '#059669');
+            gradient.addColorStop(0.5, '#10b981');
+            gradient.addColorStop(1, '#fbbf24');
+
             ctx.beginPath();
             ctx.arc(centerX, centerY, radius, startAngle, endAngle, false);
-            ctx.strokeStyle = '#1e293b'; 
-            ctx.lineWidth = 12; 
+            ctx.strokeStyle = gradient;
+            ctx.lineWidth = 16;
             ctx.lineCap = 'round';
+            ctx.shadowBlur = 30;
+            ctx.shadowColor = 'rgba(16, 185, 129, 0.6)';
             ctx.stroke();
+            ctx.shadowBlur = 0;
         }
 
         // Draw nodes
@@ -490,70 +582,77 @@
             const y = centerY + Math.sin(angle) * radius;
             const stageColor = allStages[i].color;
 
-            ctx.beginPath();
-            
             const isReached = i < logicProgress;
             const isCurrentHead = (logicProgress >= i && logicProgress < i + 1);
 
-            let r = 25; 
-            let fillColor = '#ffffff';
-            let textColor = '#999'; 
-            let strokeColor = 'rgba(0,0,0,0.2)';
-            let lineWidth = 2;
+            let r = 28;
+            let fillColor = 'rgba(20, 20, 30, 0.9)';
+            let textColor = 'rgba(255, 255, 255, 0.4)';
+            let glowColor = 'transparent';
 
             if (isZoomed) {
                 if (isReached) {
-                    fillColor = stageColor;
-                    textColor = '#000000';
-                    lineWidth = 0;
+                    const gradient = ctx.createRadialGradient(x, y, 0, x, y, r);
+                    gradient.addColorStop(0, stageColor);
+                    gradient.addColorStop(1, stageColor + 'cc');
+                    fillColor = gradient;
+                    textColor = '#0a0a0f';
+                    glowColor = stageColor;
                 } else if (isCurrentHead) {
-                    fillColor = '#ffffff';
-                    textColor = '#1e293b';
-                    lineWidth = 4;
-                    ctx.shadowBlur = 15;
-                    ctx.shadowColor = '#1e293b';
-                } else {
-                    fillColor = '#ffffff';
-                    strokeColor = 'rgba(0,0,0,0.2)';
+                    fillColor = 'rgba(255, 255, 255, 0.95)';
+                    textColor = '#10b981';
+                    glowColor = '#10b981';
+                    r = 32;
                 }
-            } else {
-                fillColor = '#ffffff';
-                strokeColor = 'rgba(0,0,0,0.2)';
-                textColor = '#999';
             }
 
+            // Outer glow
+            if (glowColor !== 'transparent') {
+                ctx.beginPath();
+                ctx.arc(x, y, r + 4, 0, Math.PI * 2);
+                ctx.fillStyle = glowColor + '40';
+                ctx.filter = 'blur(8px)';
+                ctx.fill();
+                ctx.filter = 'none';
+            }
+
+            // Node circle
+            ctx.beginPath();
             ctx.arc(x, y, r, 0, Math.PI * 2);
             ctx.fillStyle = fillColor;
             ctx.fill();
             
-            if (lineWidth > 0) {
-                ctx.lineWidth = lineWidth;
-                ctx.strokeStyle = strokeColor;
-                ctx.stroke();
-            }
-            
-            ctx.shadowBlur = 0; 
+            // Border
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = isReached || isCurrentHead ? 'rgba(255, 255, 255, 0.3)' : 'rgba(255, 255, 255, 0.1)';
+            ctx.stroke();
 
+            // Number text
             ctx.fillStyle = textColor;
-            ctx.font = "bold 16px 'Segoe UI', Arial, sans-serif";
+            ctx.font = "bold 18px 'Segoe UI', Arial, sans-serif";
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
             ctx.fillText(i + 1, x, y);
         }
 
-        // Center text
+        // Center text with gradient
         if (isZoomed && logicProgress > 0.5) {
             const currentStageData = allStages[stageIndex];
             
-            ctx.fillStyle = sectionConfig[sectionIndex].colorTitle;
+            const gradient = ctx.createLinearGradient(centerX - radius, centerY, centerX + radius, centerY);
+            gradient.addColorStop(0, '#059669');
+            gradient.addColorStop(0.5, '#10b981');
+            gradient.addColorStop(1, '#fbbf24');
+            
+            ctx.fillStyle = gradient;
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
             
-            const fontSize = radius * 0.18; 
-            ctx.font = `bold ${fontSize}px 'Segoe UI', Arial, sans-serif`;
+            const fontSize = radius * 0.16;
+            ctx.font = `900 ${fontSize}px 'Segoe UI', Arial, sans-serif`;
             
-            const maxWidth = radius * 1.5;
-            const lineHeight = fontSize * 1.2;
+            const maxWidth = radius * 1.6;
+            const lineHeight = fontSize * 1.3;
 
             wrapText(ctx, currentStageData.title.toUpperCase(), centerX, centerY, maxWidth, lineHeight);
         }
@@ -563,6 +662,11 @@
         const scrollY = window.scrollY;
         const threshold = window.innerHeight * 0.2;
 
+        // Update progress bar
+        const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+        const scrollProgress = Math.min(scrollY / maxScroll, 1);
+        progressBar.style.width = (scrollProgress * 100) + '%';
+
         if (scrollY > threshold && !isZoomed) {
             isZoomed = true;
             introText.style.opacity = '0';
@@ -570,9 +674,9 @@
             wrapper.classList.add('zoomed');
 
             if (window.innerWidth > 768) {
-                wrapper.style.transform = "translateX(-25vw) scale(1.1)";
+                wrapper.style.transform = "translateX(-25vw) scale(1)";
             } else {
-                wrapper.style.transform = "translateY(-25%) scale(1)";
+                wrapper.style.transform = "translateY(-20%) scale(1)";
             }
             
             requestAnimationFrame(() => resize());
@@ -595,8 +699,6 @@
 
         const panelScroll = infoPanel.scrollTop;
         const panelHeight = infoPanel.scrollHeight - infoPanel.clientHeight;
-
-        // Calculate progress based on panel scroll
         const scrollProgress = Math.min(1, Math.max(0, panelScroll / panelHeight));
         const newProgress = scrollProgress * 10;
 
