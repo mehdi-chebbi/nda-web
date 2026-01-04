@@ -86,28 +86,28 @@
                 
                 --line-tight: 1.2;
                 --line-base: 1.5;
-                --line-loose: 1.75;
+                --line-loose: 1.6;
                 
                 --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
                 
-                /* Original Size Variables (kept for logic) */
-                --ts-xxs: clamp(0.75rem, -4cqw + 0.35rem, 0.9rem);
-                --ts-xs: clamp(0.81rem, -3cqw + 0.35rem, 1.035rem);
-                --ts-sm: clamp(0.9113rem, -1.5cqw + 0.35rem, 1.1644rem);
-                --ts-base: clamp(1.0125rem, 0cqw + 0.35rem, 1.2938rem);
-                --ts-md: clamp(1.1391rem, 1.5cqw + 0.35rem, 1.4555rem);
-                --ts-lg: clamp(1.2656rem, 3cqw + 0.35rem, 1.6172rem);
-                --ts-xl: clamp(1.582rem, 6cqw + 0.35rem, 2.0215rem);
-                --ts-xxl: clamp(1.9775rem, 9cqw + 0.35rem, 2.5269rem);
-                --ts-xxxl: clamp(2.4719rem, 12cqw + 0.35rem, 3.1586rem);
+                /* Aligned with React component sizes to match rest of site */
+                --ts-xxs: 0.75rem;   /* 12px - matches text-xs */
+                --ts-xs: 0.875rem;   /* 14px - matches text-sm */
+                --ts-sm: 1rem;        /* 16px - between text-sm and text-base */
+                --ts-base: 1.125rem;  /* 18px - matches text-lg */
+                --ts-md: 1.25rem;     /* 20px - matches text-xl */
+                --ts-lg: 1.125rem;    /* 18px - matches text-lg (body text) */
+                --ts-xl: 1.875rem;    /* 30px - matches text-3xl */
+                --ts-xxl: 2.25rem;    /* 36px - matches text-4xl */
+                --ts-xxxl: 2.25rem;   /* 36px - matches text-4xl (was 50.6px!) */
 
                 /* Original Animation Variables (kept for logic) */
-                --comparator-duration: 400vh;
+                --comparator-duration: 200vh;
                 --comparator-offset: 35vh;
                 --comparator-max-width: 56.25rem;
                 --comparator-max-height: 100vh;
-                --comparator-aspect-ratio: 4/3;
-
+                --comparator-aspect-ratio: 3/2;
+                
                 accent-color: var(--color-primary);
             }
 
@@ -562,7 +562,7 @@
 
             .stat-card {
                 background-color: var(--color-white);
-                padding: var(--space-xl);
+                padding: var(--space-lg);
                 border-radius: 0.75rem; /* rounded-xl */
                 border: 2px solid rgba(5, 150, 105, 0.2); /* primary/20 */
                 transition: all 0.3s ease;
@@ -577,13 +577,13 @@
             }
 
             .stat-icon {
-                font-size: 2.5rem;
+                font-size: 2rem;
                 margin-bottom: 0.5rem;
                 display: block;
             }
 
             .stat-value {
-                font-size: 2rem;
+                font-size: 1.875rem;
                 font-weight: 800;
                 color: var(--color-primary);
                 margin-bottom: 0.25rem;
@@ -591,7 +591,7 @@
             }
 
             .stat-label {
-                font-size: 1rem;
+                font-size: 0.875rem;
                 font-weight: 500;
                 color: var(--color-text-muted);
                 display: block;
@@ -612,7 +612,7 @@
 
             .impact-card {
                 background-color: var(--color-white);
-                padding: var(--space-xl);
+                padding: var(--space-lg);
                 border-radius: 0.75rem;
                 border: 2px solid #f3f4f6; /* border-gray-100 */
                 transition: all 0.3s ease;
@@ -627,7 +627,7 @@
             }
 
             .impact-icon-wrapper {
-                font-size: 2.5rem;
+                font-size: 2rem;
                 margin-bottom: 1rem;
                 transition: transform 0.3s ease;
                 display: inline-block;
@@ -638,7 +638,7 @@
             }
 
             .impact-title {
-                font-size: 1.25rem;
+                font-size: 1.125rem;
                 font-weight: 700;
                 color: var(--color-primary);
                 margin-bottom: 0.75rem;
@@ -647,7 +647,7 @@
             .impact-description {
                 font-size: 1rem;
                 color: var(--color-text-muted);
-                line-height: 1.625;
+                line-height: 1.6;
             }
 
             /* 3. Mission Box (The text in a square style) */
