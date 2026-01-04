@@ -5,11 +5,8 @@ const Mission = () => {
   const navigate = useNavigate()
 
   useEffect(() => {
-    // Hide scrollbar on parent body when Mission page is mounted
-    document.body.style.overflow = 'hidden'
-
-    const handleMessage = (event) => {
-      if (event.data.type === 'navigate' && event.data.path) {
+const handleMessage = (event: MessageEvent) => {
+        if (event.data.type === 'navigate' && event.data.path) {
         navigate(event.data.path)
       }
     }
@@ -17,14 +14,12 @@ const Mission = () => {
     window.addEventListener('message', handleMessage)
 
     return () => {
-      // Restore scrollbar when unmounting
-      document.body.style.overflow = ''
       window.removeEventListener('message', handleMessage)
     }
   }, [navigate])
 
   return (
-    <div className="w-full" style={{ height: 'calc(100vh - 4rem)', overflow: 'auto' }}>
+    <div className="w-full">
       <style>{`
         * {
             margin: 0;
@@ -690,13 +685,13 @@ const Mission = () => {
               Serving as Eritrea's National Designated Authority for the Green Climate Fund, we facilitate access to transformative climate finance and champion projects that build resilience and drive sustainable, low-emission development across our nation.
             </p>
             <div className="hero-cta">
-              <button onClick={() => document.getElementById('pillars').scrollIntoView({ behavior: 'smooth' })} className="btn">
+              <button onClick={() => document.getElementById('pillars')?.scrollIntoView({ behavior: 'smooth' })} className="btn">
                 <span>Explore Our Work</span>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/>
                 </svg>
               </button>
-              <button onClick={() => document.getElementById('contact').scrollIntoView({ behavior: 'smooth' })} className="btn btn-outline">
+              <button onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })} className="btn btn-outline">
                 <span>Get In Touch</span>
               </button>
             </div>
