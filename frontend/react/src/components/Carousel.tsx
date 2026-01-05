@@ -1,22 +1,40 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 
+// Interfaces
+interface CardData {
+  title: string;
+  desc: string;
+  img: string;
+}
+
+interface PositionData {
+  height: number;
+  z: number;
+  rotateY: number;
+  y: number;
+  clip: string;
+}
+
 const Carousel = () => {
-  const containerRef = useRef(null);
-  const trackRef = useRef(null);
-  const cardsRef = useRef([]);
-  const [expandedCard, setExpandedCard] = useState(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
+  const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
+
+  const [expandedCard, setExpandedCard] = useState<number | null>(null);
   const [cardInfo, setCardInfo] = useState({ title: '', desc: '' });
   const [isDragging, setIsDragging] = useState(false);
+
   const dragStateRef = useRef({
     startX: 0,
     dragDistance: 0,
     processedSteps: 0,
     threshold: 60
   });
-  const cloneRef = useRef(null);
 
-  const positions = [
+  const cloneRef = useRef<HTMLDivElement | null>(null);
+
+  const positions: PositionData[] = [
     {
       height: 495,
       z: 135,
@@ -54,42 +72,42 @@ const Carousel = () => {
     }
   ];
 
-  const cards = [
+  const cards: CardData[] = [
     {
-      title: "Beverage Branding",
-      desc: "Fresh and vibrant packaging design for premium juice products with natural ingredients",
-      img: "https://images.unsplash.com/photo-1546548970-71785318a17b?w=600&h=800&fit=crop"
+      title: "Water Security",
+      desc: "Enhancing water management and access across Eritrea through innovative conservation, efficient irrigation systems, and sustainable groundwater management practices.",
+      img: "https://c1.wallpaperflare.com/preview/975/262/367/field-arable-agriculture-landscape.jpg"
     },
     {
-      title: "Apparel Design",
-      desc: "Minimalist fashion collection with sustainable materials and modern aesthetics",
-      img: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=600&h=800&fit=crop"
+      title: "Climate-Resilient Agriculture",
+      desc: "Building climate-resilient agricultural systems with drought-resistant crops, sustainable farming practices, and support for rural communities.",
+      img: "https://c4.wallpaperflare.com/wallpaper/115/424/884/water-falls-time-lapse-photo-wallpaper-preview.jpg"
     },
     {
-      title: "Luxury Packaging",
-      desc: "Premium product packaging with attention to detail and sophisticated finishes",
-      img: "https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=600&h=800&fit=crop"
+      title: "Renewable Energy",
+      desc: "Promoting clean energy solutions including solar, wind, and geothermal power to drive sustainable development and reduce carbon emissions.",
+      img: "https://c1.wallpaperflare.com/preview/864/407/832/windmill-turbine-renewable-resource.jpg"
     },
     {
-      title: "Cosmetics Brand",
-      desc: "Clean beauty brand identity with elegant and timeless design approach",
-      img: "https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?w=600&h=800&fit=crop"
+      title: "Coastal Resilience",
+      desc: "Protecting coastal communities and ecosystems through sustainable fisheries, marine conservation, and climate adaptation strategies.",
+      img: "https://images.unsplash.com/photo-1505118380757-91f5f5632de0?w=600&h=800&fit=crop"
     },
     {
-      title: "Fashion Editorial",
-      desc: "Editorial photography and art direction for contemporary fashion magazine",
-      img: "https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=600&h=800&fit=crop"
+      title: "Forest Conservation",
+      desc: "Preserving and restoring forest ecosystems through reforestation initiatives, community-based conservation, and biodiversity protection.",
+      img: "https://images.unsplash.com/photo-1448375240586-882707db888b?w=600&h=800&fit=crop"
     }
   ];
 
-  const [cardOrder, setCardOrder] = useState([0, 1, 2, 3, 4]);
+  const [cardOrder, setCardOrder] = useState<number[]>([0, 1, 2, 3, 4]);
 
   useEffect(() => {
     applyPositions();
   }, [cardOrder]);
 
   const applyPositions = () => {
-    cardsRef.current.forEach((card, index) => {
+    cardsRef.current.forEach((card, index: number) => {
       if (!card) return;
       const pos = positions[index] || positions[positions.length - 1];
       gsap.set(card, {
@@ -100,18 +118,23 @@ const Carousel = () => {
     });
   };
 
-  const expandCard = (index) => {
+  const expandCard = (index: number) => {
     if (expandedCard !== null || isDragging) return;
 
     const card = cardsRef.current[index];
+    if (!card) return;
+
     const cardData = cards[cardOrder[index]];
-    
+
     setExpandedCard(index);
     setCardInfo({ title: cardData.title, desc: cardData.desc });
 
     const rect = card.getBoundingClientRect();
-    
-    const clone = card.cloneNode(true);
+
+    const clone = card.cloneNode(true) as HTMLDivElement;
+    const staticTitle = clone.querySelector('.static-card-title');
+    if (staticTitle) staticTitle.remove();
+
     const overlay = clone.querySelector('.hover-overlay');
     if (overlay) overlay.remove();
 
@@ -150,7 +173,11 @@ const Carousel = () => {
     if (expandedCard === null) return;
 
     const card = cardsRef.current[expandedCard];
+    if (!card) return;
+
     const clone = cloneRef.current;
+    if (!clone) return;
+
     const pos = positions[expandedCard] || positions[positions.length - 1];
     const rect = card.getBoundingClientRect();
 
@@ -171,12 +198,12 @@ const Carousel = () => {
     });
   };
 
-  const rotate = (direction) => {
+  const rotate = (direction: "next" | "prev") => {
     if (expandedCard !== null) return;
 
-    cardsRef.current.forEach((card, index) => {
+    cardsRef.current.forEach((card, index: number) => {
       if (!card) return;
-      let newIndex;
+      let newIndex: number;
       if (direction === "next") {
         newIndex = (index - 1 + 5) % 5;
       } else {
@@ -204,29 +231,29 @@ const Carousel = () => {
       if (direction === "next") {
         const newOrder = [...prev];
         const first = newOrder.shift();
-        newOrder.push(first);
+        if (first !== undefined) newOrder.push(first);
         return newOrder;
       } else {
         const newOrder = [...prev];
         const last = newOrder.pop();
-        newOrder.unshift(last);
+        if (last !== undefined) newOrder.unshift(last);
         return newOrder;
       }
     });
   };
 
-  const handleDragStart = (e) => {
+  const handleDragStart = (e: React.MouseEvent | React.TouchEvent) => {
     if (expandedCard !== null) return;
     setIsDragging(true);
-    dragStateRef.current.startX = e.type.includes("mouse") ? e.clientX : e.touches[0].clientX;
+    dragStateRef.current.startX = e.type.includes("mouse") ? (e as React.MouseEvent).clientX : (e as React.TouchEvent).touches[0].clientX;
     dragStateRef.current.dragDistance = 0;
     dragStateRef.current.processedSteps = 0;
   };
 
-  const handleDragMove = (e) => {
+  const handleDragMove = (e: MouseEvent | TouchEvent) => {
     if (!isDragging) return;
     e.preventDefault();
-    const currentX = e.type.includes("mouse") ? e.clientX : e.touches[0].clientX;
+    const currentX = e.type.includes("mouse") ? (e as MouseEvent).clientX : (e as TouchEvent).touches[0].clientX;
     dragStateRef.current.dragDistance = currentX - dragStateRef.current.startX;
 
     const steps = Math.floor(Math.abs(dragStateRef.current.dragDistance) / dragStateRef.current.threshold);
@@ -243,7 +270,7 @@ const Carousel = () => {
   };
 
   useEffect(() => {
-    const handleKeyDown = (e) => {
+    const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape" && expandedCard !== null) {
         closeCard();
       } else if (e.key === "ArrowLeft" && expandedCard === null) {
@@ -269,33 +296,34 @@ const Carousel = () => {
   }, [expandedCard, isDragging]);
 
   return (
-    <div className="py-20 px-4 bg-gray-50 overflow-x-hidden">
+    <div className="py-20 px-4 bg-bg-secondary overflow-x-hidden">
       <style>{`
-        @import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
-        
-        .portfolio-header {
+        @import url("https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,900;1,400&display=swap");
+
+        .focus-areas-header {
           text-align: center;
           margin-bottom: 60px;
           position: relative;
           z-index: 10;
         }
 
-        .portfolio-subtitle {
-          color: #ff6b35;
+        .focus-areas-subtitle {
+          color: #c9a227;
           font-size: 14px;
-          font-weight: 700;
+          font-weight: 600;
           text-transform: uppercase;
           letter-spacing: 2px;
           margin-bottom: 16px;
           display: block;
+          font-family: 'Inter', -apple-system, sans-serif;
         }
 
-        .portfolio-main-title {
+        .focus-areas-main-title {
           font-size: clamp(28px, 5vw, 56px);
-          font-weight: 900;
-          color: #0a0a0a;
-          line-height: 1.1;
-          font-family: "Poppins", sans-serif;
+          font-weight: 700;
+          color: #0d4a2e;
+          line-height: 1.2;
+          font-family: "Playfair Display", serif;
         }
 
         .slider-container {
@@ -353,10 +381,10 @@ const Carousel = () => {
           height: 100%;
           background: linear-gradient(
             to right,
-            rgba(0, 0, 0, 0.15),
+            rgba(13, 74, 46, 0.2),
             transparent 30%,
             transparent 70%,
-            rgba(0, 0, 0, 0.15)
+            rgba(13, 74, 46, 0.2)
           );
           transform: translateZ(-8px);
           pointer-events: none;
@@ -369,9 +397,9 @@ const Carousel = () => {
           left: 0;
           width: 100%;
           height: 100%;
-          background: #e0e0e0;
+          background: #f5f3ef;
           transform: translateZ(-16px);
-          box-shadow: 0 0 40px rgba(0, 0, 0, 0.3);
+          box-shadow: 0 0 40px rgba(13, 74, 46, 0.2);
           pointer-events: none;
         }
 
@@ -385,19 +413,46 @@ const Carousel = () => {
           z-index: 1;
         }
 
+        /* Updated styles for the centered title overlay */
+        .static-card-title {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          width: 85%;
+          padding: 12px 8px;
+          background: rgba(0, 0, 0, 0.65);
+          border-radius: 4px;
+          color: white;
+          z-index: 3;
+          text-align: center;
+          backdrop-filter: blur(2px);
+        }
+
+        .static-card-title h3 {
+          margin: 0;
+          font-size: 15px;
+          font-weight: 700;
+          color: #ffffff;
+          font-family: 'Inter', -apple-system, sans-serif;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          line-height: 1.3;
+        }
+
         .hover-overlay {
           position: absolute;
           top: 0;
           left: 0;
           width: 100%;
           height: 100%;
-          background: rgba(0, 0, 0, 0.7);
+          background: rgba(13, 74, 46, 0.85);
           display: flex;
           align-items: center;
           justify-content: center;
           opacity: 0;
           transition: opacity 0.3s ease;
-          z-index: 2;
+          z-index: 4;
         }
 
         .portfolio-card:hover .hover-overlay {
@@ -405,13 +460,14 @@ const Carousel = () => {
         }
 
         .hover-overlay span {
-          color: white;
+          color: #c9a227;
           font-size: 14px;
           font-weight: 600;
           text-transform: uppercase;
           letter-spacing: 1px;
           text-align: center;
           padding: 0 10px;
+          font-family: 'Inter', -apple-system, sans-serif;
         }
 
         .card-info-panel {
@@ -426,11 +482,12 @@ const Carousel = () => {
           max-width: 600px;
           width: 90%;
           padding: 2rem;
-          background: #ff6b35;
+          background: #0d4a2e;
           color: white;
-          box-shadow: 4px 3px 18px 4px rgba(0,0,0,0.1);
+          box-shadow: 4px 3px 18px 4px rgba(0,0,0,0.15);
           min-width: 300px;
           transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+          border-radius: 8px;
         }
 
         .card-info-panel.visible {
@@ -441,17 +498,17 @@ const Carousel = () => {
 
         .card-info-panel h2 {
           font-size: clamp(24px, 4vw, 36px);
-          font-weight: 900;
-          color: #0a0a0a;
+          font-weight: 700;
+          color: #c9a227;
           margin-bottom: 16px;
-          font-family: "Poppins", sans-serif;
+          font-family: "Playfair Display", serif;
         }
 
         .card-info-panel p {
           font-size: clamp(14px, 2vw, 18px);
-          color: #080808;
-          line-height: 1.6;
-          font-family: "Poppins", sans-serif;
+          color: #f5f3ef;
+          line-height: 1.7;
+          font-family: 'Inter', -apple-system, sans-serif;
         }
 
         .close-btn-portfolio {
@@ -461,7 +518,7 @@ const Carousel = () => {
           width: 60px;
           height: 60px;
           background: white;
-          border: none;
+          border: 2px solid #0d4a2e;
           border-radius: 50%;
           display: flex;
           align-items: center;
@@ -471,7 +528,7 @@ const Carousel = () => {
           opacity: 0;
           pointer-events: none;
           transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-          box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+          box-shadow: 0 8px 25px rgba(13, 74, 46, 0.2);
         }
 
         .close-btn-portfolio.visible {
@@ -480,19 +537,20 @@ const Carousel = () => {
         }
 
         .close-btn-portfolio:hover {
-          background: #ff6b35;
-          color: white;
+          background: #0d4a2e;
+          color: #c9a227;
           transform: rotate(90deg) scale(1.1);
+          border-color: #0d4a2e;
         }
 
         .close-btn-portfolio svg {
           width: 24px;
           height: 24px;
-          color: #0a0a0a;
+          color: #0d4a2e;
         }
-        
+
         .close-btn-portfolio:hover svg {
-          color: white;
+          color: #c9a227;
         }
 
         @media (max-width: 768px) {
@@ -512,12 +570,12 @@ const Carousel = () => {
         }
       `}</style>
 
-      <div className="portfolio-header">
-        <p className="portfolio-subtitle">Behind creativity</p>
-        <h1 className="portfolio-main-title">Curious what else we've created?</h1>
+      <div className="focus-areas-header">
+        <p className="focus-areas-subtitle">Strategic Priorities</p>
+        <h1 className="focus-areas-main-title">Key Focus Areas</h1>
       </div>
 
-      <div 
+      <div
         ref={containerRef}
         className={`slider-container ${isDragging ? 'dragging' : ''}`}
         onMouseDown={handleDragStart}
@@ -532,15 +590,20 @@ const Carousel = () => {
               onClick={() => expandCard(position)}
             >
               <img src={cards[cardIndex].img} alt={cards[cardIndex].title} />
+              
+              <div className="static-card-title">
+                <h3>{cards[cardIndex].title}</h3>
+              </div>
+              
               <div className="hover-overlay">
-                <span>Click to see more</span>
+                <span>View Details</span>
               </div>
             </div>
           ))}
         </div>
       </div>
 
-      <button 
+      <button
         className={`close-btn-portfolio ${expandedCard !== null ? 'visible' : ''}`}
         onClick={closeCard}
         aria-label="Close details"
