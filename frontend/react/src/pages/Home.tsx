@@ -1,6 +1,8 @@
 import { Link } from 'react-router-dom'
 import Card from '../components/Card'
 import Slideshow from '../components/Slideshow'
+import Carousel from '../components/carousel'; // adjust path as needed
+
 
 const Home = () => {
 
@@ -201,6 +203,7 @@ const Home = () => {
           `}</style>
         </section>
         {/* END MISSION SECTION */}
+<Carousel/>
 
       {/* Focus Areas */}
       <section className="py-16 md:py-24 bg-bg-secondary">
