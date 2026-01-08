@@ -3,6 +3,7 @@ import axios from 'axios'
 import Card from '../components/Card'
 import Input from '../components/Input'
 import Button from '../components/Button'
+import PressReleaseAdmin from '../components/PressReleaseAdmin'
 
 interface Document {
   id: string
@@ -30,6 +31,7 @@ const Admin = () => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [successMessage, setSuccessMessage] = useState('')
+  const [activeTab, setActiveTab] = useState<'documents' | 'press-releases'>('documents')
 
   useEffect(() => {
     // Check if user is already authenticated
@@ -226,7 +228,37 @@ const Admin = () => {
           </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Tab Navigation */}
+        <div className="mb-8">
+          <div className="flex space-x-4">
+            <button
+              onClick={() => setActiveTab('documents')}
+              className={`px-6 py-3 rounded-t-lg font-body font-medium transition-colors duration-200 ${
+                activeTab === 'documents'
+                  ? 'bg-white text-primary border-b-2 border-primary'
+                  : 'bg-bg-secondary text-text-secondary hover:text-primary'
+              }`}
+            >
+              Documents
+            </button>
+            <button
+              onClick={() => setActiveTab('press-releases')}
+              className={`px-6 py-3 rounded-t-lg font-body font-medium transition-colors duration-200 ${
+                activeTab === 'press-releases'
+                  ? 'bg-white text-primary border-b-2 border-primary'
+                  : 'bg-bg-secondary text-text-secondary hover:text-primary'
+              }`}
+            >
+              Press Releases
+            </button>
+          </div>
+        </div>
+
+        {/* Tab Content */}
+        {activeTab === 'press-releases' ? (
+          <PressReleaseAdmin />
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Upload Form */}
           <Card className="p-6 lg:col-span-1">
             <h2 className="font-heading font-semibold text-2xl text-primary mb-6">
@@ -341,6 +373,7 @@ const Admin = () => {
             )}
           </Card>
         </div>
+        )}
       </div>
     </div>
   )

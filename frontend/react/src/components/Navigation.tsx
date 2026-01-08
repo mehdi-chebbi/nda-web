@@ -8,6 +8,7 @@ const Navigation = () => {
     { path: '/mission', label: 'Mission' },
     { path: '/gcf-project', label: 'GCF Project' },
     { path: '/sustainable-development', label: 'Sustainable Development' },
+    { path: '/press-release', label: 'Press Release' },
     { path: '/resources', label: 'Resources' },
     { path: '/contact', label: 'Contact' },
         { path: '/about', label: 'About Us' },

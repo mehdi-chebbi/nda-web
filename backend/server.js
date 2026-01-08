@@ -11,8 +11,9 @@ const cors = require('cors');
 const app = express();
 const PORT = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
-const DOCS_DIR = path.join(__dirname, '..', 'docs');
+const DOCS_DIR = path.join(__dirname, 'docs');
 const MANIFEST_PATH = path.join(DOCS_DIR, 'manifest.json');
+const NEWS_IMAGES_DIR = path.join(__dirname, 'news-imgs');
 
 // PostgreSQL connection
 const pool = new Pool({
@@ -34,6 +35,9 @@ app.use(express.static(path.join(__dirname, '..', 'frontend', 'react', 'dist')))
 // Serve docs directory
 app.use('/docs', express.static(DOCS_DIR));
 
+// Serve news images directory
+app.use('/news-imgs', express.static(NEWS_IMAGES_DIR));
+
 const upload = multer({
   dest: 'uploads/',
   fileFilter: (req, file, cb) => {
@@ -46,6 +50,22 @@ const upload = multer({
   limits: {
     fileSize: 50 * 1024 * 1024, // 50MB limit per file
     files: 50 // Max 50 files at once
+  }
+});
+
+const uploadImages = multer({
+  dest: 'uploads/',
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only PNG and JPEG images are allowed'));
+    }
+  },
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10MB limit per image
+    files: 10 // Max 10 images at once
   }
 });
 
@@ -112,6 +132,12 @@ function generateId(category) {
   const timestamp = Date.now();
   const random = crypto.randomBytes(2).toString('hex');
   return `${prefix}-${timestamp}-${random}`;
+}
+
+function generateNewsImageName() {
+  const timestamp = Date.now();
+  const random = crypto.randomBytes(3).toString('hex');
+  return `news-${timestamp}-${random}`;
 }
 
 // Database initialization
@@ -213,6 +239,23 @@ async function initializeDatabase() {
         BEFORE UPDATE ON admin_users
         FOR EACH ROW
         EXECUTE FUNCTION update_updated_at_column()
+    `);
+
+    // Create press releases table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS press_releases (
+        id SERIAL PRIMARY KEY,
+        title VARCHAR(255) NOT NULL,
+        content TEXT NOT NULL,
+        images TEXT[],
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        created_by VARCHAR(50) REFERENCES admin_users(username)
+      )
+    `);
+
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_press_releases_created_at ON press_releases(created_at DESC)
     `);
 
     console.log('Database tables initialized');
@@ -667,6 +710,181 @@ app.get('/docs/:category/:filename', async (req, res) => {
   }
 });
 
+// ================= PRESS RELEASE ENDPOINTS =================
+
+// Get all press releases (public)
+app.get('/api/press-releases', async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT id, title, content, images, created_at, created_by
+      FROM press_releases
+      ORDER BY created_at DESC
+    `);
+
+    res.json(result.rows.map(row => ({
+      id: row.id,
+      title: row.title,
+      content: row.content,
+      images: row.images || [],
+      createdAt: row.created_at,
+      createdBy: row.created_by
+    })));
+  } catch (error) {
+    console.error('Error fetching press releases:', error);
+    res.status(500).json({ error: 'Failed to fetch press releases.' });
+  }
+});
+
+// Get single press release (public)
+app.get('/api/press-releases/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await pool.query(`
+      SELECT id, title, content, images, created_at, created_by
+      FROM press_releases
+      WHERE id = $1
+    `, [id]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Press release not found.' });
+    }
+
+    const row = result.rows[0];
+    res.json({
+      id: row.id,
+      title: row.title,
+      content: row.content,
+      images: row.images || [],
+      createdAt: row.created_at,
+      createdBy: row.created_by
+    });
+  } catch (error) {
+    console.error('Error fetching press release:', error);
+    res.status(500).json({ error: 'Failed to fetch press release.' });
+  }
+});
+
+// Create press release (admin only)
+app.post('/api/admin/press-releases', authenticateToken, uploadImages.array('images', 10), async (req, res) => {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    const { title, content } = req.body;
+
+    if (!title || !content) {
+      // Delete uploaded files if validation fails
+      if (req.files) {
+        for (const file of req.files) {
+          try {
+            await fs.unlink(file.path);
+          } catch (e) {}
+        }
+      }
+      return res.status(400).json({ error: 'Title and content are required.' });
+    }
+
+    // Create news images directory if it doesn't exist
+    await fs.mkdir(NEWS_IMAGES_DIR, { recursive: true });
+
+    // Process uploaded images
+    const imagePaths = [];
+    if (req.files && req.files.length > 0) {
+      for (const file of req.files) {
+        const ext = path.extname(file.originalname);
+        const filename = `${generateNewsImageName()}${ext}`;
+        const destPath = path.join(NEWS_IMAGES_DIR, filename);
+        await fs.rename(file.path, destPath);
+        imagePaths.push(filename);
+      }
+    }
+
+    // Insert into database
+    const result = await client.query(
+      `INSERT INTO press_releases (title, content, images, created_by)
+       VALUES ($1, $2, $3, $4)
+       RETURNING id, title, content, images, created_at, created_by`,
+      [title, content, imagePaths, req.user.username]
+    );
+
+    await client.query('COMMIT');
+
+    const row = result.rows[0];
+    res.json({
+      message: 'Press release created successfully.',
+      pressRelease: {
+        id: row.id,
+        title: row.title,
+        content: row.content,
+        images: row.images || [],
+        createdAt: row.created_at,
+        createdBy: row.created_by
+      }
+    });
+  } catch (error) {
+    await client.query('ROLLBACK');
+    console.error('Error creating press release:', error);
+
+    // Delete uploaded files on error
+    if (req.files) {
+      for (const file of req.files) {
+        try {
+          await fs.unlink(file.path);
+        } catch (e) {}
+      }
+    }
+
+    res.status(500).json({ error: 'Failed to create press release.' });
+  } finally {
+    client.release();
+  }
+});
+
+// Delete press release (admin only)
+app.delete('/api/admin/press-releases/:id', authenticateToken, async (req, res) => {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    const { id } = req.params;
+
+    // Get press release to delete images
+    const pressRelease = await client.query(
+      'SELECT images FROM press_releases WHERE id = $1',
+      [id]
+    );
+
+    if (pressRelease.rows.length === 0) {
+      return res.status(404).json({ error: 'Press release not found.' });
+    }
+
+    // Delete images from filesystem
+    const images = pressRelease.rows[0].images || [];
+    for (const image of images) {
+      try {
+        await fs.unlink(path.join(NEWS_IMAGES_DIR, image));
+      } catch (e) {
+        console.error('Error deleting image:', image, e);
+      }
+    }
+
+    // Delete from database
+    await client.query('DELETE FROM press_releases WHERE id = $1', [id]);
+
+    await client.query('COMMIT');
+
+    res.json({ message: 'Press release deleted successfully.' });
+  } catch (error) {
+    await client.query('ROLLBACK');
+    console.error('Error deleting press release:', error);
+    res.status(500).json({ error: 'Failed to delete press release.' });
+  } finally {
+    client.release();
+  }
+});
+
+// ================= END PRESS RELEASE ENDPOINTS =================
+
 // Catch all - serve React app for any other route
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'frontend', 'react', 'dist', 'index.html'));
@@ -697,6 +915,7 @@ async function startServer() {
     // Create necessary directories
     await fs.mkdir(path.join(DOCS_DIR, 'gcf'), { recursive: true });
     await fs.mkdir(path.join(DOCS_DIR, 'policy'), { recursive: true });
+    await fs.mkdir(NEWS_IMAGES_DIR, { recursive: true });
 
     // Initialize manifest
     await initializeManifest();

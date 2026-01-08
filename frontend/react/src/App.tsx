@@ -9,6 +9,8 @@ import Admin from './pages/Admin'
 import Mission from './pages/Mission'
 import GCFProject from './pages/GCFProject'
 import SustainableDevelopment from './pages/SustainableDevelopment'
+import PressReleaseList from './pages/PressReleaseList'
+import PressReleaseDetail from './pages/PressReleaseDetail'
 
 function App() {
   return (
@@ -25,6 +27,8 @@ function App() {
             <Route path="/mission" element={<Mission />} />
             <Route path="/gcf-project" element={<GCFProject />} />
             <Route path="/sustainable-development" element={<SustainableDevelopment />} />
+            <Route path="/press-release" element={<PressReleaseList />} />
+            <Route path="/press-release/:id" element={<PressReleaseDetail />} />
           </Routes>
         </main>
         <Footer />
