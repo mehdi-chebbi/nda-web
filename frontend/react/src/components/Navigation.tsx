@@ -3,14 +3,16 @@ import { Link, useLocation } from 'react-router-dom'
 const Navigation = () => {
   const location = useLocation()
 
-  const navLinks = [
+ const navLinks = [
     { path: '/', label: 'Home' },
+    { path: '/mission', label: 'Mission' },
+    { path: '/gcf-project', label: 'GCF Project' },
+    { path: '/sustainable-development', label: 'Sustainable Development' },
     { path: '/resources', label: 'Resources' },
-    { path: '/about', label: 'About Us' },
     { path: '/contact', label: 'Contact' },
-    { path: '/admin', label: 'Admin' }
+        { path: '/about', label: 'About Us' },
+    { path: '/admin', label: 'Workspace' }
   ]
-
   return (
     <nav className="bg-primary shadow-md fixed top-0 left-0 right-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
