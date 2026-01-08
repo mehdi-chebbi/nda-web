@@ -294,8 +294,8 @@ const Home = () => {
       <Carousel />
 
       {/* Statistics */}
-      <section className="py-16 md:py-24">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<section className="py-16 md:py-24 bg-bg-secondary">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {statistics.map((stat, index) => (
               <AnimatedStat key={index} stat={stat} index={index} />
