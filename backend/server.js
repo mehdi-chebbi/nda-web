@@ -681,6 +681,138 @@ app.delete('/api/admin/documents/:id', authenticateToken, async (req, res) => {
   }
 });
 
+// Update document (admin only)
+app.put('/api/admin/documents/:id', authenticateToken, upload.single('file'), async (req, res) => {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    const { id } = req.params;
+    const { category, displayName } = req.body;
+
+    // Check if document exists
+    const docResult = await client.query(
+      'SELECT * FROM documents WHERE id = $1',
+      [id]
+    );
+
+    if (docResult.rows.length === 0) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ error: 'Document not found.' });
+    }
+
+    const document = docResult.rows[0];
+
+    // Validate category if provided
+    if (category && !['gcf', 'policy'].includes(category)) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ error: 'Invalid category. Must be "gcf" or "policy".' });
+    }
+
+    let updates = [];
+    let values = [];
+    let paramCount = 1;
+
+    // Update display name if provided
+    if (displayName && displayName !== document.display_name) {
+      updates.push(`display_name = $${paramCount++}`);
+      values.push(displayName);
+    }
+
+    // Update category if provided
+    if (category && category !== document.category) {
+      updates.push(`category = $${paramCount++}`);
+      values.push(category);
+
+      // Move file to new category directory
+      const oldPath = path.join(DOCS_DIR, document.category, document.name);
+      const newDir = path.join(DOCS_DIR, category);
+      const newPath = path.join(newDir, document.name);
+
+      await fs.mkdir(newDir, { recursive: true });
+      await fs.rename(oldPath, newPath);
+    }
+
+    // Update file if provided
+    if (req.file) {
+      const ext = path.extname(req.file.originalname);
+      const filename = document.name.replace(/\.[^/.]+$/, '') + ext;
+
+      const categoryDir = path.join(DOCS_DIR, category || document.category);
+      const destPath = path.join(categoryDir, filename);
+
+      // Delete old file
+      const oldPath = path.join(DOCS_DIR, document.category, document.name);
+      try {
+        await fs.unlink(oldPath);
+      } catch (error) {
+        console.error('Error deleting old file:', error);
+      }
+
+      // Move new file
+      await fs.rename(req.file.path, destPath);
+
+      // Update filename and size
+      const fileStats = await fs.stat(destPath);
+      updates.push(`name = $${paramCount++}`);
+      values.push(filename);
+      updates.push(`size = $${paramCount++}`);
+      values.push(fileStats.size);
+
+      // Store updated filename for next update
+      document.name = filename;
+    }
+
+    // Add modified timestamp
+    const modified = new Date().toISOString();
+    updates.push(`modified = $${paramCount++}`);
+    values.push(modified);
+
+    // Add id for WHERE clause
+    values.push(id);
+
+    if (updates.length > 0) {
+      await client.query(
+        `UPDATE documents SET ${updates.join(', ')} WHERE id = $${paramCount}`,
+        values
+      );
+
+      // Log audit entry
+      await client.query(
+        `INSERT INTO document_audit_log (document_id, action, performed_by, details)
+         VALUES ($1, $2, $3, $4)`,
+        [id, 'update', req.user.username, JSON.stringify({
+          oldDisplayName: document.display_name,
+          newDisplayName: displayName || document.display_name,
+          oldCategory: document.category,
+          newCategory: category || document.category,
+          fileUpdated: !!req.file
+        })]
+      );
+
+      await client.query('COMMIT');
+
+      // Update manifest
+      await regenerateManifestFromDB();
+    }
+
+    res.json({ message: 'Document updated successfully.' });
+  } catch (error) {
+    await client.query('ROLLBACK');
+    console.error('Update error:', error);
+    if (req.file) {
+      try {
+        await fs.unlink(req.file.path);
+      } catch (unlinkError) {
+        console.error('Error deleting uploaded file:', unlinkError);
+      }
+    }
+    res.status(500).json({ error: 'Failed to update document.' });
+  } finally {
+    client.release();
+  }
+});
+
 // Serve manifest.json (public)
 app.get('/docs/manifest.json', async (req, res) => {
   try {
@@ -878,6 +1010,138 @@ app.delete('/api/admin/press-releases/:id', authenticateToken, async (req, res) 
     await client.query('ROLLBACK');
     console.error('Error deleting press release:', error);
     res.status(500).json({ error: 'Failed to delete press release.' });
+  } finally {
+    client.release();
+  }
+});
+
+// Update press release (admin only)
+app.put('/api/admin/press-releases/:id', authenticateToken, uploadImages.array('images', 10), async (req, res) => {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    const { id } = req.params;
+    const { title, content, keepExistingImages } = req.body;
+
+    // Check if press release exists
+    const prResult = await client.query(
+      'SELECT * FROM press_releases WHERE id = $1',
+      [id]
+    );
+
+    if (prResult.rows.length === 0) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ error: 'Press release not found.' });
+    }
+
+    const pressRelease = prResult.rows[0];
+
+    let updates = [];
+    let values = [];
+    let paramCount = 1;
+
+    // Update title if provided
+    if (title && title !== pressRelease.title) {
+      updates.push(`title = $${paramCount++}`);
+      values.push(title);
+    }
+
+    // Update content if provided
+    if (content && content !== pressRelease.content) {
+      updates.push(`content = $${paramCount++}`);
+      values.push(content);
+    }
+
+    // Handle images
+    const oldImages = pressRelease.images || [];
+    let finalImages = [...oldImages];
+
+    // Parse which existing images to keep
+    if (keepExistingImages) {
+      try {
+        const keepImages = JSON.parse(keepExistingImages);
+        finalImages = keepImages.filter(img => oldImages.includes(img));
+      } catch (e) {
+        console.error('Error parsing keepExistingImages:', e);
+        finalImages = [...oldImages];
+      }
+    }
+
+    // Add new images if provided
+    if (req.files && req.files.length > 0) {
+      const totalImages = finalImages.length + req.files.length;
+      if (totalImages > 10) {
+        await client.query('ROLLBACK');
+        return res.status(400).json({ error: 'Maximum 10 images allowed.' });
+      }
+
+      // Delete old images that are not being kept
+      const imagesToDelete = oldImages.filter(img => !finalImages.includes(img));
+      for (const image of imagesToDelete) {
+        try {
+          await fs.unlink(path.join(NEWS_IMAGES_DIR, image));
+        } catch (e) {
+          console.error('Error deleting old image:', image, e);
+        }
+      }
+
+      // Generate new image names and move files
+      for (const file of req.files) {
+        const imageName = generateNewsImageName() + path.extname(file.originalname);
+        const destPath = path.join(NEWS_IMAGES_DIR, imageName);
+        await fs.rename(file.path, destPath);
+        finalImages.push(imageName);
+      }
+
+      updates.push(`images = $${paramCount++}`);
+      values.push(finalImages);
+    } else if (keepExistingImages && finalImages.length !== oldImages.length) {
+      // Only images were removed, no new ones added
+      const imagesToDelete = oldImages.filter(img => !finalImages.includes(img));
+      for (const image of imagesToDelete) {
+        try {
+          await fs.unlink(path.join(NEWS_IMAGES_DIR, image));
+        } catch (e) {
+          console.error('Error deleting old image:', image, e);
+        }
+      }
+
+      updates.push(`images = $${paramCount++}`);
+      values.push(finalImages);
+    }
+
+    if (updates.length > 0) {
+      values.push(id);
+
+      await client.query(
+        `UPDATE press_releases SET ${updates.join(', ')} WHERE id = $${paramCount}`,
+        values
+      );
+
+      await client.query('COMMIT');
+
+      res.json({ message: 'Press release updated successfully.' });
+    } else {
+      await client.query('ROLLBACK');
+      res.status(400).json({ error: 'No changes to update.' });
+    }
+  } catch (error) {
+    await client.query('ROLLBACK');
+    console.error('Error updating press release:', error);
+
+    // Clean up uploaded files on error
+    if (req.files) {
+      for (const file of req.files) {
+        try {
+          await fs.unlink(file.path);
+        } catch (e) {
+          console.error('Error deleting uploaded file:', file.path, e);
+        }
+      }
+    }
+
+    res.status(500).json({ error: 'Failed to update press release.' });
   } finally {
     client.release();
   }

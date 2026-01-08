@@ -1,9 +1,13 @@
 import { useState, useEffect } from 'react'
+import { Plus, FileText, Newspaper, Search, LogOut, Sparkles } from 'lucide-react'
 import axios from 'axios'
-import Card from '../components/Card'
-import Input from '../components/Input'
-import Button from '../components/Button'
-import PressReleaseAdmin from '../components/PressReleaseAdmin'
+import Modal from '../components/Modal'
+import UploadDocumentsModal from '../components/UploadDocumentsModal'
+import AddNewsModal from '../components/AddNewsModal'
+import UpdateDocumentModal from '../components/UpdateDocumentModal'
+import UpdateNewsModal from '../components/UpdateNewsModal'
+import DocumentCard from '../components/DocumentCard'
+import NewsCard from '../components/NewsCard'
 
 interface Document {
   id: string
@@ -14,44 +18,70 @@ interface Document {
   category: string
 }
 
-interface Manifest {
-  gcf: Document[]
-  policy: Document[]
-  lastUpdated: string
+interface PressRelease {
+  id: number
+  title: string
+  content: string
+  images: string[]
+  createdAt: string
+  createdBy: string
 }
 
 const Admin = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [loginForm, setLoginForm] = useState({ username: '', password: '' })
-  const [manifest, setManifest] = useState<Manifest | null>(null)
-  const [uploadForm, setUploadForm] = useState({
-    files: null as FileList | null,
-    category: 'gcf'
-  })
+  const [documents, setDocuments] = useState<Document[]>([])
+  const [pressReleases, setPressReleases] = useState<PressRelease[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [successMessage, setSuccessMessage] = useState('')
-  const [activeTab, setActiveTab] = useState<'documents' | 'press-releases'>('documents')
+  const [activeTab, setActiveTab] = useState<'documents' | 'news'>('documents')
+  const [searchTerm, setSearchTerm] = useState('')
+
+  // Modal states
+  const [uploadModalOpen, setUploadModalOpen] = useState(false)
+  const [addNewsModalOpen, setAddNewsModalOpen] = useState(false)
+  const [updateDocumentModalOpen, setUpdateDocumentModalOpen] = useState(false)
+  const [updateNewsModalOpen, setUpdateNewsModalOpen] = useState(false)
+  const [selectedDocument, setSelectedDocument] = useState<Document | null>(null)
+  const [selectedNews, setSelectedNews] = useState<PressRelease | null>(null)
 
   useEffect(() => {
-    // Check if user is already authenticated
     const token = localStorage.getItem('adminToken')
     if (token) {
       setIsAuthenticated(true)
       fetchDocuments()
+      fetchPressReleases()
     }
   }, [])
 
   const fetchDocuments = async () => {
     try {
+      setLoading(true)
       const token = localStorage.getItem('adminToken')
-      const response = await axios.get<Manifest>('/api/admin/documents', {
+      const response = await axios.get('/api/admin/documents', {
         headers: { Authorization: `Bearer ${token}` }
       })
-      setManifest(response.data)
+      const allDocs = [...(response.data.gcf || []), ...(response.data.policy || [])]
+      setDocuments(allDocs)
     } catch (err) {
       console.error('Error fetching documents:', err)
       setError('Failed to fetch documents')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const fetchPressReleases = async () => {
+    try {
+      setLoading(true)
+      const response = await axios.get<PressRelease[]>('/api/press-releases')
+      setPressReleases(response.data)
+    } catch (err) {
+      console.error('Error fetching press releases:', err)
+      setError('Failed to fetch press releases')
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -66,6 +96,7 @@ const Admin = () => {
         localStorage.setItem('adminToken', response.data.token)
         setIsAuthenticated(true)
         fetchDocuments()
+        fetchPressReleases()
       }
     } catch (err: any) {
       setError(err.response?.data?.error || 'Login failed. Please check your credentials.')
@@ -77,49 +108,12 @@ const Admin = () => {
   const handleLogout = () => {
     localStorage.removeItem('adminToken')
     setIsAuthenticated(false)
-    setManifest(null)
+    setDocuments([])
+    setPressReleases([])
     setLoginForm({ username: '', password: '' })
   }
 
-  const handleUpload = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!uploadForm.files || uploadForm.files.length === 0) {
-      setError('Please select files to upload')
-      return
-    }
-
-    setLoading(true)
-    setError('')
-    setSuccessMessage('')
-
-    try {
-      const token = localStorage.getItem('adminToken')
-      const formData = new FormData()
-      for (let i = 0; i < uploadForm.files.length; i++) {
-        formData.append('files', uploadForm.files[i])
-      }
-      formData.append('category', uploadForm.category)
-
-      const response = await axios.post('/api/admin/documents/bulk', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          Authorization: `Bearer ${token}`
-        }
-      })
-
-      setSuccessMessage(`Successfully uploaded ${response.data.totalUploaded} file${response.data.totalUploaded !== 1 ? 's' : ''}!`)
-      setUploadForm({ files: null, category: 'gcf' })
-      fetchDocuments()
-    } catch (err: any) {
-      setError(err.response?.data?.error || 'Upload failed. Please try again.')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this document?')) return
-
+  const handleDeleteDocument = async (id: string) => {
     setLoading(true)
     setError('')
 
@@ -138,243 +132,413 @@ const Admin = () => {
     }
   }
 
-  const formatFileSize = (bytes: number) => {
-    if (bytes === 0) return '0 Bytes'
-    const k = 1024
-    const sizes = ['Bytes', 'KB', 'MB', 'GB']
-    const i = Math.floor(Math.log(bytes) / Math.log(k))
-    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i]
+  const handleDeleteNews = async (id: number) => {
+    setLoading(true)
+    setError('')
+
+    try {
+      const token = localStorage.getItem('adminToken')
+      await axios.delete(`/api/admin/press-releases/${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+
+      setSuccessMessage('Press release deleted successfully!')
+      fetchPressReleases()
+    } catch (err: any) {
+      setError(err.response?.data?.error || 'Delete failed. Please try again.')
+    } finally {
+      setLoading(false)
+    }
   }
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    })
+  const handleUpdateDocument = (document: Document) => {
+    setSelectedDocument(document)
+    setUpdateDocumentModalOpen(true)
   }
 
-  // Login Form
+  const handleUpdateNews = (news: PressRelease) => {
+    setSelectedNews(news)
+    setUpdateNewsModalOpen(true)
+  }
+
+  // Filter documents and news based on search term
+  const filteredDocuments = documents.filter(doc =>
+    doc.displayName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    doc.name.toLowerCase().includes(searchTerm.toLowerCase())
+  )
+
+  const filteredNews = pressReleases.filter(pr =>
+    pr.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    pr.content.toLowerCase().includes(searchTerm.toLowerCase())
+  )
+
+  // Login Page
   if (!isAuthenticated) {
     return (
-      <div className="bg-bg-primary min-h-screen flex items-center justify-center py-12 px-4">
-        <Card className="w-full max-w-md p-8">
-          <h1 className="font-heading font-bold text-3xl text-primary text-center mb-6">
-            Admin Login
-          </h1>
+      <div className="min-h-screen bg-gradient-to-br from-bg-primary via-bg-secondary to-bg-primary flex items-center justify-center py-12 px-4 relative overflow-hidden">
+        {/* Background Decorations */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-20 left-20 w-72 h-72 bg-primary/5 rounded-full blur-3xl" />
+          <div className="absolute bottom-20 right-20 w-96 h-96 bg-secondary/5 rounded-full blur-3xl" />
+        </div>
+
+        {/* Login Card */}
+        <div className="relative bg-white rounded-3xl shadow-2xl p-10 w-full max-w-md animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-primary to-primary-dark rounded-2xl shadow-lg mb-6">
+              <Sparkles className="w-10 h-10 text-white" />
+            </div>
+            <h1 className="font-heading font-bold text-3xl text-primary mb-2">
+              Admin Panel
+            </h1>
+            <p className="font-body text-text-secondary">
+              Welcome back! Please sign in to continue
+            </p>
+          </div>
+
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md mb-6 font-body text-sm">
+            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl mb-6 font-body text-sm">
               {error}
             </div>
           )}
-          <form onSubmit={handleLogin} className="space-y-4">
-            <Input
-              label="Username"
-              type="text"
-              name="username"
-              value={loginForm.username}
-              onChange={(e) => setLoginForm({ ...loginForm, username: e.target.value })}
-              placeholder="Enter your username"
-              required
-            />
-            <Input
-              label="Password"
-              type="password"
-              name="password"
-              value={loginForm.password}
-              onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
-              placeholder="Enter your password"
-              required
-            />
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? 'Logging in...' : 'Login'}
-            </Button>
+
+          <form onSubmit={handleLogin} className="space-y-5">
+            <div>
+              <label className="font-body text-sm font-semibold text-text-primary mb-2 block">
+                Username
+              </label>
+              <input
+                type="text"
+                name="username"
+                value={loginForm.username}
+                onChange={(e) => setLoginForm({ ...loginForm, username: e.target.value })}
+                placeholder="Enter your username"
+                className="w-full px-4 py-3 bg-bg-secondary border-2 border-gray-200 rounded-xl font-body text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200 placeholder:text-text-muted"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="font-body text-sm font-semibold text-text-primary mb-2 block">
+                Password
+              </label>
+              <input
+                type="password"
+                name="password"
+                value={loginForm.password}
+                onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
+                placeholder="Enter your password"
+                className="w-full px-4 py-3 bg-bg-secondary border-2 border-gray-200 rounded-xl font-body text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200 placeholder:text-text-muted"
+                required
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-gradient-to-r from-primary to-primary-dark hover:from-primary-dark hover:to-primary text-white font-body font-semibold px-6 py-3.5 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center space-x-2"
+            >
+              {loading ? (
+                <>
+                  <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  <span>Signing in...</span>
+                </>
+              ) : (
+                <>
+                  <span>Sign In</span>
+                </>
+              )}
+            </button>
           </form>
-        </Card>
+        </div>
       </div>
     )
   }
 
   // Admin Dashboard
   return (
-    <div className="bg-bg-primary min-h-screen">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-12">
-          <div>
-            <h1 className="font-heading font-bold text-4xl text-primary mb-2">
-              Admin Dashboard
-            </h1>
-            <p className="font-body text-text-secondary">
-              Manage documents and content for Readiness Eritrea platform
-            </p>
-          </div>
-          <Button onClick={handleLogout} variant="outline">
-            Logout
-          </Button>
-        </div>
+    <div className="min-h-screen bg-gradient-to-br from-bg-primary via-bg-secondary to-bg-primary">
+      {/* Header */}
+      <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-lg border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-20">
+            {/* Left: Logo & Title */}
+            <div className="flex items-center space-x-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary-dark rounded-xl flex items-center justify-center shadow-lg">
+                <Sparkles className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h1 className="font-heading font-bold text-2xl text-primary">
+                  Admin Dashboard
+                </h1>
+                <p className="font-body text-sm text-text-secondary">
+                  Manage your content
+                </p>
+              </div>
+            </div>
 
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md mb-6 font-body text-sm">
-            {error}
+            {/* Right: Logout Button */}
+            <button
+              onClick={handleLogout}
+              className="flex items-center space-x-2 px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-medium text-sm transition-all duration-200 hover:shadow-md"
+            >
+              <LogOut className="w-4 h-4" />
+              <span>Logout</span>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Success/Error Messages */}
+        {successMessage && (
+          <div className="mb-6 bg-green-50 border border-green-200 text-green-600 px-6 py-4 rounded-xl font-body text-sm animate-in fade-in slide-in-from-top-2 duration-300">
+            {successMessage}
           </div>
         )}
-
-        {successMessage && (
-          <div className="bg-green-50 border border-green-200 text-green-600 px-4 py-3 rounded-md mb-6 font-body text-sm">
-            {successMessage}
+        {error && (
+          <div className="mb-6 bg-red-50 border border-red-200 text-red-600 px-6 py-4 rounded-xl font-body text-sm animate-in fade-in slide-in-from-top-2 duration-300">
+            {error}
           </div>
         )}
 
         {/* Tab Navigation */}
         <div className="mb-8">
-          <div className="flex space-x-4">
+          <div className="flex space-x-2 bg-white rounded-2xl p-2 shadow-lg">
             <button
               onClick={() => setActiveTab('documents')}
-              className={`px-6 py-3 rounded-t-lg font-body font-medium transition-colors duration-200 ${
+              className={`flex items-center space-x-2 px-6 py-3 rounded-xl font-body font-semibold text-base transition-all duration-300 ${
                 activeTab === 'documents'
-                  ? 'bg-white text-primary border-b-2 border-primary'
-                  : 'bg-bg-secondary text-text-secondary hover:text-primary'
+                  ? 'bg-primary text-white shadow-md'
+                  : 'text-text-secondary hover:text-primary hover:bg-gray-50'
               }`}
             >
-              Documents
+              <FileText className="w-5 h-5" />
+              <span>Documents</span>
+              <span className={`ml-2 px-2.5 py-0.5 rounded-full text-xs ${
+                activeTab === 'documents' ? 'bg-white/20' : 'bg-gray-100'
+              }`}>
+                {documents.length}
+              </span>
             </button>
             <button
-              onClick={() => setActiveTab('press-releases')}
-              className={`px-6 py-3 rounded-t-lg font-body font-medium transition-colors duration-200 ${
-                activeTab === 'press-releases'
-                  ? 'bg-white text-primary border-b-2 border-primary'
-                  : 'bg-bg-secondary text-text-secondary hover:text-primary'
+              onClick={() => setActiveTab('news')}
+              className={`flex items-center space-x-2 px-6 py-3 rounded-xl font-body font-semibold text-base transition-all duration-300 ${
+                activeTab === 'news'
+                  ? 'bg-secondary text-white shadow-md'
+                  : 'text-text-secondary hover:text-secondary hover:bg-gray-50'
               }`}
             >
-              Press Releases
+              <Newspaper className="w-5 h-5" />
+              <span>News</span>
+              <span className={`ml-2 px-2.5 py-0.5 rounded-full text-xs ${
+                activeTab === 'news' ? 'bg-white/20' : 'bg-gray-100'
+              }`}>
+                {pressReleases.length}
+              </span>
             </button>
           </div>
         </div>
 
-        {/* Tab Content */}
-        {activeTab === 'press-releases' ? (
-          <PressReleaseAdmin />
-        ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Upload Form */}
-          <Card className="p-6 lg:col-span-1">
-            <h2 className="font-heading font-semibold text-2xl text-primary mb-6">
-              Upload Documents
-            </h2>
-            <form onSubmit={handleUpload} className="space-y-4">
-              <div>
-                <label className="font-body text-sm font-medium text-text-primary mb-1 block">
-                  PDF Files <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="file"
-                  accept=".pdf"
-                  multiple
-                  onChange={(e) => setUploadForm({
-                    ...uploadForm,
-                    files: e.target.files
-                  })}
-                  className="w-full px-4 py-2 border border-border rounded-md font-body text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                  required
-                />
-                <p className="font-body text-xs text-text-muted mt-1">
-                  {uploadForm.files?.length || 0} file{uploadForm.files?.length !== 1 ? 's' : ''} selected
+        {/* Search Bar & Add Button */}
+        <div className="flex items-center justify-between mb-6 gap-4">
+          <div className="relative flex-1 max-w-md">
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-text-muted" />
+            <input
+              type="text"
+              placeholder={activeTab === 'documents' ? 'Search documents...' : 'Search news...'}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-12 pr-4 py-3 bg-white border-2 border-gray-200 rounded-xl font-body text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200 placeholder:text-text-muted"
+            />
+          </div>
+
+          {activeTab === 'documents' ? (
+            <button
+              onClick={() => setUploadModalOpen(true)}
+              className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-primary to-primary-dark hover:from-primary-dark hover:to-primary text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5"
+            >
+              <Plus className="w-5 h-5" />
+              <span>Add Documents</span>
+            </button>
+          ) : (
+            <button
+              onClick={() => setAddNewsModalOpen(true)}
+              className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-secondary to-secondary/80 hover:to-secondary text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5"
+            >
+              <Plus className="w-5 h-5" />
+              <span>Add News</span>
+            </button>
+          )}
+        </div>
+
+        {/* Documents Tab Content */}
+        {activeTab === 'documents' && (
+          <div>
+            {loading ? (
+              <div className="text-center py-20">
+                <div className="relative inline-block">
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-primary/10 blur-2xl rounded-full animate-pulse" />
+                  <div className="relative inline-block h-12 w-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
+                </div>
+                <p className="mt-6 font-body text-xl text-text-secondary font-medium">Loading documents...</p>
+              </div>
+            ) : filteredDocuments.length === 0 ? (
+              <div className="text-center py-20">
+                <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-gray-200 to-gray-100 rounded-2xl mb-6">
+                  <FileText className="w-10 h-10 text-gray-400" />
+                </div>
+                <h3 className="font-heading font-semibold text-2xl text-text-primary mb-2">
+                  {searchTerm ? 'No documents found' : 'No documents yet'}
+                </h3>
+                <p className="font-body text-text-secondary mb-8">
+                  {searchTerm
+                    ? 'Try a different search term'
+                    : 'Get started by uploading your first document'}
                 </p>
-              </div>
-
-              <div>
-                <label className="font-body text-sm font-medium text-text-primary mb-1 block">
-                  Category <span className="text-red-500">*</span>
-                </label>
-                <select
-                  value={uploadForm.category}
-                  onChange={(e) => setUploadForm({
-                    ...uploadForm,
-                    category: e.target.value
-                  })}
-                  className="w-full px-4 py-2 border border-border rounded-md font-body text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                >
-                  <option value="gcf">GCF Document</option>
-                  <option value="policy">Policy & Regulation</option>
-                </select>
-              </div>
-
-              <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? 'Uploading...' : 'Upload Documents'}
-              </Button>
-            </form>
-
-            <div className="mt-6 p-4 bg-bg-secondary rounded-md">
-              <p className="font-body text-xs text-text-secondary">
-                <strong>Note:</strong> Display names are automatically extracted from filenames.
-                You can upload one or multiple files at once. All files will be assigned to the same category.
-                Max 50 files at once.
-              </p>
-            </div>
-          </Card>
-
-          {/* Document List */}
-          <Card className="p-6 lg:col-span-2">
-            <h2 className="font-heading font-semibold text-2xl text-primary mb-6">
-              Documents ({manifest?.gcf.length && manifest?.policy.length
-                ? manifest.gcf.length + manifest.policy.length
-                : 0})
-            </h2>
-
-            {!manifest ? (
-              <div className="text-center py-12">
-                <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-                <p className="mt-4 font-body text-text-secondary text-sm">Loading documents...</p>
-              </div>
-            ) : (
-              <div className="space-y-3 max-h-[600px] overflow-y-auto pr-2">
-                {[...manifest?.gcf, ...manifest?.policy]?.length === 0 ? (
-                  <p className="font-body text-text-secondary text-center py-8">
-                    No documents uploaded yet
-                  </p>
-                ) : (
-                  [...manifest?.gcf, ...manifest?.policy]?.map((doc) => (
-                    <div
-                      key={doc.id}
-                      className="flex items-start justify-between p-4 bg-bg-secondary rounded-md"
-                    >
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center space-x-2 mb-1">
-                          <span className={`inline-block px-2 py-0.5 rounded text-xs font-medium ${
-                            doc.category === 'gcf' ? 'bg-primary-light text-white' : 'bg-secondary text-white'
-                          }`}>
-                            {doc.category === 'gcf' ? 'GCF' : 'Policy'}
-                          </span>
-                          <span className="font-heading font-medium text-primary text-sm truncate">
-                            {doc.displayName}
-                          </span>
-                        </div>
-                        <div className="font-body text-xs text-text-muted space-x-3">
-                          <span>{formatFileSize(doc.size)}</span>
-                          <span>{formatDate(doc.modified)}</span>
-                        </div>
-                      </div>
-                      <button
-                        onClick={() => handleDelete(doc.id)}
-                        className="ml-4 text-red-500 hover:text-red-700 transition-colors"
-                        title="Delete document"
-                      >
-                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                      </button>
-                    </div>
-                  ))
+                {!searchTerm && (
+                  <button
+                    onClick={() => setUploadModalOpen(true)}
+                    className="inline-flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-primary to-primary-dark text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5"
+                  >
+                    <Plus className="w-5 h-5" />
+                    <span>Upload Your First Document</span>
+                  </button>
                 )}
               </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {filteredDocuments.map((doc) => (
+                  <DocumentCard
+                    key={doc.id}
+                    document={doc}
+                    onDelete={handleDeleteDocument}
+                    onUpdate={handleUpdateDocument}
+                  />
+                ))}
+              </div>
             )}
-          </Card>
-        </div>
+          </div>
         )}
-      </div>
+
+        {/* News Tab Content */}
+        {activeTab === 'news' && (
+          <div>
+            {loading ? (
+              <div className="text-center py-20">
+                <div className="relative inline-block">
+                  <div className="absolute inset-0 bg-gradient-to-br from-secondary/20 to-secondary/10 blur-2xl rounded-full animate-pulse" />
+                  <div className="relative inline-block h-12 w-12 border-4 border-secondary/30 border-t-secondary rounded-full animate-spin" />
+                </div>
+                <p className="mt-6 font-body text-xl text-text-secondary font-medium">Loading news...</p>
+              </div>
+            ) : filteredNews.length === 0 ? (
+              <div className="text-center py-20">
+                <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-gray-200 to-gray-100 rounded-2xl mb-6">
+                  <Newspaper className="w-10 h-10 text-gray-400" />
+                </div>
+                <h3 className="font-heading font-semibold text-2xl text-text-primary mb-2">
+                  {searchTerm ? 'No news found' : 'No news yet'}
+                </h3>
+                <p className="font-body text-text-secondary mb-8">
+                  {searchTerm
+                    ? 'Try a different search term'
+                    : 'Get started by publishing your first news article'}
+                </p>
+                {!searchTerm && (
+                  <button
+                    onClick={() => setAddNewsModalOpen(true)}
+                    className="inline-flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-secondary to-secondary/80 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5"
+                  >
+                    <Plus className="w-5 h-5" />
+                    <span>Publish Your First News</span>
+                  </button>
+                )}
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredNews.map((pr) => (
+                  <NewsCard
+                    key={pr.id}
+                    {...pr}
+                    onDelete={handleDeleteNews}
+                    onUpdate={handleUpdateNews}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </main>
+
+      {/* Modals */}
+      <Modal
+        isOpen={uploadModalOpen}
+        onClose={() => setUploadModalOpen(false)}
+        title="Upload Documents"
+      >
+        <UploadDocumentsModal
+          onClose={() => setUploadModalOpen(false)}
+          onSuccess={() => {
+            fetchDocuments()
+            setSuccessMessage('Documents uploaded successfully!')
+            setTimeout(() => setSuccessMessage(''), 5000)
+          }}
+        />
+      </Modal>
+
+      <Modal
+        isOpen={addNewsModalOpen}
+        onClose={() => setAddNewsModalOpen(false)}
+        title="Publish News"
+      >
+        <AddNewsModal
+          onClose={() => setAddNewsModalOpen(false)}
+          onSuccess={() => {
+            fetchPressReleases()
+            setSuccessMessage('News published successfully!')
+            setTimeout(() => setSuccessMessage(''), 5000)
+          }}
+        />
+      </Modal>
+
+      <Modal
+        isOpen={updateDocumentModalOpen}
+        onClose={() => setUpdateDocumentModalOpen(false)}
+        title="Update Document"
+      >
+        <UpdateDocumentModal
+          isOpen={updateDocumentModalOpen}
+          document={selectedDocument!}
+          onClose={() => setUpdateDocumentModalOpen(false)}
+          onSuccess={() => {
+            fetchDocuments()
+            setSuccessMessage('Document updated successfully!')
+            setTimeout(() => setSuccessMessage(''), 5000)
+          }}
+        />
+      </Modal>
+
+      <Modal
+        isOpen={updateNewsModalOpen}
+        onClose={() => setUpdateNewsModalOpen(false)}
+        title="Update Press Release"
+      >
+        <UpdateNewsModal
+          isOpen={updateNewsModalOpen}
+          news={selectedNews!}
+          onClose={() => setUpdateNewsModalOpen(false)}
+          onSuccess={() => {
+            fetchPressReleases()
+            setSuccessMessage('Press release updated successfully!')
+            setTimeout(() => setSuccessMessage(''), 5000)
+          }}
+        />
+      </Modal>
     </div>
   )
 }
