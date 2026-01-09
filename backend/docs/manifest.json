@@ -1,5 +1,159 @@
 {
-  "gcf": [],
-  "policy": [],
-  "lastUpdated": "2026-01-08T21:56:12.088Z"
+  "gcf": [
+    {
+      "id": "gcf-1767943497903-c63d",
+      "name": "gcf-nol-examples.pdf",
+      "displayName": "GCF NOL examples",
+      "size": 2040827,
+      "modified": "2026-01-09T06:24:57.905Z",
+      "category": "gcf"
+    },
+    {
+      "id": "gcf-1767943497901-3d98",
+      "name": "module-1-introduction-to-key-concepts-to-climate-change-and-climate-finance.pdf",
+      "displayName": "Module 1 Introduction to key concepts to Climate Change and Climate Finance",
+      "size": 1786535,
+      "modified": "2026-01-09T06:24:57.902Z",
+      "category": "gcf"
+    },
+    {
+      "id": "gcf-1767943497898-aca8",
+      "name": "module-2-introduction-to-gcf.pdf",
+      "displayName": "Module 2 Introduction to GCF",
+      "size": 4102815,
+      "modified": "2026-01-09T06:24:57.898Z",
+      "category": "gcf"
+    },
+    {
+      "id": "gcf-1767943497895-2f98",
+      "name": "module-3-fiduciary-standards.pdf",
+      "displayName": "Module 3 Fiduciary standards",
+      "size": 4111903,
+      "modified": "2026-01-09T06:24:57.895Z",
+      "category": "gcf"
+    },
+    {
+      "id": "gcf-1767943497892-55ac",
+      "name": "eritrea-gcf-capacity-building-workshop-report-final-1oct2025.pdf",
+      "displayName": "Eritrea GCF Capacity Building Workshop Report Final 1Oct2025",
+      "size": 1615433,
+      "modified": "2026-01-09T06:24:57.893Z",
+      "category": "gcf"
+    },
+    {
+      "id": "gcf-1767943497889-9a22",
+      "name": "eritrea-in-person-workshop-concept-note-and-agenda-19aug2025.pdf",
+      "displayName": "Eritrea In person Workshop Concept Note and Agenda 19Aug2025",
+      "size": 266563,
+      "modified": "2026-01-09T06:24:57.890Z",
+      "category": "gcf"
+    },
+    {
+      "id": "gcf-1767943497886-6de7",
+      "name": "methodological-note-eritrea-capacity-building-11july2025.pdf",
+      "displayName": "Methodological Note Eritrea Capacity Building 11July2025",
+      "size": 749832,
+      "modified": "2026-01-09T06:24:57.887Z",
+      "category": "gcf"
+    },
+    {
+      "id": "gcf-1767943497882-5148",
+      "name": "nda-needs-assessment-report-final-1oct2025.pdf",
+      "displayName": "NDA Needs Assessment Report Final 1Oct2025",
+      "size": 1436225,
+      "modified": "2026-01-09T06:24:57.883Z",
+      "category": "gcf"
+    },
+    {
+      "id": "gcf-1767943497873-7b03",
+      "name": "stakeholder-map-and-draft-institutionalframework-final.pdf",
+      "displayName": "Stakeholder Map and Draft InstitutionalFramework final",
+      "size": 549207,
+      "modified": "2026-01-09T06:24:57.874Z",
+      "category": "gcf"
+    }
+  ],
+  "policy": [
+    {
+      "id": "policy-1767943514835-247f",
+      "name": "policy-on-fees-03-2018.pdf",
+      "displayName": "Policy on fees (03 2018)",
+      "size": 403946,
+      "modified": "2026-01-09T06:25:14.836Z",
+      "category": "policy"
+    },
+    {
+      "id": "policy-1767943514833-2f5a",
+      "name": "monitoring-and-accountability-framework-for-accredited-entities-11-2015.pdf",
+      "displayName": "Monitoring and accountability framework for Accredited Entities (11 2015)",
+      "size": 482538,
+      "modified": "2026-01-09T06:25:14.834Z",
+      "category": "policy"
+    },
+    {
+      "id": "policy-1767943514831-abd0",
+      "name": "legal-and-formal-arrangements-with-accredited-entities-03-2015.pdf",
+      "displayName": "Legal and formal arrangements with Accredited Entities (03 2015)",
+      "size": 432863,
+      "modified": "2026-01-09T06:25:14.832Z",
+      "category": "policy"
+    },
+    {
+      "id": "policy-1767943514829-f1ac",
+      "name": "initial-guiding-framework-for-the-fund-s-05-2025.pdf",
+      "displayName": "Initial guiding framework for the Fundâs (05 2025)",
+      "size": 762474,
+      "modified": "2026-01-09T06:25:14.830Z",
+      "category": "policy"
+    },
+    {
+      "id": "policy-1767943514825-b844",
+      "name": "initial-fiduciary-principles-and-standards-of-the-fund-05-2014.pdf",
+      "displayName": "Initial fiduciary principles and standards of the Fund (05 2014)",
+      "size": 490496,
+      "modified": "2026-01-09T06:25:14.826Z",
+      "category": "policy"
+    },
+    {
+      "id": "policy-1767943514822-4bb1",
+      "name": "guidelines-for-the-operationalization-of-the-fit-for-purpose-accreditation-approach-10-2014.pdf",
+      "displayName": "Guidelines for the operationalization of the fit for purpose accreditation approach (10 2014)",
+      "size": 548483,
+      "modified": "2026-01-09T06:25:14.823Z",
+      "category": "policy"
+    },
+    {
+      "id": "policy-1767943514819-2059",
+      "name": "general-principles-and-indicative-list-of-eligible-costs-covered-under-gcf-fees-and-project-management-costs-03-2018.pdf",
+      "displayName": "General principles and indicative list of eligible costs covered under GCF fees and project management costs (03 2018)",
+      "size": 426440,
+      "modified": "2026-01-09T06:25:14.820Z",
+      "category": "policy"
+    },
+    {
+      "id": "policy-1767943514817-5b20",
+      "name": "contents-of-the-application-documents-for-submissions-of-applications-for-accreditation-10-2014.pdf",
+      "displayName": "Contents of the application documents for submissions of applications for accreditation (10 2014)",
+      "size": 507734,
+      "modified": "2026-01-09T06:25:14.817Z",
+      "category": "policy"
+    },
+    {
+      "id": "policy-1767943514814-3e44",
+      "name": "additional-policy-guidance-for-the-purpose-of-accreditation-master-agreements-03-2016.pdf",
+      "displayName": "Additional policy guidance for the purpose of Accreditation Master Agreements (03 2016)",
+      "size": 391631,
+      "modified": "2026-01-09T06:25:14.815Z",
+      "category": "policy"
+    },
+    {
+      "id": "policy-1767943514808-8d94",
+      "name": "accreditation-framework-03-2022.pdf",
+      "displayName": "Accreditation framework (03 2022)",
+      "size": 6756049,
+      "modified": "2026-01-09T06:25:14.808Z",
+      "category": "policy"
+    }
+  ],
+  "lastUpdated": "2026-01-09T07:25:14.875Z"
 }

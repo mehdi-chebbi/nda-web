@@ -4,15 +4,17 @@ const Navigation = () => {
   const location = useLocation()
 
  const navLinks = [
-    { path: '/', label: 'Home' },
-    { path: '/mission', label: 'Mission' },
-    { path: '/gcf-project', label: 'GCF Project' },
-    { path: '/sustainable-development', label: 'Sustainable Development' },
     { path: '/press-release', label: 'Press Release' },
     { path: '/resources', label: 'Resources' },
     { path: '/contact', label: 'Contact' },
-        { path: '/about', label: 'About Us' },
+    { path: '/about', label: 'About Us' },
     { path: '/admin', label: 'Workspace' }
+  ]
+
+  const gcfLinks = [
+    { path: '/mission', label: 'Mission' },
+    { path: '/gcf-project', label: 'GCF Project' },
+    { path: '/sustainable-development', label: 'Sustainable Development' }
   ]
   return (
     <nav className="bg-primary shadow-md fixed top-0 left-0 right-0 z-50">
@@ -26,6 +28,54 @@ const Navigation = () => {
           </Link>
 
           <div className="hidden md:flex space-x-8">
+            {/* Home Link */}
+            <Link
+              to="/"
+              className={`${
+                location.pathname === '/'
+                  ? 'text-secondary-light'
+                  : 'text-white hover:text-secondary-light'
+              } font-body text-sm font-medium transition-colors duration-200`}
+            >
+              Home
+            </Link>
+
+            {/* GCF Dropdown */}
+            <div
+              className="relative group"
+            >
+              <button
+                className={`${
+                  gcfLinks.some(link => location.pathname === link.path)
+                    ? 'text-secondary-light'
+                    : 'text-white hover:text-secondary-light'
+                } font-body text-sm font-medium transition-colors duration-200 flex items-center space-x-1`}
+              >
+                <span>GCF</span>
+                <svg className="w-4 h-4 transition-transform duration-200 group-hover:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+
+              {/* Dropdown Menu */}
+              <div className="absolute left-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-200 overflow-hidden opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                {gcfLinks.map((link) => (
+                  <Link
+                    key={link.path}
+                    to={link.path}
+                    className={`${
+                      location.pathname === link.path
+                        ? 'bg-primary-light text-white'
+                        : 'text-gray-700 hover:bg-gray-100'
+                    } block px-4 py-3 font-body text-sm font-medium transition-colors duration-200`}
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            {/* Other Nav Links */}
             {navLinks.map((link) => (
               <Link
                 key={link.path}
@@ -55,19 +105,54 @@ const Navigation = () => {
       {/* Mobile menu */}
       <div className="md:hidden hidden bg-primary-dark">
         <div className="px-2 pt-2 pb-3 space-y-1">
-          {navLinks.map((link) => (
-            <Link
-              key={link.path}
-              to={link.path}
-              className={`${
-                location.pathname === link.path
-                  ? 'text-secondary-light bg-primary'
-                  : 'text-white hover:text-secondary-light'
-              } block px-3 py-2 rounded-md text-base font-body font-medium`}
-            >
-              {link.label}
-            </Link>
-          ))}
+          {/* Home */}
+          <Link
+            to="/"
+            className={`${
+              location.pathname === '/'
+                ? 'text-secondary-light bg-primary'
+                : 'text-white hover:text-secondary-light'
+            } block px-3 py-2 rounded-md text-base font-body font-medium`}
+          >
+            Home
+          </Link>
+
+          {/* Mobile GCF Section */}
+          <div className="border-t border-primary-light/30 pt-2 mt-2">
+            <div className="px-3 py-1 text-xs text-secondary-light uppercase tracking-wider font-semibold">
+              GCF Programs
+            </div>
+            {gcfLinks.map((link) => (
+              <Link
+                key={link.path}
+                to={link.path}
+                className={`${
+                  location.pathname === link.path
+                    ? 'text-secondary-light bg-primary'
+                    : 'text-white hover:text-secondary-light'
+                } block px-3 py-2 pl-6 rounded-md text-base font-body font-medium`}
+              >
+                {link.label}
+              </Link>
+            ))}
+          </div>
+
+          {/* Other Nav Links */}
+          <div className="border-t border-primary-light/30 pt-2 mt-2">
+            {navLinks.map((link) => (
+              <Link
+                key={link.path}
+                to={link.path}
+                className={`${
+                  location.pathname === link.path
+                    ? 'text-secondary-light bg-primary'
+                    : 'text-white hover:text-secondary-light'
+                } block px-3 py-2 rounded-md text-base font-body font-medium`}
+              >
+                {link.label}
+              </Link>
+            ))}
+          </div>
         </div>
       </div>
     </nav>

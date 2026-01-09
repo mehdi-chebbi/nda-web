@@ -296,12 +296,6 @@ const Slideshow = () => {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Oswald:wght@300;400&display=swap');
 
-        body {
-            font: 14px/2 "Open sans", sans-serif;
-            letter-spacing: 0.05em;
-            margin: 0;
-            padding: 0;
-        }
 
         .btn {
             display: inline-block;
