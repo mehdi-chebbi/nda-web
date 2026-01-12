@@ -1,12 +1,17 @@
 import { Link } from 'react-router-dom'
 import { useState, useEffect, useRef } from 'react'
 import Slideshow from '../components/Slideshow'
-import Carousel from '../components/carousel'
+import Carousel from '../components/Carousel'
 
-const AnimatedStat = ({ stat, index }) => {
+interface StatType {
+  label: string;
+  value: string;
+}
+
+const AnimatedStat = ({ stat, index }: { stat: StatType; index: number }) => {
   const [count, setCount] = useState(0)
   const [isVisible, setIsVisible] = useState(false)
-  const ref = useRef(null)
+  const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -52,7 +57,7 @@ const AnimatedStat = ({ stat, index }) => {
     return () => clearInterval(timer)
   }, [isVisible, stat.value])
 
-  const formatValue = (value) => {
+  const formatValue = (value: number) => {
     const originalValue = stat.value
     if (originalValue.includes('M')) {
       return `$${value.toFixed(1)}M`

@@ -25,8 +25,10 @@ const pool = new Pool({
 });
 
 // Middleware
-app.use(cors());
-app.use(express.json());
+app.use(cors({
+  origin: 'http://192.168.2.134',
+  credentials: true
+}));app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Serve static files (React build)

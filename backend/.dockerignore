@@ -1,0 +1,9 @@
+node_modules
+uploads
+docs
+news-imgs
+.env
+.env.example
+*.log
+.DS_Store
+.git

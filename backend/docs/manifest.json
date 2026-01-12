@@ -17,14 +17,6 @@
       "category": "gcf"
     },
     {
-      "id": "gcf-1767943497898-aca8",
-      "name": "module-2-introduction-to-gcf.pdf",
-      "displayName": "Module 2 Introduction to GCF",
-      "size": 4102815,
-      "modified": "2026-01-09T06:24:57.898Z",
-      "category": "gcf"
-    },
-    {
       "id": "gcf-1767943497895-2f98",
       "name": "module-3-fiduciary-standards.pdf",
       "displayName": "Module 3 Fiduciary standards",
@@ -155,5 +147,5 @@
       "category": "policy"
     }
   ],
-  "lastUpdated": "2026-01-09T07:25:14.875Z"
+  "lastUpdated": "2026-01-09T09:14:38.641Z"
 }
