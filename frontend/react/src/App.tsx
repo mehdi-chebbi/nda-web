@@ -9,6 +9,7 @@ import Contact from './pages/Contact'
 import Admin from './pages/Admin'
 import Mission from './pages/Mission'
 import GCFProject from './pages/GCFProject'
+import GCFstage from './pages/CGFstage'
 import SustainableDevelopment from './pages/SustainableDevelopment'
 import PressReleaseList from './pages/PressReleaseList'
 import PressReleaseDetail from './pages/PressReleaseDetail'
@@ -47,6 +48,8 @@ function App() {
             <Route path="/learning-modules" element={<LearningModules />} />
             <Route path="/project-development" element={<ProjectDevelopment />} />
             <Route path="/partners-coordination" element={<PartnersCoordination />} />
+                        <Route path="/gcf-stages" element={<GCFstage />} />
+
           </Routes>
         </main>
         <Footer />

@@ -11,6 +11,7 @@ const Navigation = () => {
   const gcfLinks = [
     { path: '/mission', label: 'Mission' },
     { path: '/gcf-project', label: 'GCF & Climate Finance' },
+    { path: '/gcf-stages', label: 'GCF stages' },
     { path: '/sustainable-development', label: 'Sustainable Development' },
     { path: '/learning-modules', label: 'Learning Modules' },
     { path: '/project-development', label: 'Project Development' }
