@@ -313,10 +313,7 @@ const Contact = () => {
               </div>
             </div>
           </div>
-
-          {/* Decorative Elements */}
-          <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-white to-transparent" />
-        </section>
+ </section>
 
         {/* Main Content */}
         <section className="py-24 bg-white relative">

@@ -113,14 +113,14 @@ const Home = () => {
       {/* Mission Showcase Section */}
       <section className="min-h-screen bg-primary text-center py-20 px-8 xl:px-0 flex flex-col justify-center">
         <span className="text-secondary-light text-lg max-w-lg mx-auto mb-2 capitalize flex items-center justify-center">
-          our commitment
+          gcf readiness programme
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="text-secondary ml-3 w-6 h-6">
             <path strokeLinecap="round" strokeLinejoin="round" d="M17.25 8.25 21 12m0 0-3.75 3.75M21 12H3" />
           </svg>
         </span>
 
         <h1 className="text-white text-4xl md:text-5xl xl:text-6xl font-semibold max-w-3xl mx-auto mb-16 leading-snug">
-          Building a Resilient Future
+          Readiness Project & Platform Objectives
         </h1>
 
         <div className="text-left grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-5 max-w-5xl mx-auto">
@@ -129,10 +129,10 @@ const Home = () => {
             <div className="circle"></div>
             <div className="relative lg:pr-52">
               <h2 className="font-serif capitalize text-white mb-4 text-2xl xl:text-3xl">
-                Climate <br />Finance
+                Strengthening<br />NDA
               </h2>
               <p className="text-gray-300 group-hover:text-white transition-colors duration-500">
-                Accessing Green Climate Fund resources for transformative projects across Eritrea's priority sectors.
+                Reinforcing institutional mandate, governance, and coordination roles
               </p>
             </div>
           </div>
@@ -142,10 +142,10 @@ const Home = () => {
             <div className="circle"></div>
             <div className="relative lg:pl-48">
               <h2 className="font-serif capitalize text-white mb-4 text-2xl xl:text-3xl">
-                Capacity <br />Building
+                Building<br />Capacities
               </h2>
               <p className="text-gray-300 group-hover:text-white transition-colors duration-500">
-                Strengthening institutional frameworks and technical expertise for effective climate action.
+                Enabling stakeholders to develop high-quality, GCF-compliant projects and programmes
               </p>
             </div>
           </div>
@@ -155,10 +155,10 @@ const Home = () => {
             <div className="circle"></div>
             <div className="relative lg:pr-44">
               <h2 className="font-serif capitalize text-white mb-4 text-2xl xl:text-3xl">
-                Adaptation <br />Strategies
+                Enhancing<br />Coordination
               </h2>
               <p className="text-gray-300 group-hover:text-white transition-colors duration-500">
-                Implementing climate-resilient solutions that protect communities and ecosystems.
+                Supporting consultation and collaboration among ministries, accredited entities, civil society, and private sector
               </p>
             </div>
           </div>
@@ -168,13 +168,23 @@ const Home = () => {
             <div className="circle"></div>
             <div className="relative lg:pl-48">
               <h2 className="font-serif capitalize text-white mb-4 text-2xl xl:text-3xl">
-                Sustainable<br />Development
+                Supporting<br />Pipeline
               </h2>
               <p className="text-gray-300 group-hover:text-white transition-colors duration-500">
-                Promoting low-emission development pathways for a sustainable future.
+                Improving identification, prioritization, and readiness of climate investment opportunities
               </p>
             </div>
           </div>
+        </div>
+
+        {/* Readiness Programme Description */}
+        <div className="max-w-4xl mx-auto mt-16 text-center">
+          <p className="text-gray-300 text-lg leading-relaxed mb-4">
+            The <strong className="text-white">Readiness and Preparatory Support Programme</strong> of <strong className="text-white">Green Climate Fund (GCF)</strong> aims to strengthen national capacities to effectively access climate finance and align climate actions with national development priorities.
+          </p>
+          <p className="text-gray-300 text-lg leading-relaxed">
+            The <strong className="text-white">Climate Finance Platform</strong> is a core output of this Readiness project. It serves as an <strong className="text-white">offline-oriented, knowledge management and capacity-building tool</strong>, providing structured access to GCF guidance, national policies, templates, learning modules, and practical project development resources. Primary users include NDA Secretariat, government agencies, implementing entities, and other stakeholders engaged in climate action. By offering tailored pathways for different users, the platform supports strategic decision-making, technical learning, and strengthened project readiness, thereby contributing to sustained and effective engagement with GCF.
+          </p>
         </div>
 
         {/* Inline Styles for added section */}

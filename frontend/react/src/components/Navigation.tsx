@@ -4,17 +4,16 @@ const Navigation = () => {
   const location = useLocation()
 
  const navLinks = [
-    { path: '/press-release', label: 'Press Release' },
-    { path: '/resources', label: 'Resources' },
-    { path: '/contact', label: 'Contact' },
-    { path: '/about', label: 'About Us' },
-    { path: '/admin', label: 'Workspace' }
+    { path: '/resources', label: 'Resources – Offline Library' },
+    { path: '/press-release', label: 'Press Release' }
   ]
 
   const gcfLinks = [
     { path: '/mission', label: 'Mission' },
-    { path: '/gcf-project', label: 'GCF Project' },
-    { path: '/sustainable-development', label: 'Sustainable Development' }
+    { path: '/gcf-project', label: 'GCF & Climate Finance' },
+    { path: '/sustainable-development', label: 'Sustainable Development' },
+    { path: '/learning-modules', label: 'Learning Modules' },
+    { path: '/project-development', label: 'Project Development' }
   ]
   return (
     <nav className="bg-primary shadow-md fixed top-0 left-0 right-0 z-50">
@@ -40,7 +39,19 @@ const Navigation = () => {
               Home
             </Link>
 
-            {/* GCF Dropdown */}
+            {/* About NDA Link - Standalone */}
+            <Link
+              to="/about"
+              className={`${
+                location.pathname === '/about'
+                  ? 'text-secondary-light'
+                  : 'text-white hover:text-secondary-light'
+              } font-body text-sm font-medium transition-colors duration-200`}
+            >
+              About NDA
+            </Link>
+
+            {/* Readiness Dropdown */}
             <div
               className="relative group"
             >
@@ -51,14 +62,14 @@ const Navigation = () => {
                     : 'text-white hover:text-secondary-light'
                 } font-body text-sm font-medium transition-colors duration-200 flex items-center space-x-1`}
               >
-                <span>GCF</span>
+                <span>Readiness</span>
                 <svg className="w-4 h-4 transition-transform duration-200 group-hover:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
 
               {/* Dropdown Menu */}
-              <div className="absolute left-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-200 overflow-hidden opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+              <div className="absolute left-0 mt-2 w-64 bg-white rounded-lg shadow-xl border border-gray-200 overflow-hidden opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
                 {gcfLinks.map((link) => (
                   <Link
                     key={link.path}
@@ -75,20 +86,76 @@ const Navigation = () => {
               </div>
             </div>
 
-            {/* Other Nav Links */}
-            {navLinks.map((link) => (
-              <Link
-                key={link.path}
-                to={link.path}
+            {/* Resources Dropdown */}
+            <div
+              className="relative group"
+            >
+              <button
                 className={`${
-                  location.pathname === link.path
+                  navLinks.some(link => location.pathname === link.path)
                     ? 'text-secondary-light'
                     : 'text-white hover:text-secondary-light'
-                } font-body text-sm font-medium transition-colors duration-200`}
+                } font-body text-sm font-medium transition-colors duration-200 flex items-center space-x-1`}
               >
-                {link.label}
-              </Link>
-            ))}
+                <span>Resources</span>
+                <svg className="w-4 h-4 transition-transform duration-200 group-hover:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+
+              {/* Dropdown Menu */}
+              <div className="absolute left-0 mt-2 w-64 bg-white rounded-lg shadow-xl border border-gray-200 overflow-hidden opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                {navLinks.map((link) => (
+                  <Link
+                    key={link.path}
+                    to={link.path}
+                    className={`${
+                      location.pathname === link.path
+                        ? 'bg-primary-light text-white'
+                        : 'text-gray-700 hover:bg-gray-100'
+                    } block px-4 py-3 font-body text-sm font-medium transition-colors duration-200`}
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            {/* Partners & Coordination Link - Standalone */}
+            <Link
+              to="/partners-coordination"
+              className={`${
+                location.pathname === '/partners-coordination'
+                  ? 'text-secondary-light'
+                  : 'text-white hover:text-secondary-light'
+              } font-body text-sm font-medium transition-colors duration-200`}
+            >
+              Partners & Coordination
+            </Link>
+
+            {/* Contact & Support Link - Standalone */}
+            <Link
+              to="/contact"
+              className={`${
+                location.pathname === '/contact'
+                  ? 'text-secondary-light'
+                  : 'text-white hover:text-secondary-light'
+              } font-body text-sm font-medium transition-colors duration-200`}
+            >
+              Contact & Support
+            </Link>
+
+            {/* Workspace Link - Standalone */}
+            <Link
+              to="/admin"
+              className={`${
+                location.pathname === '/admin'
+                  ? 'text-secondary-light'
+                  : 'text-white hover:text-secondary-light'
+              } font-body text-sm font-medium transition-colors duration-200`}
+            >
+              Workspace
+            </Link>
           </div>
 
           {/* Mobile menu button */}
@@ -117,10 +184,22 @@ const Navigation = () => {
             Home
           </Link>
 
-          {/* Mobile GCF Section */}
+          {/* About NDA */}
+          <Link
+            to="/about"
+            className={`${
+              location.pathname === '/about'
+                ? 'text-secondary-light bg-primary'
+                : 'text-white hover:text-secondary-light'
+            } block px-3 py-2 rounded-md text-base font-body font-medium`}
+          >
+            About NDA
+          </Link>
+
+          {/* Mobile Readiness Section */}
           <div className="border-t border-primary-light/30 pt-2 mt-2">
             <div className="px-3 py-1 text-xs text-secondary-light uppercase tracking-wider font-semibold">
-              GCF Programs
+              Readiness
             </div>
             {gcfLinks.map((link) => (
               <Link
@@ -137,8 +216,11 @@ const Navigation = () => {
             ))}
           </div>
 
-          {/* Other Nav Links */}
+          {/* Mobile Resources Section */}
           <div className="border-t border-primary-light/30 pt-2 mt-2">
+            <div className="px-3 py-1 text-xs text-secondary-light uppercase tracking-wider font-semibold">
+              Resources
+            </div>
             {navLinks.map((link) => (
               <Link
                 key={link.path}
@@ -147,12 +229,48 @@ const Navigation = () => {
                   location.pathname === link.path
                     ? 'text-secondary-light bg-primary'
                     : 'text-white hover:text-secondary-light'
-                } block px-3 py-2 rounded-md text-base font-body font-medium`}
+                } block px-3 py-2 pl-6 rounded-md text-base font-body font-medium`}
               >
                 {link.label}
               </Link>
             ))}
           </div>
+
+          {/* Partners & Coordination */}
+          <Link
+            to="/partners-coordination"
+            className={`${
+              location.pathname === '/partners-coordination'
+                ? 'text-secondary-light bg-primary'
+                : 'text-white hover:text-secondary-light'
+            } block px-3 py-2 rounded-md text-base font-body font-medium`}
+          >
+            Partners & Coordination
+          </Link>
+
+          {/* Contact & Support */}
+          <Link
+            to="/contact"
+            className={`${
+              location.pathname === '/contact'
+                ? 'text-secondary-light bg-primary'
+                : 'text-white hover:text-secondary-light'
+            } block px-3 py-2 rounded-md text-base font-body font-medium`}
+          >
+            Contact & Support
+          </Link>
+
+          {/* Workspace */}
+          <Link
+            to="/admin"
+            className={`${
+              location.pathname === '/admin'
+                ? 'text-secondary-light bg-primary'
+                : 'text-white hover:text-secondary-light'
+            } block px-3 py-2 rounded-md text-base font-body font-medium`}
+          >
+            Workspace
+          </Link>
         </div>
       </div>
     </nav>
