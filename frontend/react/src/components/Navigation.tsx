@@ -3,30 +3,41 @@ import { Link, useLocation } from 'react-router-dom'
 const Navigation = () => {
   const location = useLocation()
 
- const navLinks = [
-    { path: '/resources', label: 'Resources – Offline Library' },
-    { path: '/press-release', label: 'Press Release' }
+  // GCF dropdown links
+  const gcfLinks = [
+    { path: '/gcf-policies', label: 'Policies' },
+    { path: '/project-readiness', label: 'Project Readiness' },
+    { path: '/gcf-template', label: 'Template' }
   ]
 
-  const gcfLinks = [
+  // Readiness Eritrea dropdown links
+  const readinessEritreaLinks = [
+    { path: '/workshops', label: 'Workshops' },
+    { path: '/deliverables', label: 'Deliverables' }
+  ]
+
+  // Others dropdown - all the previous scattered links
+  const othersLinks = [
+    { path: '/resources', label: 'Resources – Offline Library' },
+    { path: '/press-release', label: 'Press Release' },
     { path: '/mission', label: 'Mission' },
     { path: '/gcf-project', label: 'GCF & Climate Finance' },
-    { path: '/gcf-stages', label: 'GCF stages' },
+    { path: '/gcf-stages', label: 'GCF Stages' },
     { path: '/sustainable-development', label: 'Sustainable Development' },
     { path: '/learning-modules', label: 'Learning Modules' },
     { path: '/project-development', label: 'Project Development' }
   ]
+
   return (
     <nav className="bg-primary shadow-md fixed top-0 left-0 right-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-           <img 
-              src="https://cdn.britannica.com/09/09-050-E3476052/Flag-Eritrea.jpg" 
-              alt="Eritrea Flag" 
-              className="h-10 w-16 object-cover rounded shadow-sm"
-            />
+          <img 
+            src="https://cdn.britannica.com/09/09-050-E3476052/Flag-Eritrea.jpg" 
+            alt="Eritrea Flag" 
+            className="h-10 w-16 object-cover rounded shadow-sm"
+          />
           <Link to="/" className="flex items-center space-x-3">
-           
             <span className="text-white font-heading font-semibold text-xl">
               Readiness Eritrea
             </span>
@@ -45,7 +56,7 @@ const Navigation = () => {
               Home
             </Link>
 
-            {/* About NDA Link - Standalone */}
+            {/* About NDA Link */}
             <Link
               to="/about"
               className={`${
@@ -57,10 +68,8 @@ const Navigation = () => {
               About NDA
             </Link>
 
-            {/* Readiness Dropdown */}
-            <div
-              className="relative group"
-            >
+            {/* GCF Dropdown */}
+            <div className="relative group">
               <button
                 className={`${
                   gcfLinks.some(link => location.pathname === link.path)
@@ -68,13 +77,12 @@ const Navigation = () => {
                     : 'text-white hover:text-secondary-light'
                 } font-body text-sm font-medium transition-colors duration-200 flex items-center space-x-1`}
               >
-                <span>Readiness</span>
+                <span>GCF</span>
                 <svg className="w-4 h-4 transition-transform duration-200 group-hover:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
 
-              {/* Dropdown Menu */}
               <div className="absolute left-0 mt-2 w-64 bg-white rounded-lg shadow-xl border border-gray-200 overflow-hidden opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
                 {gcfLinks.map((link) => (
                   <Link
@@ -92,26 +100,23 @@ const Navigation = () => {
               </div>
             </div>
 
-            {/* Resources Dropdown */}
-            <div
-              className="relative group"
-            >
+            {/* Readiness Eritrea Dropdown */}
+            <div className="relative group">
               <button
                 className={`${
-                  navLinks.some(link => location.pathname === link.path)
+                  readinessEritreaLinks.some(link => location.pathname === link.path)
                     ? 'text-secondary-light'
                     : 'text-white hover:text-secondary-light'
                 } font-body text-sm font-medium transition-colors duration-200 flex items-center space-x-1`}
               >
-                <span>Resources</span>
+                <span>Readiness Eritrea</span>
                 <svg className="w-4 h-4 transition-transform duration-200 group-hover:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
 
-              {/* Dropdown Menu */}
               <div className="absolute left-0 mt-2 w-64 bg-white rounded-lg shadow-xl border border-gray-200 overflow-hidden opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-                {navLinks.map((link) => (
+                {readinessEritreaLinks.map((link) => (
                   <Link
                     key={link.path}
                     to={link.path}
@@ -127,7 +132,7 @@ const Navigation = () => {
               </div>
             </div>
 
-            {/* Partners & Coordination Link - Standalone */}
+            {/* Coordination and Partners Link */}
             <Link
               to="/partners-coordination"
               className={`${
@@ -136,22 +141,42 @@ const Navigation = () => {
                   : 'text-white hover:text-secondary-light'
               } font-body text-sm font-medium transition-colors duration-200`}
             >
-              Partners & Coordination
+              Coordination and Partners
             </Link>
 
-            {/* Contact & Support Link - Standalone */}
-            <Link
-              to="/contact"
-              className={`${
-                location.pathname === '/contact'
-                  ? 'text-secondary-light'
-                  : 'text-white hover:text-secondary-light'
-              } font-body text-sm font-medium transition-colors duration-200`}
-            >
-              Contact & Support
-            </Link>
+            {/* Others Dropdown */}
+            <div className="relative group">
+              <button
+                className={`${
+                  othersLinks.some(link => location.pathname === link.path)
+                    ? 'text-secondary-light'
+                    : 'text-white hover:text-secondary-light'
+                } font-body text-sm font-medium transition-colors duration-200 flex items-center space-x-1`}
+              >
+                <span>Others</span>
+                <svg className="w-4 h-4 transition-transform duration-200 group-hover:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
 
-            {/* Workspace Link - Standalone */}
+              <div className="absolute left-0 mt-2 w-64 bg-white rounded-lg shadow-xl border border-gray-200 overflow-hidden opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                {othersLinks.map((link) => (
+                  <Link
+                    key={link.path}
+                    to={link.path}
+                    className={`${
+                      location.pathname === link.path
+                        ? 'bg-primary-light text-white'
+                        : 'text-gray-700 hover:bg-gray-100'
+                    } block px-4 py-3 font-body text-sm font-medium transition-colors duration-200`}
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            {/* Workspace Link */}
             <Link
               to="/admin"
               className={`${
@@ -202,10 +227,10 @@ const Navigation = () => {
             About NDA
           </Link>
 
-          {/* Mobile Readiness Section */}
+          {/* Mobile GCF Section */}
           <div className="border-t border-primary-light/30 pt-2 mt-2">
             <div className="px-3 py-1 text-xs text-secondary-light uppercase tracking-wider font-semibold">
-              Readiness
+              GCF
             </div>
             {gcfLinks.map((link) => (
               <Link
@@ -222,12 +247,12 @@ const Navigation = () => {
             ))}
           </div>
 
-          {/* Mobile Resources Section */}
+          {/* Mobile Readiness Eritrea Section */}
           <div className="border-t border-primary-light/30 pt-2 mt-2">
             <div className="px-3 py-1 text-xs text-secondary-light uppercase tracking-wider font-semibold">
-              Resources
+              Readiness Eritrea
             </div>
-            {navLinks.map((link) => (
+            {readinessEritreaLinks.map((link) => (
               <Link
                 key={link.path}
                 to={link.path}
@@ -242,7 +267,7 @@ const Navigation = () => {
             ))}
           </div>
 
-          {/* Partners & Coordination */}
+          {/* Coordination and Partners */}
           <Link
             to="/partners-coordination"
             className={`${
@@ -251,20 +276,28 @@ const Navigation = () => {
                 : 'text-white hover:text-secondary-light'
             } block px-3 py-2 rounded-md text-base font-body font-medium`}
           >
-            Partners & Coordination
+            Coordination and Partners
           </Link>
 
-          {/* Contact & Support */}
-          <Link
-            to="/contact"
-            className={`${
-              location.pathname === '/contact'
-                ? 'text-secondary-light bg-primary'
-                : 'text-white hover:text-secondary-light'
-            } block px-3 py-2 rounded-md text-base font-body font-medium`}
-          >
-            Contact & Support
-          </Link>
+          {/* Mobile Others Section */}
+          <div className="border-t border-primary-light/30 pt-2 mt-2">
+            <div className="px-3 py-1 text-xs text-secondary-light uppercase tracking-wider font-semibold">
+              Others
+            </div>
+            {othersLinks.map((link) => (
+              <Link
+                key={link.path}
+                to={link.path}
+                className={`${
+                  location.pathname === link.path
+                    ? 'text-secondary-light bg-primary'
+                    : 'text-white hover:text-secondary-light'
+                } block px-3 py-2 pl-6 rounded-md text-base font-body font-medium`}
+              >
+                {link.label}
+              </Link>
+            ))}
+          </div>
 
           {/* Workspace */}
           <Link
