@@ -19,6 +19,9 @@ RUN npm run build
 # Production stage - Serve with nginx
 FROM nginx:alpine
 
+# Copy custom nginx configuration
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
 # Copy built files to nginx
 COPY --from=builder /app/dist /usr/share/nginx/html
 
