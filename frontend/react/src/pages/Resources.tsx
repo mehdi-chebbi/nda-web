@@ -11,8 +11,10 @@ interface Document {
 }
 
 interface Manifest {
-  gcf: Document[]
   policy: Document[]
+  'project-readiness': Document[]
+  templates: Document[]
+  deliverable: Document[]
   lastUpdated: string
 }
 
@@ -71,8 +73,10 @@ const Resources = () => {
     if (!manifest) return
 
     let docs = [
-      ...(manifest?.gcf || []).map(doc => ({ ...doc, category: 'gcf' })),
-      ...(manifest?.policy || []).map(doc => ({ ...doc, category: 'policy' }))
+      ...(manifest?.policy || []).map(doc => ({ ...doc, category: 'policy' })),
+      ...(manifest?.['project-readiness'] || []).map(doc => ({ ...doc, category: 'project-readiness' })),
+      ...(manifest?.templates || []).map(doc => ({ ...doc, category: 'templates' })),
+      ...(manifest?.deliverable || []).map(doc => ({ ...doc, category: 'deliverable' }))
     ]
 
     // Filter by category
@@ -117,21 +121,27 @@ const Resources = () => {
   }
 
   const getCategoryBadge = (category: string) => {
-    const styles = {
-      gcf: 'bg-gradient-to-br from-primary-light/20 to-primary/20 backdrop-blur-sm border border-primary-light/40',
-      policy: 'bg-gradient-to-br from-secondary/20 to-secondary/40 backdrop-blur-sm border border-secondary/40'
+    const styles: Record<string, string> = {
+      'policy': 'bg-gradient-to-br from-primary-light/20 to-primary/20 backdrop-blur-sm border border-primary-light/40',
+      'project-readiness': 'bg-gradient-to-br from-blue-600/20 to-blue-800/20 backdrop-blur-sm border border-blue-600/40',
+      'templates': 'bg-gradient-to-br from-purple-600/20 to-purple-800/20 backdrop-blur-sm border border-purple-600/40',
+      'deliverable': 'bg-gradient-to-br from-orange-600/20 to-orange-800/20 backdrop-blur-sm border border-orange-600/40'
     }
-    const textStyles = {
-      gcf: 'text-primary-light',
-      policy: 'text-secondary'
+    const textStyles: Record<string, string> = {
+      'policy': 'text-primary-light',
+      'project-readiness': 'text-blue-400',
+      'templates': 'text-purple-400',
+      'deliverable': 'text-orange-400'
     }
-    const labels = {
-      gcf: 'GCF',
-      policy: 'Policy'
+    const labels: Record<string, string> = {
+      'policy': 'Policy',
+      'project-readiness': 'Readiness',
+      'templates': 'Templates',
+      'deliverable': 'Deliverable'
     }
     return (
-      <span className={`inline-block px-3 py-1.5 rounded-full text-xs font-semibold tracking-wider uppercase ${styles[category as keyof typeof styles]} ${textStyles[category as keyof typeof textStyles]}`}>
-        {labels[category as keyof typeof labels]}
+      <span className={`inline-block px-3 py-1.5 rounded-full text-xs font-semibold tracking-wider uppercase ${styles[category]} ${textStyles[category]}`}>
+        {labels[category] || category}
       </span>
     )
   }
@@ -343,7 +353,7 @@ const Resources = () => {
               </h1>
 
               <p className="animate-on-scroll delay-200 text-xl md:text-2xl text-gray-200 mb-8 leading-relaxed max-w-3xl">
-                Access GCF documents, policies, and regulatory materials related to Eritrea's climate readiness initiatives
+                Access policies, readiness documents, templates, and deliverables related to Eritrea's climate initiatives
               </p>
 
               <div className="animate-on-scroll delay-300 flex items-center gap-4">
@@ -388,8 +398,10 @@ const Resources = () => {
                     className="px-5 py-3.5 bg-white/80 backdrop-blur-sm border-2 border-border rounded-xl font-body text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200 cursor-pointer"
                   >
                     <option value="all">All Documents</option>
-                    <option value="gcf">GCF Documents</option>
                     <option value="policy">Policy & Regulation</option>
+                    <option value="project-readiness">Project Readiness</option>
+                    <option value="templates">Templates</option>
+                    <option value="deliverable">Deliverables</option>
                   </select>
                 </div>
               </div>

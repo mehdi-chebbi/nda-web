@@ -16,6 +16,7 @@ import PressReleaseDetail from './pages/PressReleaseDetail'
 import LearningModules from './pages/LearningModules'
 import ProjectDevelopment from './pages/ProjectDevelopment'
 import PartnersCoordination from './pages/PartnersCoordination'
+import PolicyDocuments from './pages/PolicyDocuments'
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -48,8 +49,8 @@ function App() {
             <Route path="/learning-modules" element={<LearningModules />} />
             <Route path="/project-development" element={<ProjectDevelopment />} />
             <Route path="/partners-coordination" element={<PartnersCoordination />} />
-                        <Route path="/gcf-stages" element={<GCFstage />} />
-
+            <Route path="/gcf-stages" element={<GCFstage />} />
+            <Route path="/gcf-policies" element={<PolicyDocuments />} />
           </Routes>
         </main>
         <Footer />

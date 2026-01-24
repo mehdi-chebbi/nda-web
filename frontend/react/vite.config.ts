@@ -7,15 +7,15 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/docs': {
-        target: 'http://192.168.2.120',
+        target: 'http://localhost:3000',
         changeOrigin: true
       },
       '/news-imgs': {
-        target: 'http://192.168.2.120',
+        target: 'http://localhost:3000',
         changeOrigin: true
       },
       '/api': {
-        target: 'http://192.168.2.120',
+        target: 'http://localhost:3000',
         changeOrigin: true
       }
     }

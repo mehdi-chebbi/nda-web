@@ -112,30 +112,58 @@ const UpdateDocumentModal = ({ isOpen, onClose, onSuccess, document }: UpdateDoc
           <div className="grid grid-cols-2 gap-3">
             <button
               type="button"
-              onClick={() => setForm({ ...form, category: 'gcf' })}
+              onClick={() => setForm({ ...form, category: 'policy' })}
               className={`p-4 rounded-xl border-2 transition-all duration-200 ${
-                form.category === 'gcf'
+                form.category === 'policy'
                   ? 'border-primary bg-primary/5 ring-2 ring-primary/20'
                   : 'border-gray-200 hover:border-primary hover:bg-gray-50'
               }`}
             >
               <div className="text-center">
                 <FileText className="w-6 h-6 mx-auto mb-2" />
-                <span className="font-body text-sm font-medium">GCF Document</span>
+                <span className="font-body text-sm font-medium">Policy</span>
               </div>
             </button>
             <button
               type="button"
-              onClick={() => setForm({ ...form, category: 'policy' })}
+              onClick={() => setForm({ ...form, category: 'project-readiness' })}
               className={`p-4 rounded-xl border-2 transition-all duration-200 ${
-                form.category === 'policy'
-                  ? 'border-secondary bg-secondary/5 ring-2 ring-secondary/20'
-                  : 'border-gray-200 hover:border-secondary hover:bg-gray-50'
+                form.category === 'project-readiness'
+                  ? 'border-blue-500 bg-blue-500/5 ring-2 ring-blue-500/20'
+                  : 'border-gray-200 hover:border-blue-500 hover:bg-gray-50'
               }`}
             >
               <div className="text-center">
                 <FileText className="w-6 h-6 mx-auto mb-2" />
-                <span className="font-body text-sm font-medium">Policy Document</span>
+                <span className="font-body text-sm font-medium">Project Readiness</span>
+              </div>
+            </button>
+            <button
+              type="button"
+              onClick={() => setForm({ ...form, category: 'templates' })}
+              className={`p-4 rounded-xl border-2 transition-all duration-200 ${
+                form.category === 'templates'
+                  ? 'border-purple-500 bg-purple-500/5 ring-2 ring-purple-500/20'
+                  : 'border-gray-200 hover:border-purple-500 hover:bg-gray-50'
+              }`}
+            >
+              <div className="text-center">
+                <FileText className="w-6 h-6 mx-auto mb-2" />
+                <span className="font-body text-sm font-medium">Templates</span>
+              </div>
+            </button>
+            <button
+              type="button"
+              onClick={() => setForm({ ...form, category: 'deliverable' })}
+              className={`p-4 rounded-xl border-2 transition-all duration-200 ${
+                form.category === 'deliverable'
+                  ? 'border-orange-500 bg-orange-500/5 ring-2 ring-orange-500/20'
+                  : 'border-gray-200 hover:border-orange-500 hover:bg-gray-50'
+              }`}
+            >
+              <div className="text-center">
+                <FileText className="w-6 h-6 mx-auto mb-2" />
+                <span className="font-body text-sm font-medium">Deliverables</span>
               </div>
             </button>
           </div>

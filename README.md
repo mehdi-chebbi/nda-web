@@ -1,6 +1,6 @@
 # Eritrea Readiness Project - National Designated Authority
 
-A full-stack web application for Eritrea's National Designated Authority to showcase climate readiness initiatives and provide access to GCF (Green Climate Fund) and policy documents.
+A full-stack web application for Eritrea's National Designated Authority to showcase climate readiness initiatives and provide access to policies, project readiness documents, templates, and deliverables.
 
 ## Project Structure
 
@@ -21,8 +21,10 @@ project/
 │   ├── package.json
 │   └── .env.example            # Environment variables template
 └── docs/
-    ├── gcf/                    # GCF PDF documents
     ├── policy/                 # Policy PDF documents
+    ├── project-readiness/       # Project Readiness documents
+    ├── templates/               # Template documents
+    ├── deliverable/            # Deliverable documents
     └── manifest.json           # Document registry (auto-generated from DB)
 ```
 
@@ -194,14 +196,14 @@ The admin user is stored in PostgreSQL. You can add additional admin users direc
 2. Login with admin credentials
 3. Fill in the upload form:
    - Select PDF file
-   - Choose category (GCF or Policy)
+   - Choose category (Policy, Project Readiness, Templates, or Deliverables)
    - Enter display name
 4. Click "Upload Document"
 
 The system will:
 - Generate a unique ID
 - Create a stable filename from display name
-- Save file to `/docs/gcf/` or `/docs/policy/`
+- Save file to `/docs/policy/`, `/docs/project-readiness/`, `/docs/templates/`, or `/docs/deliverable/`
 - **Insert into PostgreSQL database**
 - **Update manifest.json automatically**
 - **Log the action in audit trail**
@@ -242,7 +244,7 @@ The server automatically creates these tables on first run:
 - `id` (VARCHAR) - Primary key
 - `name` (VARCHAR) - Filename
 - `display_name` (VARCHAR) - User-facing name
-- `category` (VARCHAR) - "gcf" or "policy"
+- `category` (VARCHAR) - "policy", "project-readiness", "templates", or "deliverable"
 - `size` (INTEGER) - File size in bytes
 - `modified` (TIMESTAMP) - Last modified timestamp
 - `created_at` (TIMESTAMP) - Creation timestamp

@@ -62,7 +62,12 @@ const Admin = () => {
       const response = await axios.get('/api/admin/documents', {
         headers: { Authorization: `Bearer ${token}` }
       })
-      const allDocs = [...(response.data.gcf || []), ...(response.data.policy || [])]
+      const allDocs = [
+        ...(response.data.policy || []).map((doc: Document) => ({ ...doc, category: 'policy' })),
+        ...(response.data['project-readiness'] || []).map((doc: Document) => ({ ...doc, category: 'project-readiness' })),
+        ...(response.data.templates || []).map((doc: Document) => ({ ...doc, category: 'templates' })),
+        ...(response.data.deliverable || []).map((doc: Document) => ({ ...doc, category: 'deliverable' }))
+      ]
       setDocuments(allDocs)
     } catch (err) {
       console.error('Error fetching documents:', err)

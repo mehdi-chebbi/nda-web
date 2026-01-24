@@ -77,8 +77,10 @@ async function initializeManifest() {
     await fs.access(MANIFEST_PATH);
   } catch {
     const initialManifest = {
-      gcf: [],
       policy: [],
+      'project-readiness': [],
+      templates: [],
+      deliverable: [],
       lastUpdated: new Date().toISOString()
     };
     await fs.writeFile(MANIFEST_PATH, JSON.stringify(initialManifest, null, 2));
@@ -103,8 +105,10 @@ async function regenerateManifestFromDB() {
     );
 
     const manifest = {
-      gcf: [],
       policy: [],
+      'project-readiness': [],
+      templates: [],
+      deliverable: [],
       lastUpdated: new Date().toISOString()
     };
 
@@ -117,7 +121,9 @@ async function regenerateManifestFromDB() {
         modified: row.modified,
         category: row.category
       };
-      manifest[row.category].push(document);
+      if (manifest[row.category]) {
+        manifest[row.category].push(document);
+      }
     }
 
     await writeManifest(manifest);
@@ -130,7 +136,13 @@ async function regenerateManifestFromDB() {
 }
 
 function generateId(category) {
-  const prefix = category === 'gcf' ? 'gcf' : 'policy';
+  const prefixes = {
+    'policy': 'pol',
+    'project-readiness': 'prd',
+    'templates': 'tpl',
+    'deliverable': 'del'
+  };
+  const prefix = prefixes[category] || 'doc';
   const timestamp = Date.now();
   const random = crypto.randomBytes(2).toString('hex');
   return `${prefix}-${timestamp}-${random}`;
@@ -156,7 +168,7 @@ async function initializeDatabase() {
         modified TIMESTAMP NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        CONSTRAINT valid_category CHECK (category IN ('gcf', 'policy'))
+        CONSTRAINT valid_category CHECK (category IN ('policy', 'project-readiness', 'templates', 'deliverable'))
       )
     `);
 
@@ -421,9 +433,9 @@ app.post('/api/admin/documents', authenticateToken, upload.single('file'), async
       return res.status(400).json({ error: 'Display name is required.' });
     }
 
-    if (!['gcf', 'policy'].includes(category)) {
+    if (!['policy', 'project-readiness', 'templates', 'deliverable'].includes(category)) {
       await fs.unlink(req.file.path);
-      return res.status(400).json({ error: 'Invalid category. Must be "gcf" or "policy".' });
+      return res.status(400).json({ error: 'Invalid category. Must be "policy", "project-readiness", "templates", or "deliverable".' });
     }
 
     // Generate unique ID
@@ -515,14 +527,14 @@ app.post('/api/admin/documents/bulk', authenticateToken, upload.array('files', 5
 
     const { category = 'gcf' } = req.body;
 
-    if (!['gcf', 'policy'].includes(category)) {
+    if (!['policy', 'project-readiness', 'templates', 'deliverable'].includes(category)) {
       // Delete all uploaded files
       for (const file of req.files) {
         try {
           await fs.unlink(file.path);
         } catch (e) {}
       }
-      return res.status(400).json({ error: 'Invalid category. Must be "gcf" or "policy".' });
+      return res.status(400).json({ error: 'Invalid category. Must be "policy", "project-readiness", "templates", or "deliverable".' });
     }
 
     // Create category directory
@@ -706,9 +718,9 @@ app.put('/api/admin/documents/:id', authenticateToken, upload.single('file'), as
     const document = docResult.rows[0];
 
     // Validate category if provided
-    if (category && !['gcf', 'policy'].includes(category)) {
+    if (category && !['policy', 'project-readiness', 'templates', 'deliverable'].includes(category)) {
       await client.query('ROLLBACK');
-      return res.status(400).json({ error: 'Invalid category. Must be "gcf" or "policy".' });
+      return res.status(400).json({ error: 'Invalid category. Must be "policy", "project-readiness", "templates", or "deliverable".' });
     }
 
     let updates = [];
@@ -830,7 +842,7 @@ app.get('/docs/manifest.json', async (req, res) => {
 app.get('/docs/:category/:filename', async (req, res) => {
   const { category, filename } = req.params;
 
-  if (!['gcf', 'policy'].includes(category)) {
+  if (!['policy', 'project-readiness', 'templates', 'deliverable'].includes(category)) {
     return res.status(400).json({ error: 'Invalid category.' });
   }
 
