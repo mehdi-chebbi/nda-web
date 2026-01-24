@@ -1,9 +1,12 @@
-FROM node:18-alpine
+FROM node:18
 
 WORKDIR /app
 
-# Install wget for healthcheck
-RUN apk add --no-cache wget
+# Install dependencies including poppler-utils for PDF thumbnail generation
+RUN apt-get update && apt-get install -y \
+    poppler-utils \
+    wget \
+    && rm -rf /var/lib/apt/lists/*
 
 # Copy package files
 COPY package*.json ./
@@ -15,7 +18,7 @@ RUN npm ci --only=production
 COPY . .
 
 # Create necessary directories
-RUN mkdir -p docs uploads news-imgs
+RUN mkdir -p docs uploads news-imgs thumbnails
 
 # Expose port
 EXPOSE 3000

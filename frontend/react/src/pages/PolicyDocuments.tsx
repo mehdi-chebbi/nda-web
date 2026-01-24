@@ -10,6 +10,7 @@ interface Document {
   size: number
   modified: string
   category: string
+  thumbnail?: string
 }
 
 const PolicyDocuments = () => {
@@ -150,9 +151,27 @@ const PolicyDocuments = () => {
                       className="group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-primary/30"
                       style={{ animationDelay: `${index * 100}ms` }}
                     >
-                      {/* Icon Area */}
-                      <div className="bg-gradient-to-br from-primary/5 to-primary-light/5 p-8 flex items-center justify-center">
-                        <FileText className="w-16 h-16 text-primary" />
+                      {/* Thumbnail/Icon Area */}
+                      <div className="relative aspect-[3/4] bg-gradient-to-br from-primary/5 to-primary-light/5 overflow-hidden">
+                        {doc.thumbnail ? (
+                          <img
+                            src={doc.thumbnail}
+                            alt={doc.displayName}
+                            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                            onError={(e) => {
+                              // Fallback to icon if thumbnail fails to load
+                              const target = e.target as HTMLImageElement
+                              target.style.display = 'none'
+                              const fallback = target.nextElementSibling as HTMLElement
+                              if (fallback) fallback.style.display = 'flex'
+                            }}
+                          />
+                        ) : null}
+                        <div
+                          className={`absolute inset-0 flex items-center justify-center ${doc.thumbnail ? 'hidden' : 'flex'}`}
+                        >
+                          <FileText className="w-16 h-16 text-primary" />
+                        </div>
                       </div>
 
                       {/* Content */}

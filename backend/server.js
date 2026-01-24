@@ -7,6 +7,7 @@ const multer = require('multer');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const cors = require('cors');
+const { Poppler } = require('node-poppler');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -14,6 +15,10 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-producti
 const DOCS_DIR = path.join(__dirname, 'docs');
 const MANIFEST_PATH = path.join(DOCS_DIR, 'manifest.json');
 const NEWS_IMAGES_DIR = path.join(__dirname, 'news-imgs');
+const THUMBNAILS_DIR = path.join(__dirname, 'thumbnails');
+
+// Initialize Poppler for PDF thumbnail generation
+const poppler = new Poppler();
 
 // PostgreSQL connection
 const pool = new Pool({
@@ -39,6 +44,9 @@ app.use('/docs', express.static(DOCS_DIR));
 
 // Serve news images directory
 app.use('/news-imgs', express.static(NEWS_IMAGES_DIR));
+
+// Serve thumbnails directory
+app.use('/thumbnails', express.static(THUMBNAILS_DIR));
 
 const upload = multer({
   dest: 'uploads/',
@@ -120,7 +128,8 @@ async function regenerateManifestFromDB() {
         size: parseInt(row.size),
         modified: row.modified,
         category: row.category,
-        description: row.description || ''
+        description: row.description || '',
+        thumbnail: `/thumbnails/${row.id}.png`
       };
       if (manifest[row.category]) {
         manifest[row.category].push(document);
@@ -153,6 +162,62 @@ function generateNewsImageName() {
   const timestamp = Date.now();
   const random = crypto.randomBytes(3).toString('hex');
   return `news-${timestamp}-${random}`;
+}
+
+// Helper function to generate thumbnail from PDF
+async function generateThumbnail(pdfPath, documentId) {
+  try {
+    // Ensure thumbnails directory exists
+    await fs.mkdir(THUMBNAILS_DIR, { recursive: true });
+
+    // Output base path WITHOUT extension (node-poppler adds it automatically)
+    const outputBasePath = path.join(THUMBNAILS_DIR, documentId);
+
+    // Use Poppler to convert first page to PNG image
+    const options = {
+      pngFile: true,
+      singleFile: true,
+      firstPageToConvert: 1,
+      lastPageToConvert: 1,
+      resolutionXYAxis: 150  // DPI resolution
+    };
+
+    await poppler.pdfToCairo(pdfPath, outputBasePath, options);
+
+    // Check what file was actually created
+    const possiblePaths = [
+      `${outputBasePath}.png`,           // documentId.png
+      `${outputBasePath}-1.png`,         // documentId-1.png
+      `${outputBasePath}-000001.png`,    // documentId-000001.png
+    ];
+
+    let actualPath = null;
+    for (const checkPath of possiblePaths) {
+      try {
+        await fs.access(checkPath);
+        actualPath = checkPath;
+        break;
+      } catch {
+        // File doesn't exist, try next
+      }
+    }
+
+    if (!actualPath) {
+      throw new Error('Generated thumbnail file not found');
+    }
+
+    // If the file is already correctly named, just return it
+    const finalPath = path.join(THUMBNAILS_DIR, `${documentId}.png`);
+    if (actualPath !== finalPath) {
+      await fs.rename(actualPath, finalPath);
+    }
+
+    console.log(`Thumbnail generated: ${finalPath}`);
+    return `${documentId}.png`; // Return filename
+  } catch (error) {
+    console.error('Error generating thumbnail:', error);
+    throw error;
+  }
 }
 
 // Database initialization
@@ -482,6 +547,11 @@ app.post('/api/admin/documents', authenticateToken, upload.single('file'), async
 
     await client.query('COMMIT');
 
+    // Generate thumbnail from PDF (non-blocking)
+    generateThumbnail(destPath, id).catch(err => {
+      console.error(`Failed to generate thumbnail for ${id}:`, err);
+    });
+
     // Update manifest
     const manifest = await regenerateManifestFromDB();
 
@@ -491,7 +561,8 @@ app.post('/api/admin/documents', authenticateToken, upload.single('file'), async
       displayName,
       size: fileStats.size,
       modified,
-      category
+      category,
+      thumbnail: `/thumbnails/${id}.png`
     };
 
     res.json({
@@ -595,7 +666,8 @@ app.post('/api/admin/documents/bulk', authenticateToken, upload.array('files', 5
           displayName,
           size: fileStats.size,
           modified,
-          category
+          category,
+          thumbnail: `/thumbnails/${id}.png`
         });
       } catch (err) {
         console.error('Error processing file:', file.originalname, err);
@@ -611,6 +683,14 @@ app.post('/api/admin/documents/bulk', authenticateToken, upload.array('files', 5
     }
 
     await client.query('COMMIT');
+
+    // Generate thumbnails for all uploaded files (non-blocking)
+    for (const file of uploadedFiles) {
+      const pdfPath = path.join(DOCS_DIR, file.category, file.name);
+      generateThumbnail(pdfPath, file.id).catch(err => {
+        console.error(`Failed to generate thumbnail for ${file.id}:`, err);
+      });
+    }
 
     // Update manifest
     await regenerateManifestFromDB();
@@ -723,7 +803,8 @@ app.post('/api/admin/documents/with-descriptions', authenticateToken, upload.arr
           description,
           size: fileStats.size,
           modified,
-          category
+          category,
+          thumbnail: `/thumbnails/${id}.png`
         });
       } catch (err) {
         console.error('Error processing file:', file.originalname, err);
@@ -738,6 +819,15 @@ app.post('/api/admin/documents/with-descriptions', authenticateToken, upload.arr
     }
 
     await client.query('COMMIT');
+
+    // Generate thumbnails for all uploaded files (non-blocking)
+    for (const file of uploadedFiles) {
+      const pdfPath = path.join(DOCS_DIR, file.category, file.name);
+      generateThumbnail(pdfPath, file.id).catch(err => {
+        console.error(`Failed to generate thumbnail for ${file.id}:`, err);
+      });
+    }
+
     await regenerateManifestFromDB();
 
     res.json({
@@ -806,6 +896,17 @@ app.delete('/api/admin/documents/:id', authenticateToken, async (req, res) => {
     } catch (error) {
       console.error('Error deleting file:', error);
       // Continue with manifest update even if file deletion fails
+    }
+
+    // Delete thumbnail file
+    const thumbnailPath = path.join(THUMBNAILS_DIR, `${id}.png`);
+    try {
+      await fs.unlink(thumbnailPath);
+    } catch (error) {
+      // Ignore if thumbnail doesn't exist
+      if (error.code !== 'ENOENT') {
+        console.error('Error deleting thumbnail:', error);
+      }
     }
 
     // Update manifest
