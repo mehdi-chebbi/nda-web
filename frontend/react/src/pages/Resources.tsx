@@ -8,6 +8,7 @@ interface Document {
   size: number
   modified: string
   category: string
+  description?: string
 }
 
 interface Manifest {
@@ -90,7 +91,8 @@ const Resources = () => {
       docs = docs.filter(
         doc =>
           doc.displayName.toLowerCase().includes(term) ||
-          doc.name.toLowerCase().includes(term)
+          doc.name.toLowerCase().includes(term) ||
+          (doc.description && doc.description.toLowerCase().includes(term))
       )
     }
 
@@ -503,6 +505,12 @@ const Resources = () => {
                         <h3 className="font-heading font-semibold text-xl text-primary mb-4 line-clamp-2 leading-tight">
                           {doc.displayName}
                         </h3>
+
+                        {doc.description && (
+                          <p className="font-body text-sm text-text-secondary leading-relaxed mb-4 line-clamp-2">
+                            {doc.description}
+                          </p>
+                        )}
 
                         <div className="space-y-2 mb-6">
                           <div className="flex justify-between items-center text-sm bg-bg-primary/50 rounded-lg px-3 py-2">

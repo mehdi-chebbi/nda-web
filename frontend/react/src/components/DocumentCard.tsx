@@ -7,6 +7,7 @@ interface Document {
   size: number
   modified: string
   category: string
+  description?: string
 }
 
 interface DocumentCardProps {
@@ -82,6 +83,11 @@ const DocumentCard = ({ document, onDelete, onUpdate }: DocumentCardProps) => {
 
         {/* Document Info */}
         <div className="space-y-2 mb-6">
+          {document.description && (
+            <p className="font-body text-sm text-text-secondary leading-relaxed line-clamp-2">
+              {document.description}
+            </p>
+          )}
           <div className="flex items-center text-text-secondary text-sm">
             <FileText className="w-4 h-4 mr-2 flex-shrink-0" />
             <span className="truncate">{formatFileSize(document.size)}</span>

@@ -1,9 +1,11 @@
 node_modules
-uploads
-docs
-news-imgs
+npm-debug.log
 .env
-.env.example
-*.log
-.DS_Store
 .git
+.gitignore
+uploads/*
+docs/*
+news-imgs/*
+!docs/.gitkeep
+!uploads/.gitkeep
+!news-imgs/.gitkeep

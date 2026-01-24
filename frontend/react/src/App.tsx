@@ -7,6 +7,7 @@ import Resources from './pages/Resources'
 import About from './pages/About'
 import Contact from './pages/Contact'
 import Admin from './pages/Admin'
+import UploadDocuments from './pages/UploadDocuments'
 import Mission from './pages/Mission'
 import GCFProject from './pages/GCFProject'
 import GCFstage from './pages/CGFstage'
@@ -41,6 +42,7 @@ function App() {
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/admin" element={<Admin />} />
+            <Route path="/admin/upload-documents" element={<UploadDocuments />} />
             <Route path="/mission" element={<Mission />} />
             <Route path="/gcf-project" element={<GCFProject />} />
             <Route path="/sustainable-development" element={<SustainableDevelopment />} />

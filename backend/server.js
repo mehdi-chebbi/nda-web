@@ -101,7 +101,7 @@ async function writeManifest(manifest) {
 async function regenerateManifestFromDB() {
   try {
     const result = await pool.query(
-      'SELECT id, name, display_name, category, size, modified FROM documents ORDER BY modified DESC'
+      'SELECT id, name, display_name, category, size, modified, description FROM documents ORDER BY modified DESC'
     );
 
     const manifest = {
@@ -119,7 +119,8 @@ async function regenerateManifestFromDB() {
         displayName: row.display_name,
         size: parseInt(row.size),
         modified: row.modified,
-        category: row.category
+        category: row.category,
+        description: row.description || ''
       };
       if (manifest[row.category]) {
         manifest[row.category].push(document);
@@ -165,6 +166,7 @@ async function initializeDatabase() {
         display_name VARCHAR(255) NOT NULL,
         category VARCHAR(20) NOT NULL,
         size INTEGER NOT NULL,
+        description TEXT,
         modified TIMESTAMP NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -624,6 +626,130 @@ app.post('/api/admin/documents/bulk', authenticateToken, upload.array('files', 5
     await client.query('ROLLBACK');
     console.error('Bulk upload error:', error);
     // Delete all uploaded files
+    if (req.files) {
+      for (const file of req.files) {
+        try {
+          await fs.unlink(file.path);
+        } catch (e) {}
+      }
+    }
+    res.status(500).json({ error: 'Failed to upload documents.' });
+  } finally {
+    client.release();
+  }
+});
+
+// Upload documents with descriptions (admin only)
+app.post('/api/admin/documents/with-descriptions', authenticateToken, upload.array('files', 50), async (req, res) => {
+  const client = await pool.connect();
+  const uploadedFiles = [];
+  const errors = [];
+
+  try {
+    await client.query('BEGIN');
+
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ error: 'No files uploaded.' });
+    }
+
+    const { category = 'policy', descriptions } = req.body;
+
+    if (!['policy', 'project-readiness', 'templates', 'deliverable'].includes(category)) {
+      for (const file of req.files) {
+        try {
+          await fs.unlink(file.path);
+        } catch (e) {}
+      }
+      return res.status(400).json({ error: 'Invalid category. Must be "policy", "project-readiness", "templates", or "deliverable".' });
+    }
+
+    // Parse descriptions if provided as JSON string
+    let descriptionsMap = {};
+    if (descriptions) {
+      try {
+        descriptionsMap = typeof descriptions === 'string' ? JSON.parse(descriptions) : descriptions;
+      } catch (e) {
+        console.error('Error parsing descriptions:', e);
+      }
+    }
+
+    const categoryDir = path.join(DOCS_DIR, category);
+    await fs.mkdir(categoryDir, { recursive: true });
+
+    for (const file of req.files) {
+      try {
+        const baseName = path.basename(file.originalname, path.extname(file.originalname));
+        const displayName = baseName
+          .replace(/[-_]/g, ' ')
+          .replace(/\s+/g, ' ')
+          .trim();
+
+        const id = generateId(category);
+
+        const ext = path.extname(file.originalname);
+        const sanitizedName = displayName
+          .toLowerCase()
+          .replace(/[^a-z0-9]/g, '-')
+          .replace(/-+/g, '-')
+          .replace(/^-|-$/g, '');
+        const filename = `${sanitizedName}${ext}`;
+
+        const sourcePath = file.path;
+        const destPath = path.join(categoryDir, filename);
+        await fs.rename(sourcePath, destPath);
+
+        const fileStats = await fs.stat(destPath);
+        const modified = new Date().toISOString();
+
+        // Get description from map or use empty string
+        const description = descriptionsMap[filename] || descriptionsMap[file.originalname] || '';
+
+        await client.query(
+          `INSERT INTO documents (id, name, display_name, category, size, description, modified)
+           VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+          [id, filename, displayName, category, fileStats.size, description, modified]
+        );
+
+        await client.query(
+          `INSERT INTO document_audit_log (document_id, action, performed_by, details)
+           VALUES ($1, $2, $3, $4)`,
+          [id, 'upload', req.user.username, JSON.stringify({ displayName, category, size: fileStats.size, hasDescription: !!description })]
+        );
+
+        uploadedFiles.push({
+          id,
+          name: filename,
+          displayName,
+          description,
+          size: fileStats.size,
+          modified,
+          category
+        });
+      } catch (err) {
+        console.error('Error processing file:', file.originalname, err);
+        errors.push({
+          filename: file.originalname,
+          error: err.message
+        });
+        try {
+          await fs.unlink(file.path);
+        } catch (e) {}
+      }
+    }
+
+    await client.query('COMMIT');
+    await regenerateManifestFromDB();
+
+    res.json({
+      message: `Successfully uploaded ${uploadedFiles.length} file${uploadedFiles.length !== 1 ? 's' : ''}.`,
+      uploaded: uploadedFiles,
+      errors,
+      totalUploaded: uploadedFiles.length,
+      totalFailed: errors.length
+    });
+  } catch (error) {
+    await client.query('ROLLBACK');
+    console.error('Upload with descriptions error:', error);
     if (req.files) {
       for (const file of req.files) {
         try {

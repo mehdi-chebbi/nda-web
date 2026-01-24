@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import { Plus, FileText, Newspaper, Search, LogOut, Sparkles } from 'lucide-react'
 import axios from 'axios'
 import Modal from '../components/Modal'
-import UploadDocumentsModal from '../components/UploadDocumentsModal'
 import AddNewsModal from '../components/AddNewsModal'
 import UpdateDocumentModal from '../components/UpdateDocumentModal'
 import UpdateNewsModal from '../components/UpdateNewsModal'
@@ -16,6 +16,7 @@ interface Document {
   size: number
   modified: string
   category: string
+  description?: string
 }
 
 interface PressRelease {
@@ -39,10 +40,9 @@ const Admin = () => {
   const [searchTerm, setSearchTerm] = useState('')
 
   // Modal states
-  const [uploadModalOpen, setUploadModalOpen] = useState(false)
   const [addNewsModalOpen, setAddNewsModalOpen] = useState(false)
   const [updateDocumentModalOpen, setUpdateDocumentModalOpen] = useState(false)
-  const [updateNewsModalOpen, setUpdateNewsModalOpen] = useState(false)
+  const [updateNewsModalOpen, setUpdateNewsOpen] = useState(false)
   const [selectedDocument, setSelectedDocument] = useState<Document | null>(null)
   const [selectedNews, setSelectedNews] = useState<PressRelease | null>(null)
 
@@ -163,7 +163,7 @@ const Admin = () => {
 
   const handleUpdateNews = (news: PressRelease) => {
     setSelectedNews(news)
-    setUpdateNewsModalOpen(true)
+    setUpdateNewsOpen(true)
   }
 
   // Filter documents and news based on search term
@@ -363,13 +363,13 @@ const Admin = () => {
           </div>
 
           {activeTab === 'documents' ? (
-            <button
-              onClick={() => setUploadModalOpen(true)}
+            <Link
+              to="/admin/upload-documents"
               className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-primary to-primary-dark hover:from-primary-dark hover:to-primary text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5"
             >
               <Plus className="w-5 h-5" />
               <span>Add Documents</span>
-            </button>
+            </Link>
           ) : (
             <button
               onClick={() => setAddNewsModalOpen(true)}
@@ -406,13 +406,13 @@ const Admin = () => {
                     : 'Get started by uploading your first document'}
                 </p>
                 {!searchTerm && (
-                  <button
-                    onClick={() => setUploadModalOpen(true)}
+                  <Link
+                    to="/admin/upload-documents"
                     className="inline-flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-primary to-primary-dark text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5"
                   >
                     <Plus className="w-5 h-5" />
                     <span>Upload Your First Document</span>
-                  </button>
+                  </Link>
                 )}
               </div>
             ) : (
@@ -482,21 +482,6 @@ const Admin = () => {
 
       {/* Modals */}
       <Modal
-        isOpen={uploadModalOpen}
-        onClose={() => setUploadModalOpen(false)}
-        title="Upload Documents"
-      >
-        <UploadDocumentsModal
-          onClose={() => setUploadModalOpen(false)}
-          onSuccess={() => {
-            fetchDocuments()
-            setSuccessMessage('Documents uploaded successfully!')
-            setTimeout(() => setSuccessMessage(''), 5000)
-          }}
-        />
-      </Modal>
-
-      <Modal
         isOpen={addNewsModalOpen}
         onClose={() => setAddNewsModalOpen(false)}
         title="Publish News"
@@ -530,13 +515,13 @@ const Admin = () => {
 
       <Modal
         isOpen={updateNewsModalOpen}
-        onClose={() => setUpdateNewsModalOpen(false)}
+        onClose={() => setUpdateNewsOpen(false)}
         title="Update Press Release"
       >
         <UpdateNewsModal
           isOpen={updateNewsModalOpen}
           news={selectedNews!}
-          onClose={() => setUpdateNewsModalOpen(false)}
+          onClose={() => setUpdateNewsOpen(false)}
           onSuccess={() => {
             fetchPressReleases()
             setSuccessMessage('Press release updated successfully!')
