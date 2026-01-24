@@ -1289,6 +1289,28 @@ app.put('/api/admin/press-releases/:id', authenticateToken, uploadImages.array('
 
 // ================= END PRESS RELEASE ENDPOINTS =================
 
+// Get document by ID (public endpoint)
+app.get('/api/documents/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const result = await pool.query(
+      'SELECT id, name, display_name, category, size, description, modified FROM documents WHERE id = $1',
+      [id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Document not found.' });
+    }
+
+    const document = result.rows[0];
+    res.json(document);
+  } catch (error) {
+    console.error('Error fetching document:', error);
+    res.status(500).json({ error: 'Failed to fetch document.' });
+  }
+});
+
 // Catch all - serve React app for any other route
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'frontend', 'react', 'dist', 'index.html'));

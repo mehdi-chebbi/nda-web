@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
-import { FileText, Download, Search, Filter } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { FileText, ArrowRight, Search, Filter } from 'lucide-react'
 import axios from 'axios'
 
 interface Document {
@@ -55,10 +56,6 @@ const PolicyDocuments = () => {
       month: 'long',
       day: 'numeric'
     })
-  }
-
-  const handleDownload = (doc: Document) => {
-    window.open(`/docs/${doc.category}/${doc.name}`, '_blank')
   }
 
   return (
@@ -180,14 +177,14 @@ const PolicyDocuments = () => {
                           </div>
                         </div>
 
-                        {/* Download Button */}
-                        <button
-                          onClick={() => handleDownload(doc)}
+                        {/* More Details Button */}
+                        <Link
+                          to={`/gcf-policies/${doc.id}`}
                           className="w-full flex items-center justify-center space-x-2 px-6 py-3 bg-gradient-to-r from-primary to-primary-dark hover:from-primary-dark hover:to-primary text-white rounded-xl font-semibold transition-all duration-300 transform hover:-translate-y-0.5 shadow-lg hover:shadow-xl"
                         >
-                          <Download className="w-5 h-5" />
-                          <span>Download</span>
-                        </button>
+                          <ArrowRight className="w-5 h-5" />
+                          <span>More Details</span>
+                        </Link>
                       </div>
                     </div>
                   ))}
