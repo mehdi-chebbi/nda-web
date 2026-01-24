@@ -1405,6 +1405,7 @@ app.get('/api/documents/:id', async (req, res) => {
     }
 
     const document = result.rows[0];
+        document.thumbnail = `/thumbnails/${id}.png`;
     res.json(document);
   } catch (error) {
     console.error('Error fetching document:', error);

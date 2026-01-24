@@ -1,48 +1,18 @@
 {
   "policy": [
     {
-      "id": "pol-1769286232617-0b91",
+      "id": "pol-1769289043258-0c91",
       "name": "policy-on-fees-03-2018.pdf",
       "displayName": "policy on fees 03 2018",
       "size": 403946,
-      "modified": "2026-01-24T19:23:52.619Z",
+      "modified": "2026-01-24T20:10:43.260Z",
       "category": "policy",
-      "description": "sdqdsqd",
-      "thumbnail": "/thumbnails/pol-1769286232617-0b91.png"
-    },
-    {
-      "id": "pol-1769286232613-beba",
-      "name": "monitoring-and-accountability-framework-for-accredited-entities-11-2015.pdf",
-      "displayName": "monitoring and accountability framework for accredited entities 11 2015",
-      "size": 482538,
-      "modified": "2026-01-24T19:23:52.615Z",
-      "category": "policy",
-      "description": "dsqdsq",
-      "thumbnail": "/thumbnails/pol-1769286232613-beba.png"
-    },
-    {
-      "id": "pol-1769286232609-d821",
-      "name": "legal-and-formal-arrangements-with-accredited-entities-03-2015.pdf",
-      "displayName": "legal and formal arrangements with accredited entities 03 2015",
-      "size": 432863,
-      "modified": "2026-01-24T19:23:52.611Z",
-      "category": "policy",
-      "description": "dsqd",
-      "thumbnail": "/thumbnails/pol-1769286232609-d821.png"
-    },
-    {
-      "id": "pol-1769286232600-41b3",
-      "name": "initial-guiding-framework-for-the-fund-s-05-2025.pdf",
-      "displayName": "initial guiding framework for the fund s 05 2025",
-      "size": 762474,
-      "modified": "2026-01-24T19:23:52.601Z",
-      "category": "policy",
-      "description": "dsq",
-      "thumbnail": "/thumbnails/pol-1769286232600-41b3.png"
+      "description": "The Board adopted at B.37 the Readiness Strategy 2024-2027, which presents the revised strategy for the Readiness Programme that continues to serve as a critical instrument in fulfilling the GCF’s strategic vision and ambition.",
+      "thumbnail": "/thumbnails/pol-1769289043258-0c91.png"
     }
   ],
   "project-readiness": [],
   "templates": [],
   "deliverable": [],
-  "lastUpdated": "2026-01-24T20:23:52.948Z"
+  "lastUpdated": "2026-01-24T21:10:43.549Z"
 }
