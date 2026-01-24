@@ -206,7 +206,7 @@ async function generateThumbnail(pdfPath, documentId) {
       throw new Error('Generated thumbnail file not found');
     }
 
-    // If the file is already correctly named, just return it
+    // If file is already correctly named, just return it
     const finalPath = path.join(THUMBNAILS_DIR, `${documentId}.png`);
     if (actualPath !== finalPath) {
       await fs.rename(actualPath, finalPath);
