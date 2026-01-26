@@ -100,6 +100,7 @@ async function initializeManifest() {
       'project-readiness': [],
       templates: [],
       deliverable: [],
+      workshops: [],
       lastUpdated: new Date().toISOString()
     };
     await fs.writeFile(MANIFEST_PATH, JSON.stringify(initialManifest, null, 2));
@@ -119,8 +120,14 @@ async function writeManifest(manifest) {
 
 async function regenerateManifestFromDB() {
   try {
-    const result = await pool.query(
+    // Get all documents
+    const documentsResult = await pool.query(
       'SELECT id, name, display_name, category, size, modified, description FROM documents ORDER BY modified DESC'
+    );
+
+    // Get all workshops
+    const workshopsResult = await pool.query(
+      'SELECT id, title, description, video_filename, event_date, tags, created_at FROM workshops ORDER BY event_date DESC NULLS LAST, created_at DESC'
     );
 
     const manifest = {
@@ -128,10 +135,12 @@ async function regenerateManifestFromDB() {
       'project-readiness': [],
       templates: [],
       deliverable: [],
+      workshops: [],
       lastUpdated: new Date().toISOString()
     };
 
-    for (const row of result.rows) {
+    // Add documents to manifest
+    for (const row of documentsResult.rows) {
       const document = {
         id: row.id,
         name: row.name,
@@ -147,8 +156,23 @@ async function regenerateManifestFromDB() {
       }
     }
 
+    // Add workshops to manifest
+    for (const row of workshopsResult.rows) {
+      const workshop = {
+        id: row.id,
+        title: row.title,
+        description: row.description || '',
+        videoFilename: row.video_filename,
+        videoUrl: `/workshop-videos/${row.video_filename}`,
+        eventDate: row.event_date,
+        tags: row.tags || [],
+        createdAt: row.created_at
+      };
+      manifest.workshops.push(workshop);
+    }
+
     await writeManifest(manifest);
-    console.log('Regenerated manifest.json from database');
+    console.log('Regenerated manifest.json from database (documents + workshops)');
     return manifest;
   } catch (error) {
     console.error('Error regenerating manifest from DB:', error);
@@ -1568,6 +1592,9 @@ app.post('/api/admin/workshops', authenticateToken, uploadVideos.single('video')
 
     await client.query('COMMIT');
 
+    // Regenerate manifest after successful upload (includes both docs + workshops)
+    await regenerateManifestFromDB();
+
     res.json({
       id,
       title,
@@ -1631,6 +1658,9 @@ app.delete('/api/admin/workshops/:id', authenticateToken, async (req, res) => {
 
     await client.query('COMMIT');
 
+    // Regenerate manifest after successful deletion (includes both docs + workshops)
+    await regenerateManifestFromDB();
+
     console.log(`Workshop deleted: ${id}`);
     res.json({ message: 'Workshop deleted successfully.' });
   } catch (error) {
@@ -1675,11 +1705,12 @@ async function startServer() {
     await fs.mkdir(path.join(DOCS_DIR, 'gcf'), { recursive: true });
     await fs.mkdir(path.join(DOCS_DIR, 'policy'), { recursive: true });
     await fs.mkdir(NEWS_IMAGES_DIR, { recursive: true });
-    await fs.mkdir(THUMBNAILS_DIR, { recursive: true }); 
-    // Initialize manifest
+    await fs.mkdir(THUMBNAILS_DIR, { recursive: true });
+
+    // Initialize manifest (includes both docs + workshops)
     await initializeManifest();
 
-    // Regenerate manifest from database (in case of existing data)
+    // Regenerate manifest from database (includes both docs + workshops)
     await regenerateManifestFromDB();
 
     // Start server
