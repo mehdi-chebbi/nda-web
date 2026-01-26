@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { ArrowLeft, Download, Calendar, FileText, ExternalLink } from 'lucide-react'
+import { ArrowLeft, Download, Calendar, FileText, Home, ExternalLink } from 'lucide-react'
 import axios from 'axios'
 
 interface Document {
@@ -14,7 +14,7 @@ interface Document {
   description?: string
 }
 
-const PolicyDocumentDetail = () => {
+const TemplateDetail = () => {
   const { id } = useParams<{ id: string }>()
   const [document, setDocument] = useState<Document | null>(null)
   const [loading, setLoading] = useState(true)
@@ -29,7 +29,7 @@ const PolicyDocumentDetail = () => {
       setLoading(true)
       const response = await axios.get('/docs/manifest.json')
       const allDocs = [
-        ...(response.data.policy || []),
+        ...(response.data.templates || []),
       ]
       const foundDoc = allDocs.find((doc: Document) => doc.id === id)
 
@@ -88,7 +88,7 @@ const PolicyDocumentDetail = () => {
           <p className="font-semibold text-lg mb-2">Unable to Load Document</p>
           <p>{error}</p>
           <Link
-            to="/gcf-policies"
+            to="/gcf-template"
             className="mt-6 inline-flex items-center space-x-2 px-6 py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl font-semibold transition-colors duration-200"
           >
             <ArrowLeft className="w-5 h-5" />
@@ -106,11 +106,11 @@ const PolicyDocumentDetail = () => {
       {/* Back Button */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
         <Link
-          to="/gcf-policies"
+          to="/gcf-template"
           className="inline-flex items-center space-x-2 text-primary hover:text-primary-dark transition-colors font-medium"
         >
           <ArrowLeft className="w-5 h-5" />
-          <span>Back to Policy Documents</span>
+          <span>Back to Template Documents</span>
         </Link>
       </div>
 
@@ -118,8 +118,7 @@ const PolicyDocumentDetail = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid lg:grid-cols-2 gap-12">
           {/* Left Column - Thumbnail */}
-          <div className="max-w-sm mx-auto lg:mx-0">
-            <div className="aspect-[3/4] bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100">
+<div className="max-w-sm mx-auto lg:mx-0">                <div className="aspect-[3/4] bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100">
               {document.thumbnail ? (
                 <img
                   src={document.thumbnail}
@@ -139,10 +138,9 @@ const PolicyDocumentDetail = () => {
             {/* Header */}
             <div>
               <div className="inline-flex items-center px-3 py-1 rounded-full bg-primary/10 text-primary font-semibold text-xs uppercase tracking-wider mb-4">
-                Policy
+                Template
               </div>
-              <h1 className="font-heading text-2xl md:text-3xl font-bold text-primary mb-4">
-                {document.displayName}
+<h1 className="font-heading text-2xl md:text-3xl font-bold text-primary mb-4">                {document.displayName}
               </h1>
             </div>
 
@@ -153,7 +151,6 @@ const PolicyDocumentDetail = () => {
                 {document.description || 'No description available for this document.'}
               </p>
             </div>
-
             {/* Meta Information */}
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-white p-4 rounded-xl border border-gray-100">
@@ -183,6 +180,7 @@ const PolicyDocumentDetail = () => {
               <ExternalLink className="w-5 h-5" />
             </button>
 
+          
           </div>
         </div>
       </div>
@@ -190,4 +188,4 @@ const PolicyDocumentDetail = () => {
   )
 }
 
-export default PolicyDocumentDetail
+export default TemplateDetail

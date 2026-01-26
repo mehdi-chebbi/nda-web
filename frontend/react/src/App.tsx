@@ -21,6 +21,10 @@ import PolicyDocuments from './pages/PolicyDocuments'
 import PolicyDocumentDetail from './pages/PolicyDocumentDetail'
 import ProjectReadiness from './pages/ProjectReadiness'
 import ProjectReadinessDetail from './pages/ProjectReadinessDetail'
+import TemplateDocuments from './pages/TemplateDocuments'
+import TemplateDetail from './pages/TemplateDetail'
+import Deliverables from './pages/Deliverables'
+import DeliverableDetail from './pages/DeliverableDetail'
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -59,6 +63,10 @@ function App() {
             <Route path="/gcf-policies/:id" element={<PolicyDocumentDetail />} />
                <Route path="/project-readiness" element={<ProjectReadiness />} />
             <Route path="/project-readiness/:id" element={<ProjectReadinessDetail />} />
+            <Route path="/gcf-template" element={<TemplateDocuments />} />
+            <Route path="/gcf-template/:id" element={<TemplateDetail />} />
+            <Route path="/deliverables" element={<Deliverables />} />
+            <Route path="/deliverables/:id" element={<DeliverableDetail />} />
           </Routes>
         </main>
         <Footer />

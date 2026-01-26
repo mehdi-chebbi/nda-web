@@ -14,7 +14,7 @@ interface Document {
   description?: string
 }
 
-const PolicyDocumentDetail = () => {
+const DeliverableDetail = () => {
   const { id } = useParams<{ id: string }>()
   const [document, setDocument] = useState<Document | null>(null)
   const [loading, setLoading] = useState(true)
@@ -29,7 +29,7 @@ const PolicyDocumentDetail = () => {
       setLoading(true)
       const response = await axios.get('/docs/manifest.json')
       const allDocs = [
-        ...(response.data.policy || []),
+        ...(response.data.deliverable || []),
       ]
       const foundDoc = allDocs.find((doc: Document) => doc.id === id)
 
@@ -88,7 +88,7 @@ const PolicyDocumentDetail = () => {
           <p className="font-semibold text-lg mb-2">Unable to Load Document</p>
           <p>{error}</p>
           <Link
-            to="/gcf-policies"
+            to="/deliverables"
             className="mt-6 inline-flex items-center space-x-2 px-6 py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl font-semibold transition-colors duration-200"
           >
             <ArrowLeft className="w-5 h-5" />
@@ -106,11 +106,11 @@ const PolicyDocumentDetail = () => {
       {/* Back Button */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
         <Link
-          to="/gcf-policies"
+          to="/deliverables"
           className="inline-flex items-center space-x-2 text-primary hover:text-primary-dark transition-colors font-medium"
         >
           <ArrowLeft className="w-5 h-5" />
-          <span>Back to Policy Documents</span>
+          <span>Back to Deliverables</span>
         </Link>
       </div>
 
@@ -139,7 +139,7 @@ const PolicyDocumentDetail = () => {
             {/* Header */}
             <div>
               <div className="inline-flex items-center px-3 py-1 rounded-full bg-primary/10 text-primary font-semibold text-xs uppercase tracking-wider mb-4">
-                Policy
+                Deliverable
               </div>
               <h1 className="font-heading text-2xl md:text-3xl font-bold text-primary mb-4">
                 {document.displayName}
@@ -190,4 +190,4 @@ const PolicyDocumentDetail = () => {
   )
 }
 
-export default PolicyDocumentDetail
+export default DeliverableDetail
