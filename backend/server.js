@@ -1444,7 +1444,7 @@ async function startServer() {
     await fs.mkdir(path.join(DOCS_DIR, 'gcf'), { recursive: true });
     await fs.mkdir(path.join(DOCS_DIR, 'policy'), { recursive: true });
     await fs.mkdir(NEWS_IMAGES_DIR, { recursive: true });
-
+    await fs.mkdir(THUMBNAILS_DIR, { recursive: true }); 
     // Initialize manifest
     await initializeManifest();
 

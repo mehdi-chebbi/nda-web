@@ -11,6 +11,7 @@ interface Document {
   modified: string
   category: string
   thumbnail?: string
+  description?: string
 }
 
 const PolicyDocuments = () => {
@@ -61,6 +62,37 @@ const PolicyDocuments = () => {
 
   return (
     <div className="min-h-screen bg-bg-primary">
+      <style>{`
+        .flip-card {
+          perspective: 1000px;
+        }
+        
+        .flip-card-inner {
+          position: relative;
+          width: 100%;
+          height: 100%;
+          transition: transform 0.6s;
+          transform-style: preserve-3d;
+        }
+        
+        .flip-card:hover .flip-card-inner {
+          transform: rotateY(180deg);
+        }
+        
+        .flip-card-front,
+        .flip-card-back {
+          position: absolute;
+          width: 100%;
+          height: 100%;
+          backface-visibility: hidden;
+          -webkit-backface-visibility: hidden;
+        }
+        
+        .flip-card-back {
+          transform: rotateY(180deg);
+        }
+      `}</style>
+
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-primary to-primary-dark text-white py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -151,37 +183,44 @@ const PolicyDocuments = () => {
                       className="group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-primary/30"
                       style={{ animationDelay: `${index * 100}ms` }}
                     >
-                      {/* Thumbnail/Icon Area */}
-                      <div className="relative aspect-[3/4] bg-gradient-to-br from-primary/5 to-primary-light/5 overflow-hidden">
-                        {doc.thumbnail ? (
-                          <img
-                            src={doc.thumbnail}
-                            alt={doc.displayName}
-                            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                            onError={(e) => {
-                              // Fallback to icon if thumbnail fails to load
-                              const target = e.target as HTMLImageElement
-                              target.style.display = 'none'
-                              const fallback = target.nextElementSibling as HTMLElement
-                              if (fallback) fallback.style.display = 'flex'
-                            }}
-                          />
-                        ) : null}
-                        <div
-                          className={`absolute inset-0 flex items-center justify-center ${doc.thumbnail ? 'hidden' : 'flex'}`}
-                        >
-                          <FileText className="w-16 h-16 text-primary" />
+                      {/* Flip Card Container */}
+                      <div className="flip-card aspect-[3/4]">
+                        <div className="flip-card-inner">
+                          {/* Front Side - Thumbnail */}
+                          <div className="flip-card-front bg-gradient-to-br from-primary/5 to-primary-light/5">
+                            {doc.thumbnail ? (
+                              <img
+                                src={doc.thumbnail}
+                                alt={doc.displayName}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center">
+                                <FileText className="w-16 h-16 text-primary" />
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Back Side - Description */}
+                          <div className="flip-card-back bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center p-6">
+                            {doc.description ? (
+                              <p className="font-body text-base text-white leading-relaxed text-center">
+                                {doc.description}
+                              </p>
+                            ) : (
+                              <p className="font-body text-base text-white/70 italic text-center">
+                                No description available
+                              </p>
+                            )}
+                          </div>
                         </div>
                       </div>
 
                       {/* Content */}
                       <div className="p-6">
-                        <h3 className="font-heading font-bold text-xl text-primary mb-3 line-clamp-2 group-hover:text-primary-dark transition-colors">
+                        <h3 className="font-heading font-bold text-xl text-primary mb-4 line-clamp-2 group-hover:text-primary-dark transition-colors">
                           {doc.displayName}
                         </h3>
-                        <p className="font-body text-sm text-text-secondary mb-4 line-clamp-2">
-                          {doc.name}
-                        </p>
 
                         {/* Meta Info */}
                         <div className="flex items-center justify-between mb-4 text-xs font-body text-text-muted">
