@@ -16,6 +16,7 @@ const DOCS_DIR = path.join(__dirname, 'docs');
 const MANIFEST_PATH = path.join(DOCS_DIR, 'manifest.json');
 const NEWS_IMAGES_DIR = path.join(__dirname, 'news-imgs');
 const THUMBNAILS_DIR = path.join(__dirname, 'thumbnails');
+const WORKSHOP_VIDEOS_DIR = path.join(__dirname, 'workshop-videos');
 
 // Initialize Poppler for PDF thumbnail generation
 const poppler = new Poppler();
@@ -48,6 +49,9 @@ app.use('/news-imgs', express.static(NEWS_IMAGES_DIR));
 // Serve thumbnails directory
 app.use('/thumbnails', express.static(THUMBNAILS_DIR));
 
+// Serve workshop videos directory
+app.use('/workshop-videos', express.static(WORKSHOP_VIDEOS_DIR));
+
 const upload = multer({
   dest: 'uploads/',
   fileFilter: (req, file, cb) => {
@@ -76,6 +80,13 @@ const uploadImages = multer({
   limits: {
     fileSize: 10 * 1024 * 1024, // 10MB limit per image
     files: 10 // Max 10 images at once
+  }
+});
+
+const uploadVideos = multer({
+  dest: 'uploads/',
+  limits: {
+    // No size limit for videos
   }
 });
 
@@ -162,6 +173,12 @@ function generateNewsImageName() {
   const timestamp = Date.now();
   const random = crypto.randomBytes(3).toString('hex');
   return `news-${timestamp}-${random}`;
+}
+
+function generateWorkshopId() {
+  const timestamp = Date.now();
+  const random = crypto.randomBytes(2).toString('hex');
+  return `ws-${timestamp}-${random}`;
 }
 
 // Helper function to generate thumbnail from PDF
@@ -337,6 +354,28 @@ async function initializeDatabase() {
 
     await pool.query(`
       CREATE INDEX IF NOT EXISTS idx_press_releases_created_at ON press_releases(created_at DESC)
+    `);
+
+    // Create workshops table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS workshops (
+        id VARCHAR(50) PRIMARY KEY,
+        title VARCHAR(255) NOT NULL,
+        description TEXT,
+        video_filename VARCHAR(255) NOT NULL,
+        event_date DATE,
+        tags TEXT[],
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_workshops_event_date ON workshops(event_date DESC)
+    `);
+
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_workshops_created_at ON workshops(created_at DESC)
     `);
 
     console.log('Database tables initialized');
@@ -1412,6 +1451,198 @@ app.get('/api/documents/:id', async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch document.' });
   }
 });
+
+// ================= WORKSHOP ENDPOINTS =================
+
+// Get all workshops (public endpoint)
+app.get('/api/workshops', async (req, res) => {
+  try {
+    const result = await pool.query(
+      'SELECT id, title, description, video_filename, event_date, tags, created_at FROM workshops ORDER BY event_date DESC NULLS LAST, created_at DESC'
+    );
+
+    const workshops = result.rows.map(workshop => ({
+      ...workshop,
+      video_url: `/workshop-videos/${workshop.video_filename}`
+    }));
+
+    res.json(workshops);
+  } catch (error) {
+    console.error('Error fetching workshops:', error);
+    res.status(500).json({ error: 'Failed to fetch workshops.' });
+  }
+});
+
+// Get single workshop by ID (public endpoint)
+app.get('/api/workshops/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const result = await pool.query(
+      'SELECT id, title, description, video_filename, event_date, tags, created_at FROM workshops WHERE id = $1',
+      [id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Workshop not found.' });
+    }
+
+    const workshop = result.rows[0];
+    workshop.video_url = `/workshop-videos/${workshop.video_filename}`;
+
+    res.json(workshop);
+  } catch (error) {
+    console.error('Error fetching workshop:', error);
+    res.status(500).json({ error: 'Failed to fetch workshop.' });
+  }
+});
+
+// Get all workshops (admin only)
+app.get('/api/admin/workshops', authenticateToken, async (req, res) => {
+  try {
+    const result = await pool.query(
+      'SELECT id, title, description, video_filename, event_date, tags, created_at FROM workshops ORDER BY event_date DESC NULLS LAST, created_at DESC'
+    );
+
+    const workshops = result.rows.map(workshop => ({
+      ...workshop,
+      video_url: `/workshop-videos/${workshop.video_filename}`
+    }));
+
+    res.json(workshops);
+  } catch (error) {
+    console.error('Error fetching workshops:', error);
+    res.status(500).json({ error: 'Failed to fetch workshops.' });
+  }
+});
+
+// Create workshop (admin only)
+app.post('/api/admin/workshops', authenticateToken, uploadVideos.single('video'), async (req, res) => {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    if (!req.file) {
+      return res.status(400).json({ error: 'No video uploaded.' });
+    }
+
+    const { title, description, eventDate, tags } = req.body;
+
+    if (!title) {
+      await fs.unlink(req.file.path);
+      return res.status(400).json({ error: 'Title is required.' });
+    }
+
+    // Generate unique ID
+    const id = generateWorkshopId();
+
+    // Generate stable filename from title
+    const ext = path.extname(req.file.originalname);
+    const sanitizedName = title
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '');
+    const videoFilename = `${sanitizedName}-${id}${ext}`;
+
+    // Create workshop-videos directory
+    await fs.mkdir(WORKSHOP_VIDEOS_DIR, { recursive: true });
+
+    // Move file from uploads/ to final destination
+    const sourcePath = req.file.path;
+    const destPath = path.join(WORKSHOP_VIDEOS_DIR, videoFilename);
+    await fs.rename(sourcePath, destPath);
+
+    // Parse tags if provided
+    let tagsArray = [];
+    if (tags && typeof tags === 'string') {
+      tagsArray = tags.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
+    }
+
+    // Insert into database
+    await client.query(
+      `INSERT INTO workshops (id, title, description, video_filename, event_date, tags)
+       VALUES ($1, $2, $3, $4, $5, $6)`,
+      [id, title, description || null, videoFilename, eventDate || null, tagsArray]
+    );
+
+    await client.query('COMMIT');
+
+    res.json({
+      id,
+      title,
+      description,
+      video_url: `/workshop-videos/${videoFilename}`,
+      event_date: eventDate,
+      tags: tagsArray
+    });
+
+    console.log(`Workshop created: ${title} (ID: ${id})`);
+  } catch (error) {
+    await client.query('ROLLBACK');
+    console.error('Error creating workshop:', error);
+
+    // Clean up uploaded file if error occurred
+    if (req.file) {
+      try {
+        await fs.unlink(req.file.path);
+      } catch (e) {
+        console.error('Error deleting uploaded file:', req.file.path, e);
+      }
+    }
+
+    res.status(500).json({ error: 'Failed to create workshop.' });
+  } finally {
+    client.release();
+  }
+});
+
+// Delete workshop (admin only)
+app.delete('/api/admin/workshops/:id', authenticateToken, async (req, res) => {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    const { id } = req.params;
+
+    // Get workshop to delete video file
+    const workshopResult = await client.query(
+      'SELECT video_filename FROM workshops WHERE id = $1',
+      [id]
+    );
+
+    if (workshopResult.rows.length === 0) {
+      return res.status(404).json({ error: 'Workshop not found.' });
+    }
+
+    const workshop = workshopResult.rows[0];
+
+    // Delete video file
+    const videoPath = path.join(WORKSHOP_VIDEOS_DIR, workshop.video_filename);
+    try {
+      await fs.unlink(videoPath);
+      console.log(`Deleted video file: ${videoPath}`);
+    } catch (error) {
+      console.error('Error deleting video file:', videoPath, error);
+    }
+
+    // Delete from database
+    await client.query('DELETE FROM workshops WHERE id = $1', [id]);
+
+    await client.query('COMMIT');
+
+    console.log(`Workshop deleted: ${id}`);
+    res.json({ message: 'Workshop deleted successfully.' });
+  } catch (error) {
+    await client.query('ROLLBACK');
+    console.error('Error deleting workshop:', error);
+    res.status(500).json({ error: 'Failed to delete workshop.' });
+  } finally {
+    client.release();
+  }
+});
+
+// ================= END WORKSHOP ENDPOINTS =================
 
 // Catch all - serve React app for any other route
 app.get('*', (req, res) => {
