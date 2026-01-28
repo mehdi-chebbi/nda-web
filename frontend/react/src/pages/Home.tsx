@@ -305,8 +305,7 @@ const Home = () => {
       </section>
       {/* END MISSION SECTION */}
 
-      {/* Focus Areas Carousel - Replaced with adaptive carousel component */}
-      <Carousel />
+ 
 
       {/* Statistics */}
 <section className="py-16 md:py-24 bg-bg-secondary">

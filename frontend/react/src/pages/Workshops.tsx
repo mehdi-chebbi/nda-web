@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { Play, Calendar, Search, Filter } from 'lucide-react'
 import axios from 'axios'
@@ -139,7 +139,7 @@ const Workshops = () => {
                 </div>
               ) : (
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                  {filteredWorkshops.map((workshop, index) => (
+                  {filteredWorkshops.map((workshop) => (
                     <div
                       key={workshop.id}
                       className="group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-primary/30 flex flex-col"
@@ -157,7 +157,7 @@ const Workshops = () => {
                               if (video.readyState >= 2) { // HAVE_CURRENT_DATA or higher
                                 video.currentTime = 0
                                 video.play().catch(err => {
-                                  // Ignore play errors (might not be supported or ready)
+  console.error(err)
                                 })
                               }
                             } catch (err) {

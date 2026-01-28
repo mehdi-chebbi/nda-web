@@ -613,11 +613,11 @@ const Admin = () => {
                             if (video.readyState >= 2) { // HAVE_CURRENT_DATA or higher
                               video.currentTime = 0
                               video.play().catch(err => {
-                                // Ignore play errors (might not be supported or ready)
+  console.error(err)
                               })
                             }
                           } catch (err) {
-                            // Ignore errors
+  console.error(err)
                           }
                         }}
                         onMouseLeave={(e) => {
@@ -626,7 +626,7 @@ const Admin = () => {
                             video.pause()
                             video.currentTime = 0
                           } catch (err) {
-                            // Ignore pause errors
+  console.error(err)
                           }
                         }}
                       />
