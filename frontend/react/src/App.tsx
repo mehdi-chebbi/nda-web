@@ -55,8 +55,8 @@ function App() {
             <Route path="/mission" element={<Mission />} />
             <Route path="/gcf-project" element={<GCFProject />} />
             <Route path="/sustainable-development" element={<SustainableDevelopment />} />
-            <Route path="/press-release" element={<PressReleaseList />} />
-            <Route path="/press-release/:id" element={<PressReleaseDetail />} />
+            <Route path="/work-shops" element={<PressReleaseList />} />
+            <Route path="/work-shops/:id" element={<PressReleaseDetail />} />
             <Route path="/learning-modules" element={<LearningModules />} />
             <Route path="/project-development" element={<ProjectDevelopment />} />
             <Route path="/partners-coordination" element={<PartnersCoordination />} />

@@ -42,7 +42,7 @@ const PressReleaseDetail = () => {
       setError('')
     } catch (err) {
       console.error('Error fetching press release:', err)
-      setError('Failed to load press release')
+      setError('Failed to load work shop')
     } finally {
       setLoading(false)
     }
@@ -154,7 +154,7 @@ const PressReleaseDetail = () => {
               <div className="relative inline-block h-16 w-16 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
             </div>
             <p className="mt-6 font-body text-xl text-text-secondary font-medium">
-              Loading press release...
+              Loading work shop...
             </p>
           </div>
         </div>
@@ -171,10 +171,10 @@ const PressReleaseDetail = () => {
             </h3>
             <p className="font-body text-text-secondary mb-8 text-lg">{error}</p>
             <Link
-              to="/press-release"
+              to="/work-shops"
               className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white font-semibold px-8 py-3 rounded-full transition-all duration-200 shadow-lg hover:shadow-xl"
             >
-              Back to Press Releases
+              Back to Workshops
             </Link>
           </div>
         </div>
@@ -187,16 +187,16 @@ const PressReleaseDetail = () => {
               </svg>
             </div>
             <h3 className="font-heading text-2xl font-bold text-primary mb-3">
-              Press Release Not Found
+              Work Shop Not Found
             </h3>
             <p className="font-body text-text-secondary mb-8 text-lg">
-              The press release you're looking for doesn't exist or has been removed.
+              The work shop you're looking for doesn't exist or has been removed.
             </p>
             <Link
-              to="/press-release"
+              to="/work-shops"
               className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white font-semibold px-8 py-3 rounded-full transition-all duration-200 shadow-lg hover:shadow-xl"
             >
-              Back to Press Releases
+              Back to Workshops
             </Link>
           </div>
         </div>
@@ -209,7 +209,7 @@ const PressReleaseDetail = () => {
               <div className="animate-in">
                 <div className="flex items-center gap-2 mb-3">
                   <span className="inline-block px-3 py-1.5 rounded-full bg-yellow-500/20 backdrop-blur-sm border border-yellow-500/30 text-yellow-300 text-xs font-semibold tracking-wider uppercase">
-                    Press Release
+                    Work Shop
                   </span>
                   <span className="inline-block px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white text-xs font-semibold">
                     {formatDate(pressRelease.createdAt)}
@@ -305,7 +305,7 @@ const PressReleaseDetail = () => {
               {/* Back Button */}
               <div className="mt-8 animate-in" style={{ animationDelay: '0.6s' }}>
                 <Link
-                  to="/press-release"
+                  to="/work-shops"
                   className="inline-flex items-center gap-2 text-primary font-semibold hover:text-primary-light transition-colors duration-200 group"
                 >
                   <svg
@@ -316,7 +316,7 @@ const PressReleaseDetail = () => {
                   >
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                   </svg>
-                  Back to Press Releases
+                  Back to Workshops
                 </Link>
               </div>
             </div>

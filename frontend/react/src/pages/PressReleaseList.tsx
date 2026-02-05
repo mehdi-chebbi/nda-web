@@ -27,7 +27,7 @@ const PressReleaseList = () => {
       setError('')
     } catch (err) {
       console.error('Error fetching press releases:', err)
-      setError('Failed to load press releases')
+      setError('Failed to load Workshops')
     } finally {
       setLoading(false)
     }
@@ -149,10 +149,10 @@ const PressReleaseList = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 relative z-10">
           <div className="animate-on-scroll">
             <span className="inline-block px-6 py-2 rounded-full bg-yellow-500/20 backdrop-blur-sm border border-yellow-500/30 text-yellow-300 text-sm font-semibold tracking-wider uppercase mb-6">
-              News & Updates
+              Workshops
             </span>
             <h1 className="font-heading text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
-              Press Releases
+              Workshops
             </h1>
             <p className="text-xl md:text-2xl text-gray-200 mb-8 leading-relaxed max-w-3xl">
               Stay informed about the latest news, updates, and announcements from Eritrea's National Designated Authority
@@ -165,7 +165,7 @@ const PressReleaseList = () => {
         </div>
       </section>
 
-      {/* Press Releases Grid */}
+      {/* Workshops Grid */}
       <section className="py-16 relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {loading ? (
@@ -175,7 +175,7 @@ const PressReleaseList = () => {
                 <div className="relative inline-block h-16 w-16 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
               </div>
               <p className="mt-6 font-body text-xl text-text-secondary font-medium">
-                Loading press releases...
+                Loading Workshops...
               </p>
             </div>
           ) : error ? (
@@ -204,7 +204,7 @@ const PressReleaseList = () => {
                 </svg>
               </div>
               <h3 className="font-heading text-2xl font-bold text-primary mb-3">
-                No Press Releases Yet
+                No Workshops Yet
               </h3>
               <p className="font-body text-text-secondary text-lg">
                 Check back later for news and updates
@@ -215,7 +215,7 @@ const PressReleaseList = () => {
               {pressReleases.map((pr, index) => (
                 <Link
                   key={pr.id}
-                  to={`/press-release/${pr.id}`}
+                  to={`/work-shops/${pr.id}`}
                   className="news-card bg-white rounded-2xl shadow-lg overflow-hidden animate-on-scroll"
                   style={{ animationDelay: `${index * 0.1}s` }}
                 >

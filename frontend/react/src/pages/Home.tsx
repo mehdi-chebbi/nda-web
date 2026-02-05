@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useState, useEffect, useRef } from 'react'
 import Slideshow from '../components/Slideshow'
-import Carousel from '../components/Carousel'
 
 interface StatType {
   label: string;
@@ -306,7 +305,7 @@ const Home = () => {
       {/* END MISSION SECTION */}
 
  
-
+<section className="py-16 md:py-24 bg-bg-primary"> <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"> <div className="text-center mb-12"> <h2 className="font-heading font-semibold text-3xl md:text-4xl text-primary mb-4"> Climate Action Across Eritrea </h2> <p className="font-body text-lg text-text-secondary max-w-2xl mx-auto"> Our initiatives span the entire nation, bringing sustainable development and climate resilience to communities across all regions. </p> </div> <div className="flex justify-center items-center"> <div className="relative w-full max-w-2xl"> <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-secondary/10 rounded-3xl blur-3xl"></div> <div className="relative bg-white p-8 md:p-12 rounded-2xl shadow-xl"> <img src="/Eritrea_location_map.svg" alt="Map of Eritrea" className="w-full h-auto drop-shadow-lg hover:scale-105 transition-transform duration-500" /> </div> </div> </div> </div> </section>
       {/* Statistics */}
 <section className="py-16 md:py-24 bg-bg-secondary">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

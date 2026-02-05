@@ -33,8 +33,8 @@ const PressReleaseAdmin = () => {
       setPressReleases(response.data)
       setError('')
     } catch (err) {
-      console.error('Error fetching press releases:', err)
-      setError('Failed to fetch press releases')
+      console.error('Error fetching Workshops:', err)
+      setError('Failed to fetch Workshops')
     } finally {
       setLoading(false)
     }
@@ -69,18 +69,18 @@ const PressReleaseAdmin = () => {
         }
       })
 
-      setSuccessMessage('Press release created successfully!')
+      setSuccessMessage('Work shop created successfully!')
       setUploadForm({ title: '', content: '', images: [] })
       fetchPressReleases()
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to create press release')
+      setError(err.response?.data?.error || 'Failed to create work shop')
     } finally {
       setIsSubmitting(false)
     }
   }
 
   const handleDelete = async (id: number) => {
-    if (!confirm('Are you sure you want to delete this press release?')) return
+    if (!confirm('Are you sure you want to delete this work shop?')) return
 
     setIsSubmitting(true)
     setError('')
@@ -91,10 +91,10 @@ const PressReleaseAdmin = () => {
         headers: { Authorization: `Bearer ${token}` }
       })
 
-      setSuccessMessage('Press release deleted successfully!')
+      setSuccessMessage('Work shop deleted successfully!')
       fetchPressReleases()
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to delete press release')
+      setError(err.response?.data?.error || 'Failed to delete work shop')
     } finally {
       setIsSubmitting(false)
     }
@@ -110,10 +110,10 @@ const PressReleaseAdmin = () => {
 
   return (
     <div className="space-y-8">
-      {/* Create Press Release Form */}
+      {/* Create Work Shop Form */}
       <Card className="p-6">
         <h2 className="font-heading font-semibold text-2xl text-primary mb-6">
-          Create Press Release
+          Create Work Shop
         </h2>
 
         {error && (
@@ -138,7 +138,7 @@ const PressReleaseAdmin = () => {
               value={uploadForm.title}
               onChange={(e) => setUploadForm({ ...uploadForm, title: e.target.value })}
               className="w-full px-4 py-2 border border-border rounded-md font-body text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-              placeholder="Enter press release title"
+              placeholder="Enter work shop title"
               required
             />
           </div>
@@ -151,7 +151,7 @@ const PressReleaseAdmin = () => {
               value={uploadForm.content}
               onChange={(e) => setUploadForm({ ...uploadForm, content: e.target.value })}
               className="w-full px-4 py-2 border border-border rounded-md font-body text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent min-h-[200px]"
-              placeholder="Enter press release content"
+              placeholder="Enter work shop content"
               required
             />
           </div>
@@ -181,25 +181,25 @@ const PressReleaseAdmin = () => {
             disabled={isSubmitting}
             className="w-full bg-primary hover:bg-primary-dark text-white font-body font-medium px-6 py-2 rounded-md transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isSubmitting ? 'Creating...' : 'Create Press Release'}
+            {isSubmitting ? 'Creating...' : 'Create Work Shop'}
           </button>
         </form>
       </Card>
 
-      {/* Press Releases List */}
+      {/* Workshops List */}
       <Card className="p-6">
         <h2 className="font-heading font-semibold text-2xl text-primary mb-6">
-          Press Releases ({pressReleases.length})
+          Workshops ({pressReleases.length})
         </h2>
 
         {loading ? (
           <div className="text-center py-12">
             <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-            <p className="mt-4 font-body text-text-secondary text-sm">Loading press releases...</p>
+            <p className="mt-4 font-body text-text-secondary text-sm">Loading Workshops...</p>
           </div>
         ) : pressReleases.length === 0 ? (
           <p className="font-body text-text-secondary text-center py-8">
-            No press releases yet
+            No Workshops yet
           </p>
         ) : (
           <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2">
@@ -231,7 +231,7 @@ const PressReleaseAdmin = () => {
                     onClick={() => handleDelete(pr.id)}
                     disabled={isSubmitting}
                     className="ml-4 text-red-500 hover:text-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    title="Delete press release"
+                    title="Delete work shop"
                   >
                     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />

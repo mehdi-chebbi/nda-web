@@ -97,8 +97,8 @@ const Admin = () => {
       const response = await axios.get<PressRelease[]>('/api/press-releases')
       setPressReleases(response.data)
     } catch (err) {
-      console.error('Error fetching press releases:', err)
-      setError('Failed to fetch press releases')
+      console.error('Error fetching Workshops:', err)
+      setError('Failed to fetch Workshops')
     } finally {
       setLoading(false)
     }
@@ -163,7 +163,7 @@ const Admin = () => {
         headers: { Authorization: `Bearer ${token}` }
       })
 
-      setSuccessMessage('Press release deleted successfully!')
+      setSuccessMessage('Work shop deleted successfully!')
       fetchPressReleases()
     } catch (err: any) {
       setError(err.response?.data?.error || 'Delete failed. Please try again.')
@@ -398,29 +398,14 @@ const Admin = () => {
               }`}
             >
               <Newspaper className="w-5 h-5" />
-              <span>News</span>
+              <span>Workshops</span>
               <span className={`ml-2 px-2.5 py-0.5 rounded-full text-xs ${
                 activeTab === 'news' ? 'bg-white/20' : 'bg-gray-100'
               }`}>
                 {pressReleases.length}
               </span>
             </button>
-            <button
-              onClick={() => setActiveTab('workshops')}
-              className={`flex items-center space-x-2 px-6 py-3 rounded-xl font-body font-semibold text-base transition-all duration-300 ${
-                activeTab === 'workshops'
-                  ? 'bg-primary-dark text-white shadow-md'
-                  : 'text-text-secondary hover:text-primary-dark hover:bg-gray-50'
-              }`}
-            >
-              <Video className="w-5 h-5" />
-              <span>Workshops</span>
-              <span className={`ml-2 px-2.5 py-0.5 rounded-full text-xs ${
-                activeTab === 'workshops' ? 'bg-white/20' : 'bg-gray-100'
-              }`}>
-                {workshops.length}
-              </span>
-            </button>
+            
           </div>
         </div>
 
@@ -451,7 +436,7 @@ const Admin = () => {
               className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-secondary to-secondary/80 hover:to-secondary text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5"
             >
               <Plus className="w-5 h-5" />
-              <span>Add News</span>
+              <span>Add Workshop</span>
             </button>
           ) : (
             <button
@@ -522,7 +507,7 @@ const Admin = () => {
                   <div className="absolute inset-0 bg-gradient-to-br from-secondary/20 to-secondary/10 blur-2xl rounded-full animate-pulse" />
                   <div className="relative inline-block h-12 w-12 border-4 border-secondary/30 border-t-secondary rounded-full animate-spin" />
                 </div>
-                <p className="mt-6 font-body text-xl text-text-secondary font-medium">Loading news...</p>
+                <p className="mt-6 font-body text-xl text-text-secondary font-medium">Loading Workshop...</p>
               </div>
             ) : filteredNews.length === 0 ? (
               <div className="text-center py-20">
@@ -530,7 +515,7 @@ const Admin = () => {
                   <Newspaper className="w-10 h-10 text-gray-400" />
                 </div>
                 <h3 className="font-heading font-semibold text-2xl text-text-primary mb-2">
-                  {searchTerm ? 'No news found' : 'No news yet'}
+                  {searchTerm ? 'No Workshop found' : 'No Workshop yet'}
                 </h3>
                 <p className="font-body text-text-secondary mb-8">
                   {searchTerm
@@ -543,7 +528,7 @@ const Admin = () => {
                     className="inline-flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-secondary to-secondary/80 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5"
                   >
                     <Plus className="w-5 h-5" />
-                    <span>Publish Your First News</span>
+                    <span>Publish Your First Workshop</span>
                   </button>
                 )}
               </div>
@@ -840,7 +825,7 @@ const Admin = () => {
       <Modal
         isOpen={updateNewsModalOpen}
         onClose={() => setUpdateNewsOpen(false)}
-        title="Update Press Release"
+        title="Update Work Shop"
       >
         <UpdateNewsModal
           isOpen={updateNewsModalOpen}
@@ -848,7 +833,7 @@ const Admin = () => {
           onClose={() => setUpdateNewsOpen(false)}
           onSuccess={() => {
             fetchPressReleases()
-            setSuccessMessage('Press release updated successfully!')
+            setSuccessMessage('Work shop updated successfully!')
             setTimeout(() => setSuccessMessage(''), 5000)
           }}
         />

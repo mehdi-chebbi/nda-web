@@ -130,7 +130,7 @@ const UpdateNewsModal = ({ isOpen, onClose, onSuccess, news }: UpdateNewsModalPr
       onSuccess()
       onClose()
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to update press release')
+      setError(err.response?.data?.error || 'Failed to update work shop')
     } finally {
       setLoading(false)
     }
@@ -156,7 +156,7 @@ const UpdateNewsModal = ({ isOpen, onClose, onSuccess, news }: UpdateNewsModalPr
             type="text"
             value={form.title}
             onChange={(e) => setForm({ ...form, title: e.target.value })}
-            placeholder="Enter press release title"
+            placeholder="Enter work shop title"
             className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl font-body text-sm focus:outline-none focus:border-secondary focus:ring-2 focus:ring-secondary/20 transition-all duration-200 placeholder:text-text-muted"
           />
         </div>
@@ -169,7 +169,7 @@ const UpdateNewsModal = ({ isOpen, onClose, onSuccess, news }: UpdateNewsModalPr
           <textarea
             value={form.content}
             onChange={(e) => setForm({ ...form, content: e.target.value })}
-            placeholder="Enter press release content"
+            placeholder="Enter work shop content"
             rows={6}
             className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl font-body text-sm focus:outline-none focus:border-secondary focus:ring-2 focus:ring-secondary/20 transition-all duration-200 placeholder:text-text-muted resize-none"
           />
@@ -317,7 +317,7 @@ const UpdateNewsModal = ({ isOpen, onClose, onSuccess, news }: UpdateNewsModalPr
           ) : (
             <>
               <Upload className="w-5 h-5" />
-              <span>Update Press Release</span>
+              <span>Update Work Shop</span>
             </>
           )}
         </button>

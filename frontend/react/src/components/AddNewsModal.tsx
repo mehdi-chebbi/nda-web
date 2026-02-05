@@ -112,7 +112,7 @@ const AddNewsModal = ({ onClose, onSuccess }: AddNewsModalProps) => {
       onSuccess()
       onClose()
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to create press release')
+      setError(err.response?.data?.error || 'Failed to create work shop')
     } finally {
       setLoading(false)
     }
@@ -136,7 +136,7 @@ const AddNewsModal = ({ onClose, onSuccess }: AddNewsModalProps) => {
             type="text"
             value={form.title}
             onChange={(e) => setForm({ ...form, title: e.target.value })}
-            placeholder="Enter press release title"
+            placeholder="Enter work shop title"
             className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl font-body text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200 placeholder:text-text-muted"
             required
           />
@@ -150,7 +150,7 @@ const AddNewsModal = ({ onClose, onSuccess }: AddNewsModalProps) => {
           <textarea
             value={form.content}
             onChange={(e) => setForm({ ...form, content: e.target.value })}
-            placeholder="Enter press release content"
+            placeholder="Enter work shop content"
             rows={6}
             className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl font-body text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200 placeholder:text-text-muted resize-none"
             required
@@ -236,7 +236,7 @@ const AddNewsModal = ({ onClose, onSuccess }: AddNewsModalProps) => {
           ) : (
             <>
               <Upload className="w-5 h-5" />
-              <span>Publish Press Release</span>
+              <span>Publish Work Shop</span>
             </>
           )}
         </button>

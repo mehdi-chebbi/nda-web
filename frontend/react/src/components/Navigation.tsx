@@ -12,14 +12,13 @@ const Navigation = () => {
 
   // Readiness Eritrea dropdown links
   const readinessEritreaLinks = [
-    { path: '/workshops', label: 'Workshops' },
+    { path: '/work-shops', label: 'Workshops' },
     { path: '/deliverables', label: 'Deliverables' }
   ]
 
   // Others dropdown - all the previous scattered links
   const othersLinks = [
     { path: '/resources', label: 'Resources – Offline Library' },
-    { path: '/press-release', label: 'Press Release' },
     { path: '/mission', label: 'Mission' },
     { path: '/gcf-project', label: 'GCF & Climate Finance' },
     { path: '/gcf-stages', label: 'GCF Stages' },
