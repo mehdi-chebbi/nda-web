@@ -100,7 +100,7 @@ const AddNewsModal = ({ onClose, onSuccess }: AddNewsModalProps) => {
         formData.append('images', image)
       })
 
-      await axios.post('/api/admin/press-releases', formData, {
+      await axios.post('/api/admin/workshops', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           Authorization: `Bearer ${token}`
@@ -112,7 +112,7 @@ const AddNewsModal = ({ onClose, onSuccess }: AddNewsModalProps) => {
       onSuccess()
       onClose()
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to create press release')
+      setError(err.response?.data?.error || 'Failed to create workshop')
     } finally {
       setLoading(false)
     }
@@ -236,7 +236,7 @@ const AddNewsModal = ({ onClose, onSuccess }: AddNewsModalProps) => {
           ) : (
             <>
               <Upload className="w-5 h-5" />
-              <span>Publish Press Release</span>
+              <span>Create Workshop</span>
             </>
           )}
         </button>

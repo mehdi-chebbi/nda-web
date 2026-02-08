@@ -120,7 +120,7 @@ const UpdateNewsModal = ({ isOpen, onClose, onSuccess, news }: UpdateNewsModalPr
       // Send the list of existing images to keep
       formData.append('keepExistingImages', JSON.stringify(finalImages))
 
-      await axios.put(`/api/admin/press-releases/${news.id}`, formData, {
+      await axios.put(`/api/admin/workshops/${news.id}`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           Authorization: `Bearer ${token}`
@@ -130,7 +130,7 @@ const UpdateNewsModal = ({ isOpen, onClose, onSuccess, news }: UpdateNewsModalPr
       onSuccess()
       onClose()
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to update press release')
+      setError(err.response?.data?.error || 'Failed to update workshop')
     } finally {
       setLoading(false)
     }
@@ -317,7 +317,7 @@ const UpdateNewsModal = ({ isOpen, onClose, onSuccess, news }: UpdateNewsModalPr
           ) : (
             <>
               <Upload className="w-5 h-5" />
-              <span>Update Press Release</span>
+              <span>Update Workshop</span>
             </>
           )}
         </button>

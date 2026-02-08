@@ -12,8 +12,8 @@ import Mission from './pages/Mission'
 import GCFProject from './pages/GCFProject'
 import GCFstage from './pages/CGFstage'
 import SustainableDevelopment from './pages/SustainableDevelopment'
-import PressReleaseList from './pages/PressReleaseList'
-import PressReleaseDetail from './pages/PressReleaseDetail'
+import WorkshopsList from './pages/WorkshopsList'
+import WorkshopsDetail from './pages/WorkshopDetail'
 import LearningModules from './pages/LearningModules'
 import ProjectDevelopment from './pages/ProjectDevelopment'
 import PartnersCoordination from './pages/PartnersCoordination'
@@ -53,8 +53,8 @@ function App() {
             <Route path="/mission" element={<Mission />} />
             <Route path="/gcf-project" element={<GCFProject />} />
             <Route path="/sustainable-development" element={<SustainableDevelopment />} />
-            <Route path="/press-release" element={<PressReleaseList />} />
-            <Route path="/press-release/:id" element={<PressReleaseDetail />} />
+            <Route path="/workshops" element={<WorkshopsList />} />
+            <Route path="/workshops/:id" element={<WorkshopsDetail />} />
             <Route path="/learning-modules" element={<LearningModules />} />
             <Route path="/project-development" element={<ProjectDevelopment />} />
             <Route path="/partners-coordination" element={<PartnersCoordination />} />

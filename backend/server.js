@@ -324,9 +324,9 @@ async function initializeDatabase() {
         EXECUTE FUNCTION update_updated_at_column()
     `);
 
-    // Create press releases table
+    // Create workshops table
     await pool.query(`
-      CREATE TABLE IF NOT EXISTS press_releases (
+      CREATE TABLE IF NOT EXISTS workshops (
         id SERIAL PRIMARY KEY,
         title VARCHAR(255) NOT NULL,
         content TEXT NOT NULL,
@@ -338,7 +338,7 @@ async function initializeDatabase() {
     `);
 
     await pool.query(`
-      CREATE INDEX IF NOT EXISTS idx_press_releases_created_at ON press_releases(created_at DESC)
+      CREATE INDEX IF NOT EXISTS idx_workshops_created_at ON workshops(created_at DESC)
     `);
 
     console.log('Database tables initialized');
@@ -1085,14 +1085,14 @@ app.get('/docs/:category/:filename', async (req, res) => {
   }
 });
 
-// ================= PRESS RELEASE ENDPOINTS =================
+// ================= WORKSHOP ENDPOINTS =================
 
-// Get all press releases (public)
-app.get('/api/press-releases', async (req, res) => {
+// Get all workshops (public)
+app.get('/api/workshops', async (req, res) => {
   try {
     const result = await pool.query(`
       SELECT id, title, content, images, created_at, created_by
-      FROM press_releases
+      FROM workshops
       ORDER BY created_at DESC
     `);
 
@@ -1105,23 +1105,23 @@ app.get('/api/press-releases', async (req, res) => {
       createdBy: row.created_by
     })));
   } catch (error) {
-    console.error('Error fetching press releases:', error);
-    res.status(500).json({ error: 'Failed to fetch press releases.' });
+    console.error('Error fetching workshops:', error);
+    res.status(500).json({ error: 'Failed to fetch workshops.' });
   }
 });
 
-// Get single press release (public)
-app.get('/api/press-releases/:id', async (req, res) => {
+// Get single workshop (public)
+app.get('/api/workshops/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const result = await pool.query(`
       SELECT id, title, content, images, created_at, created_by
-      FROM press_releases
+      FROM workshops
       WHERE id = $1
     `, [id]);
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Press release not found.' });
+      return res.status(404).json({ error: 'Workshop not found.' });
     }
 
     const row = result.rows[0];
@@ -1134,13 +1134,13 @@ app.get('/api/press-releases/:id', async (req, res) => {
       createdBy: row.created_by
     });
   } catch (error) {
-    console.error('Error fetching press release:', error);
-    res.status(500).json({ error: 'Failed to fetch press release.' });
+    console.error('Error fetching workshop:', error);
+    res.status(500).json({ error: 'Failed to fetch workshop.' });
   }
 });
 
-// Create press release (admin only)
-app.post('/api/admin/press-releases', authenticateToken, uploadImages.array('images', 10), async (req, res) => {
+// Create workshop (admin only)
+app.post('/api/admin/workshops', authenticateToken, uploadImages.array('images', 10), async (req, res) => {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
@@ -1176,7 +1176,7 @@ app.post('/api/admin/press-releases', authenticateToken, uploadImages.array('ima
 
     // Insert into database
     const result = await client.query(
-      `INSERT INTO press_releases (title, content, images, created_by)
+      `INSERT INTO workshops (title, content, images, created_by)
        VALUES ($1, $2, $3, $4)
        RETURNING id, title, content, images, created_at, created_by`,
       [title, content, imagePaths, req.user.username]
@@ -1186,8 +1186,8 @@ app.post('/api/admin/press-releases', authenticateToken, uploadImages.array('ima
 
     const row = result.rows[0];
     res.json({
-      message: 'Press release created successfully.',
-      pressRelease: {
+      message: 'Workshop created successfully.',
+      workshop: {
         id: row.id,
         title: row.title,
         content: row.content,
@@ -1198,7 +1198,7 @@ app.post('/api/admin/press-releases', authenticateToken, uploadImages.array('ima
     });
   } catch (error) {
     await client.query('ROLLBACK');
-    console.error('Error creating press release:', error);
+    console.error('Error creating workshop:', error);
 
     // Delete uploaded files on error
     if (req.files) {
@@ -1209,32 +1209,32 @@ app.post('/api/admin/press-releases', authenticateToken, uploadImages.array('ima
       }
     }
 
-    res.status(500).json({ error: 'Failed to create press release.' });
+    res.status(500).json({ error: 'Failed to create workshop.' });
   } finally {
     client.release();
   }
 });
 
-// Delete press release (admin only)
-app.delete('/api/admin/press-releases/:id', authenticateToken, async (req, res) => {
+// Delete workshop (admin only)
+app.delete('/api/admin/workshops/:id', authenticateToken, async (req, res) => {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
 
     const { id } = req.params;
 
-    // Get press release to delete images
-    const pressRelease = await client.query(
-      'SELECT images FROM press_releases WHERE id = $1',
+    // Get workshop to delete images
+    const workshop = await client.query(
+      'SELECT images FROM workshops WHERE id = $1',
       [id]
     );
 
-    if (pressRelease.rows.length === 0) {
-      return res.status(404).json({ error: 'Press release not found.' });
+    if (workshop.rows.length === 0) {
+      return res.status(404).json({ error: 'Workshop not found.' });
     }
 
     // Delete images from filesystem
-    const images = pressRelease.rows[0].images || [];
+    const images = workshop.rows[0].images || [];
     for (const image of images) {
       try {
         await fs.unlink(path.join(NEWS_IMAGES_DIR, image));
@@ -1244,22 +1244,22 @@ app.delete('/api/admin/press-releases/:id', authenticateToken, async (req, res) 
     }
 
     // Delete from database
-    await client.query('DELETE FROM press_releases WHERE id = $1', [id]);
+    await client.query('DELETE FROM workshops WHERE id = $1', [id]);
 
     await client.query('COMMIT');
 
-    res.json({ message: 'Press release deleted successfully.' });
+    res.json({ message: 'Workshop deleted successfully.' });
   } catch (error) {
     await client.query('ROLLBACK');
-    console.error('Error deleting press release:', error);
-    res.status(500).json({ error: 'Failed to delete press release.' });
+    console.error('Error deleting workshop:', error);
+    res.status(500).json({ error: 'Failed to delete workshop.' });
   } finally {
     client.release();
   }
 });
 
-// Update press release (admin only)
-app.put('/api/admin/press-releases/:id', authenticateToken, uploadImages.array('images', 10), async (req, res) => {
+// Update workshop (admin only)
+app.put('/api/admin/workshops/:id', authenticateToken, uploadImages.array('images', 10), async (req, res) => {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
@@ -1267,37 +1267,37 @@ app.put('/api/admin/press-releases/:id', authenticateToken, uploadImages.array('
     const { id } = req.params;
     const { title, content, keepExistingImages } = req.body;
 
-    // Check if press release exists
-    const prResult = await client.query(
-      'SELECT * FROM press_releases WHERE id = $1',
+    // Check if workshop exists
+    const wsResult = await client.query(
+      'SELECT * FROM workshops WHERE id = $1',
       [id]
     );
 
-    if (prResult.rows.length === 0) {
+    if (wsResult.rows.length === 0) {
       await client.query('ROLLBACK');
-      return res.status(404).json({ error: 'Press release not found.' });
+      return res.status(404).json({ error: 'Workshop not found.' });
     }
 
-    const pressRelease = prResult.rows[0];
+    const workshop = wsResult.rows[0];
 
     let updates = [];
     let values = [];
     let paramCount = 1;
 
     // Update title if provided
-    if (title && title !== pressRelease.title) {
+    if (title && title !== workshop.title) {
       updates.push(`title = $${paramCount++}`);
       values.push(title);
     }
 
     // Update content if provided
-    if (content && content !== pressRelease.content) {
+    if (content && content !== workshop.content) {
       updates.push(`content = $${paramCount++}`);
       values.push(content);
     }
 
     // Handle images
-    const oldImages = pressRelease.images || [];
+    const oldImages = workshop.images || [];
     let finalImages = [...oldImages];
 
     // Parse which existing images to keep
@@ -1358,20 +1358,20 @@ app.put('/api/admin/press-releases/:id', authenticateToken, uploadImages.array('
       values.push(id);
 
       await client.query(
-        `UPDATE press_releases SET ${updates.join(', ')} WHERE id = $${paramCount}`,
+        `UPDATE workshops SET ${updates.join(', ')} WHERE id = $${paramCount}`,
         values
       );
 
       await client.query('COMMIT');
 
-      res.json({ message: 'Press release updated successfully.' });
+      res.json({ message: 'Workshop updated successfully.' });
     } else {
       await client.query('ROLLBACK');
       res.status(400).json({ error: 'No changes to update.' });
     }
   } catch (error) {
     await client.query('ROLLBACK');
-    console.error('Error updating press release:', error);
+    console.error('Error updating workshop:', error);
 
     // Clean up uploaded files on error
     if (req.files) {
@@ -1384,13 +1384,13 @@ app.put('/api/admin/press-releases/:id', authenticateToken, uploadImages.array('
       }
     }
 
-    res.status(500).json({ error: 'Failed to update press release.' });
+    res.status(500).json({ error: 'Failed to update workshop.' });
   } finally {
     client.release();
   }
 });
 
-// ================= END PRESS RELEASE ENDPOINTS =================
+// ================= END WORKSHOP ENDPOINTS =================
 
 // Get document by ID (public endpoint)
 app.get('/api/documents/:id', async (req, res) => {

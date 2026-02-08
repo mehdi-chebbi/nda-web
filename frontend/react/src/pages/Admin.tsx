@@ -28,30 +28,39 @@ interface PressRelease {
   createdBy: string
 }
 
+interface Workshop {
+  id: number
+  title: string
+  content: string
+  images: string[]
+  createdAt: string
+  createdBy: string
+}
+
 const Admin = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [loginForm, setLoginForm] = useState({ username: '', password: '' })
   const [documents, setDocuments] = useState<Document[]>([])
-  const [pressReleases, setPressReleases] = useState<PressRelease[]>([])
+  const [workshops, setWorkshops] = useState<Workshop[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [successMessage, setSuccessMessage] = useState('')
-  const [activeTab, setActiveTab] = useState<'documents' | 'news'>('documents')
+  const [activeTab, setActiveTab] = useState<'documents' | 'workshops'>('documents')
   const [searchTerm, setSearchTerm] = useState('')
 
   // Modal states
-  const [addNewsModalOpen, setAddNewsModalOpen] = useState(false)
+  const [addWorkshopModalOpen, setAddWorkshopModalOpen] = useState(false)
   const [updateDocumentModalOpen, setUpdateDocumentModalOpen] = useState(false)
-  const [updateNewsModalOpen, setUpdateNewsOpen] = useState(false)
+  const [updateWorkshopModalOpen, setUpdateWorkshopOpen] = useState(false)
   const [selectedDocument, setSelectedDocument] = useState<Document | null>(null)
-  const [selectedNews, setSelectedNews] = useState<PressRelease | null>(null)
+  const [selectedWorkshop, setSelectedWorkshop] = useState<Workshop | null>(null)
 
   useEffect(() => {
     const token = localStorage.getItem('adminToken')
     if (token) {
       setIsAuthenticated(true)
       fetchDocuments()
-      fetchPressReleases()
+      fetchWorkshops()
     }
   }, [])
 
@@ -77,14 +86,14 @@ const Admin = () => {
     }
   }
 
-  const fetchPressReleases = async () => {
+  const fetchWorkshops = async () => {
     try {
       setLoading(true)
-      const response = await axios.get<PressRelease[]>('/api/press-releases')
-      setPressReleases(response.data)
+      const response = await axios.get<Workshop[]>('/api/workshops')
+      setWorkshops(response.data)
     } catch (err) {
-      console.error('Error fetching press releases:', err)
-      setError('Failed to fetch press releases')
+      console.error('Error fetching workshops:', err)
+      setError('Failed to fetch workshops')
     } finally {
       setLoading(false)
     }
@@ -101,7 +110,7 @@ const Admin = () => {
         localStorage.setItem('adminToken', response.data.token)
         setIsAuthenticated(true)
         fetchDocuments()
-        fetchPressReleases()
+        fetchWorkshops()
       }
     } catch (err: any) {
       setError(err.response?.data?.error || 'Login failed. Please check your credentials.')
@@ -114,7 +123,7 @@ const Admin = () => {
     localStorage.removeItem('adminToken')
     setIsAuthenticated(false)
     setDocuments([])
-    setPressReleases([])
+    setWorkshops([])
     setLoginForm({ username: '', password: '' })
   }
 
@@ -137,18 +146,18 @@ const Admin = () => {
     }
   }
 
-  const handleDeleteNews = async (id: number) => {
+  const handleDeleteWorkshop = async (id: number) => {
     setLoading(true)
     setError('')
 
     try {
       const token = localStorage.getItem('adminToken')
-      await axios.delete(`/api/admin/press-releases/${id}`, {
+      await axios.delete(`/api/admin/workshops/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       })
 
-      setSuccessMessage('Press release deleted successfully!')
-      fetchPressReleases()
+      setSuccessMessage('Workshop deleted successfully!')
+      fetchWorkshops()
     } catch (err: any) {
       setError(err.response?.data?.error || 'Delete failed. Please try again.')
     } finally {
@@ -161,9 +170,9 @@ const Admin = () => {
     setUpdateDocumentModalOpen(true)
   }
 
-  const handleUpdateNews = (news: PressRelease) => {
-    setSelectedNews(news)
-    setUpdateNewsOpen(true)
+  const handleUpdateWorkshop = (workshop: Workshop) => {
+    setSelectedWorkshop(workshop)
+    setUpdateWorkshopOpen(true)
   }
 
   // Filter documents and news based on search term
@@ -172,9 +181,9 @@ const Admin = () => {
     doc.name.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
-  const filteredNews = pressReleases.filter(pr =>
-    pr.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    pr.content.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredWorkshops = workshops.filter(ws =>
+    ws.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    ws.content.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
   // Login Page
@@ -331,19 +340,19 @@ const Admin = () => {
               </span>
             </button>
             <button
-              onClick={() => setActiveTab('news')}
+              onClick={() => setActiveTab('workshops')}
               className={`flex items-center space-x-2 px-6 py-3 rounded-xl font-body font-semibold text-base transition-all duration-300 ${
-                activeTab === 'news'
+                activeTab === 'workshops'
                   ? 'bg-secondary text-white shadow-md'
                   : 'text-text-secondary hover:text-secondary hover:bg-gray-50'
               }`}
             >
               <Newspaper className="w-5 h-5" />
-              <span>News</span>
+              <span>Workshops</span>
               <span className={`ml-2 px-2.5 py-0.5 rounded-full text-xs ${
-                activeTab === 'news' ? 'bg-white/20' : 'bg-gray-100'
+                activeTab === 'workshops' ? 'bg-white/20' : 'bg-gray-100'
               }`}>
-                {pressReleases.length}
+                {workshops.length}
               </span>
             </button>
           </div>
@@ -355,7 +364,7 @@ const Admin = () => {
             <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-text-muted" />
             <input
               type="text"
-              placeholder={activeTab === 'documents' ? 'Search documents...' : 'Search news...'}
+              placeholder={activeTab === 'documents' ? 'Search documents...' : 'Search workshops...'}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-12 pr-4 py-3 bg-white border-2 border-gray-200 rounded-xl font-body text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200 placeholder:text-text-muted"
@@ -372,11 +381,11 @@ const Admin = () => {
             </Link>
           ) : (
             <button
-              onClick={() => setAddNewsModalOpen(true)}
+              onClick={() => setAddWorkshopModalOpen(true)}
               className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-secondary to-secondary/80 hover:to-secondary text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5"
             >
               <Plus className="w-5 h-5" />
-              <span>Add News</span>
+              <span>Add Workshop</span>
             </button>
           )}
         </div>
@@ -430,8 +439,8 @@ const Admin = () => {
           </div>
         )}
 
-        {/* News Tab Content */}
-        {activeTab === 'news' && (
+        {/* Workshops Tab Content */}
+        {activeTab === 'workshops' && (
           <div>
             {loading ? (
               <div className="text-center py-20">
@@ -439,39 +448,39 @@ const Admin = () => {
                   <div className="absolute inset-0 bg-gradient-to-br from-secondary/20 to-secondary/10 blur-2xl rounded-full animate-pulse" />
                   <div className="relative inline-block h-12 w-12 border-4 border-secondary/30 border-t-secondary rounded-full animate-spin" />
                 </div>
-                <p className="mt-6 font-body text-xl text-text-secondary font-medium">Loading news...</p>
+                <p className="mt-6 font-body text-xl text-text-secondary font-medium">Loading workshops...</p>
               </div>
-            ) : filteredNews.length === 0 ? (
+            ) : filteredWorkshops.length === 0 ? (
               <div className="text-center py-20">
                 <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-gray-200 to-gray-100 rounded-2xl mb-6">
                   <Newspaper className="w-10 h-10 text-gray-400" />
                 </div>
                 <h3 className="font-heading font-semibold text-2xl text-text-primary mb-2">
-                  {searchTerm ? 'No news found' : 'No news yet'}
+                  {searchTerm ? 'No workshops found' : 'No workshops yet'}
                 </h3>
                 <p className="font-body text-text-secondary mb-8">
                   {searchTerm
                     ? 'Try a different search term'
-                    : 'Get started by publishing your first news article'}
+                    : 'Get started by creating your first workshop'}
                 </p>
                 {!searchTerm && (
                   <button
-                    onClick={() => setAddNewsModalOpen(true)}
+                    onClick={() => setAddWorkshopModalOpen(true)}
                     className="inline-flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-secondary to-secondary/80 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5"
                   >
                     <Plus className="w-5 h-5" />
-                    <span>Publish Your First News</span>
+                    <span>Create Your First Workshop</span>
                   </button>
                 )}
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredNews.map((pr) => (
+                {filteredWorkshops.map((ws) => (
                   <NewsCard
-                    key={pr.id}
-                    {...pr}
-                    onDelete={handleDeleteNews}
-                    onUpdate={handleUpdateNews}
+                    key={ws.id}
+                    {...ws}
+                    onDelete={handleDeleteWorkshop}
+                    onUpdate={handleUpdateWorkshop}
                   />
                 ))}
               </div>
@@ -483,15 +492,15 @@ const Admin = () => {
 
 
       <Modal
-        isOpen={addNewsModalOpen}
-        onClose={() => setAddNewsModalOpen(false)}
-        title="Publish News"
+        isOpen={addWorkshopModalOpen}
+        onClose={() => setAddWorkshopModalOpen(false)}
+        title="Create Workshop"
       >
         <AddNewsModal
-          onClose={() => setAddNewsModalOpen(false)}
+          onClose={() => setAddWorkshopModalOpen(false)}
           onSuccess={() => {
-            fetchPressReleases()
-            setSuccessMessage('News published successfully!')
+            fetchWorkshops()
+            setSuccessMessage('Workshop created successfully!')
             setTimeout(() => setSuccessMessage(''), 5000)
           }}
         />
@@ -515,17 +524,17 @@ const Admin = () => {
       </Modal>
 
       <Modal
-        isOpen={updateNewsModalOpen}
-        onClose={() => setUpdateNewsOpen(false)}
-        title="Update Press Release"
+        isOpen={updateWorkshopModalOpen}
+        onClose={() => setUpdateWorkshopOpen(false)}
+        title="Update Workshop"
       >
         <UpdateNewsModal
-          isOpen={updateNewsModalOpen}
-          news={selectedNews!}
-          onClose={() => setUpdateNewsOpen(false)}
+          isOpen={updateWorkshopModalOpen}
+          news={selectedWorkshop!}
+          onClose={() => setUpdateWorkshopOpen(false)}
           onSuccess={() => {
-            fetchPressReleases()
-            setSuccessMessage('Press release updated successfully!')
+            fetchWorkshops()
+            setSuccessMessage('Workshop updated successfully!')
             setTimeout(() => setSuccessMessage(''), 5000)
           }}
         />

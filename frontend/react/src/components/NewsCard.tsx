@@ -94,7 +94,7 @@ const NewsCard = ({ id, title, content, images, createdAt, createdBy, onDelete, 
           <button
             onClick={() => onUpdate({ id, title, content, images })}
             className="flex items-center justify-center p-2.5 bg-gray-100 text-gray-600 rounded-xl hover:bg-gray-200 hover:text-gray-800 transition-all duration-300 transform hover:-translate-y-0.5"
-            title="Edit news"
+            title="Edit workshop"
           >
             <Edit className="w-4 h-4" />
           </button>
