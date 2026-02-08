@@ -89,6 +89,7 @@ async function initializeManifest() {
       'project-readiness': [],
       templates: [],
       deliverable: [],
+      workshops: [],
       lastUpdated: new Date().toISOString()
     };
     await fs.writeFile(MANIFEST_PATH, JSON.stringify(initialManifest, null, 2));
@@ -113,11 +114,17 @@ async function regenerateManifestFromDB() {
       'SELECT id, name, display_name, category, size, modified, description FROM documents ORDER BY modified DESC'
     );
 
+    // Get all workshops
+    const workshopsResult = await pool.query(
+      'SELECT id, title, content, images, created_at, created_by FROM workshops ORDER BY created_at DESC'
+    );
+
     const manifest = {
       policy: [],
       'project-readiness': [],
       templates: [],
       deliverable: [],
+      workshops: [],
       lastUpdated: new Date().toISOString()
     };
 
@@ -136,6 +143,20 @@ async function regenerateManifestFromDB() {
       if (manifest[row.category]) {
         manifest[row.category].push(document);
       }
+    }
+
+    // Add workshops to manifest
+    for (const row of workshopsResult.rows) {
+      const workshop = {
+        id: row.id,
+        title: row.title,
+        description: row.content,
+        date: row.created_at,
+        images: (row.images || []).map(img => `/workshop-imgs/${img}`),
+        createdAt: row.created_at,
+        createdBy: row.created_by
+      };
+      manifest.workshops.push(workshop);
     }
 
     await writeManifest(manifest);
@@ -1184,6 +1205,9 @@ app.post('/api/admin/workshops', authenticateToken, uploadImages.array('images',
 
     await client.query('COMMIT');
 
+    // Regenerate manifest to include new workshop
+    await regenerateManifestFromDB();
+
     const row = result.rows[0];
     res.json({
       message: 'Workshop created successfully.',
@@ -1247,6 +1271,9 @@ app.delete('/api/admin/workshops/:id', authenticateToken, async (req, res) => {
     await client.query('DELETE FROM workshops WHERE id = $1', [id]);
 
     await client.query('COMMIT');
+
+    // Regenerate manifest to remove deleted workshop
+    await regenerateManifestFromDB();
 
     res.json({ message: 'Workshop deleted successfully.' });
   } catch (error) {
@@ -1363,6 +1390,9 @@ app.put('/api/admin/workshops/:id', authenticateToken, uploadImages.array('image
       );
 
       await client.query('COMMIT');
+
+      // Regenerate manifest to reflect workshop update
+      await regenerateManifestFromDB();
 
       res.json({ message: 'Workshop updated successfully.' });
     } else {
