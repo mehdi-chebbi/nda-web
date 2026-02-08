@@ -25,8 +25,6 @@ import TemplateDocuments from './pages/TemplateDocuments'
 import TemplateDetail from './pages/TemplateDetail'
 import Deliverables from './pages/Deliverables'
 import DeliverableDetail from './pages/DeliverableDetail'
-import Workshops from './pages/Workshops'
-import WorkshopDetail from './pages/WorkshopDetail'
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -69,8 +67,6 @@ function App() {
             <Route path="/gcf-template/:id" element={<TemplateDetail />} />
             <Route path="/deliverables" element={<Deliverables />} />
             <Route path="/deliverables/:id" element={<DeliverableDetail />} />
-            <Route path="/workshops" element={<Workshops />} />
-            <Route path="/workshops/:id" element={<WorkshopDetail />} />
           </Routes>
         </main>
         <Footer />

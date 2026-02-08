@@ -12,7 +12,6 @@ const Navigation = () => {
 
   // Readiness Eritrea dropdown links
   const readinessEritreaLinks = [
-    { path: '/workshops', label: 'Workshops' },
     { path: '/deliverables', label: 'Deliverables' }
   ]
 
