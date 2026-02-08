@@ -1,6 +1,6 @@
 import { Calendar, User, Trash2, Edit } from 'lucide-react'
 
-interface NewsCardProps {
+interface WorkshopCardProps {
   id: number
   title: string
   content: string
@@ -8,10 +8,10 @@ interface NewsCardProps {
   createdAt: string
   createdBy: string
   onDelete: (id: number) => void
-  onUpdate: (news: any) => void
+  onUpdate: (workshop: any) => void
 }
 
-const NewsCard = ({ id, title, content, images, createdAt, createdBy, onDelete, onUpdate }: NewsCardProps) => {
+const WorkshopCard = ({ id, title, content, images, createdAt, createdBy, onDelete, onUpdate }: WorkshopCardProps) => {
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-GB', {
       day: '2-digit',
@@ -39,7 +39,7 @@ const NewsCard = ({ id, title, content, images, createdAt, createdBy, onDelete, 
           <div className="mb-4 -mx-6 -mt-6">
             <div className="h-40 bg-gradient-to-br from-gray-200 to-gray-100 relative overflow-hidden">
               <img
-                src={`/news-imgs/${images[0]}`}
+                src={`/workshop-imgs/${images[0]}`}
                 alt={title}
                 className="w-full h-full object-cover"
                 onError={(e) => {
@@ -114,4 +114,4 @@ const NewsCard = ({ id, title, content, images, createdAt, createdBy, onDelete, 
   )
 }
 
-export default NewsCard
+export default WorkshopCard

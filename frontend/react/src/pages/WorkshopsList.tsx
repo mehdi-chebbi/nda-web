@@ -95,13 +95,13 @@ const WorkshopsList = () => {
           animation: float-up 8s ease-in-out infinite;
         }
 
-        .news-card {
+        .workshop-card {
           position: relative;
           overflow: hidden;
           transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .news-card::before {
+        .workshop-card::before {
           content: '';
           position: absolute;
           bottom: 0;
@@ -113,16 +113,16 @@ const WorkshopsList = () => {
           transition: transform 0.4s ease;
         }
 
-        .news-card:hover {
+        .workshop-card:hover {
           transform: translateY(-8px);
           box-shadow: 0 25px 50px -12px rgba(13, 74, 46, 0.35);
         }
 
-        .news-card:hover::before {
+        .workshop-card:hover::before {
           transform: scaleX(1);
         }
 
-        .news-card:hover .card-image {
+        .workshop-card:hover .card-image {
           transform: scale(1.05);
         }
 
@@ -216,14 +216,14 @@ const WorkshopsList = () => {
                 <Link
                   key={ws.id}
                   to={`/workshops/${ws.id}`}
-                  className="news-card bg-white rounded-2xl shadow-lg overflow-hidden animate-on-scroll"
+                  className="workshop-card bg-white rounded-2xl shadow-lg overflow-hidden animate-on-scroll"
                   style={{ animationDelay: `${index * 0.1}s` }}
                 >
                   {/* Image */}
                   {ws.images.length > 0 && (
                     <div className="h-48 overflow-hidden">
                       <img
-                        src={`/news-imgs/${ws.images[0]}`}
+                        src={`/workshop-imgs/${ws.images[0]}`}
                         alt={ws.title}
                         className="card-image w-full h-full object-cover"
                       />

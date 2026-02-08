@@ -2,12 +2,12 @@ import { useState } from 'react'
 import { Upload, Image as ImageIcon, X } from 'lucide-react'
 import axios from 'axios'
 
-interface AddNewsModalProps {
+interface AddWorkshopModalProps {
   onClose: () => void
   onSuccess: () => void
 }
 
-const AddNewsModal = ({ onClose, onSuccess }: AddNewsModalProps) => {
+const AddWorkshopModal = ({ onClose, onSuccess }: AddWorkshopModalProps) => {
   const [form, setForm] = useState({
     title: '',
     content: '',
@@ -136,7 +136,7 @@ const AddNewsModal = ({ onClose, onSuccess }: AddNewsModalProps) => {
             type="text"
             value={form.title}
             onChange={(e) => setForm({ ...form, title: e.target.value })}
-            placeholder="Enter press release title"
+            placeholder="Enter workshop title"
             className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl font-body text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200 placeholder:text-text-muted"
             required
           />
@@ -150,7 +150,7 @@ const AddNewsModal = ({ onClose, onSuccess }: AddNewsModalProps) => {
           <textarea
             value={form.content}
             onChange={(e) => setForm({ ...form, content: e.target.value })}
-            placeholder="Enter press release content"
+            placeholder="Enter workshop content"
             rows={6}
             className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl font-body text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200 placeholder:text-text-muted resize-none"
             required
@@ -245,4 +245,4 @@ const AddNewsModal = ({ onClose, onSuccess }: AddNewsModalProps) => {
   )
 }
 
-export default AddNewsModal
+export default AddWorkshopModal

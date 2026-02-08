@@ -14,7 +14,7 @@ const PORT = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
 const DOCS_DIR = path.join(__dirname, 'docs');
 const MANIFEST_PATH = path.join(DOCS_DIR, 'manifest.json');
-const NEWS_IMAGES_DIR = path.join(__dirname, 'news-imgs');
+const WORKSHOP_IMAGES_DIR = path.join(__dirname, 'workshop-imgs');
 const THUMBNAILS_DIR = path.join(__dirname, 'thumbnails');
 
 // Initialize Poppler for PDF thumbnail generation
@@ -42,8 +42,8 @@ app.use(express.static(path.join(__dirname, '..', 'frontend', 'react', 'dist')))
 // Serve docs directory
 app.use('/docs', express.static(DOCS_DIR));
 
-// Serve news images directory
-app.use('/news-imgs', express.static(NEWS_IMAGES_DIR));
+// Serve workshop images directory
+app.use('/workshop-imgs', express.static(WORKSHOP_IMAGES_DIR));
 
 // Serve thumbnails directory
 app.use('/thumbnails', express.static(THUMBNAILS_DIR));
@@ -160,10 +160,10 @@ function generateId(category) {
   return `${prefix}-${timestamp}-${random}`;
 }
 
-function generateNewsImageName() {
+function generateWorkshopImageName() {
   const timestamp = Date.now();
   const random = crypto.randomBytes(3).toString('hex');
-  return `news-${timestamp}-${random}`;
+  return `workshop-${timestamp}-${random}`;
 }
 
 // Helper function to generate thumbnail from PDF
@@ -1159,16 +1159,16 @@ app.post('/api/admin/workshops', authenticateToken, uploadImages.array('images',
       return res.status(400).json({ error: 'Title and content are required.' });
     }
 
-    // Create news images directory if it doesn't exist
-    await fs.mkdir(NEWS_IMAGES_DIR, { recursive: true });
+    // Create workshop images directory if it doesn't exist
+    await fs.mkdir(WORKSHOP_IMAGES_DIR, { recursive: true });
 
     // Process uploaded images
     const imagePaths = [];
     if (req.files && req.files.length > 0) {
       for (const file of req.files) {
         const ext = path.extname(file.originalname);
-        const filename = `${generateNewsImageName()}${ext}`;
-        const destPath = path.join(NEWS_IMAGES_DIR, filename);
+        const filename = `${generateWorkshopImageName()}${ext}`;
+        const destPath = path.join(WORKSHOP_IMAGES_DIR, filename);
         await fs.rename(file.path, destPath);
         imagePaths.push(filename);
       }
@@ -1237,7 +1237,7 @@ app.delete('/api/admin/workshops/:id', authenticateToken, async (req, res) => {
     const images = workshop.rows[0].images || [];
     for (const image of images) {
       try {
-        await fs.unlink(path.join(NEWS_IMAGES_DIR, image));
+        await fs.unlink(path.join(WORKSHOP_IMAGES_DIR, image));
       } catch (e) {
         console.error('Error deleting image:', image, e);
       }
@@ -1323,7 +1323,7 @@ app.put('/api/admin/workshops/:id', authenticateToken, uploadImages.array('image
       const imagesToDelete = oldImages.filter(img => !finalImages.includes(img));
       for (const image of imagesToDelete) {
         try {
-          await fs.unlink(path.join(NEWS_IMAGES_DIR, image));
+          await fs.unlink(path.join(WORKSHOP_IMAGES_DIR, image));
         } catch (e) {
           console.error('Error deleting old image:', image, e);
         }
@@ -1331,8 +1331,8 @@ app.put('/api/admin/workshops/:id', authenticateToken, uploadImages.array('image
 
       // Generate new image names and move files
       for (const file of req.files) {
-        const imageName = generateNewsImageName() + path.extname(file.originalname);
-        const destPath = path.join(NEWS_IMAGES_DIR, imageName);
+        const imageName = generateWorkshopImageName() + path.extname(file.originalname);
+        const destPath = path.join(WORKSHOP_IMAGES_DIR, imageName);
         await fs.rename(file.path, destPath);
         finalImages.push(imageName);
       }
@@ -1344,7 +1344,7 @@ app.put('/api/admin/workshops/:id', authenticateToken, uploadImages.array('image
       const imagesToDelete = oldImages.filter(img => !finalImages.includes(img));
       for (const image of imagesToDelete) {
         try {
-          await fs.unlink(path.join(NEWS_IMAGES_DIR, image));
+          await fs.unlink(path.join(WORKSHOP_IMAGES_DIR, image));
         } catch (e) {
           console.error('Error deleting old image:', image, e);
         }
@@ -1445,7 +1445,7 @@ async function startServer() {
     // Create necessary directories
     await fs.mkdir(path.join(DOCS_DIR, 'gcf'), { recursive: true });
     await fs.mkdir(path.join(DOCS_DIR, 'policy'), { recursive: true });
-    await fs.mkdir(NEWS_IMAGES_DIR, { recursive: true });
+    await fs.mkdir(WORKSHOP_IMAGES_DIR, { recursive: true });
     await fs.mkdir(THUMBNAILS_DIR, { recursive: true });
 
     // Initialize manifest

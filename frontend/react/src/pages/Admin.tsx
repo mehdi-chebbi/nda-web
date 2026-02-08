@@ -3,11 +3,11 @@ import { Link } from 'react-router-dom'
 import { Plus, FileText, Newspaper, Search, LogOut, Sparkles, Upload, Trash2 } from 'lucide-react'
 import axios from 'axios'
 import Modal from '../components/Modal'
-import AddNewsModal from '../components/AddNewsModal'
+import AddWorkshopModal from '../components/AddWorkshopModal'
 import UpdateDocumentModal from '../components/UpdateDocumentModal'
-import UpdateNewsModal from '../components/UpdateNewsModal'
+import UpdateWorkshopModal from '../components/UpdateWorkshopModal'
 import DocumentCard from '../components/DocumentCard'
-import NewsCard from '../components/NewsCard'
+import WorkshopCard from '../components/WorkshopCard'
 
 interface Document {
   id: string
@@ -17,15 +17,6 @@ interface Document {
   modified: string
   category: string
   description?: string
-}
-
-interface PressRelease {
-  id: number
-  title: string
-  content: string
-  images: string[]
-  createdAt: string
-  createdBy: string
 }
 
 interface Workshop {
@@ -175,7 +166,7 @@ const Admin = () => {
     setUpdateWorkshopOpen(true)
   }
 
-  // Filter documents and news based on search term
+  // Filter documents and workshops based on search term
   const filteredDocuments = documents.filter(doc =>
     doc.displayName.toLowerCase().includes(searchTerm.toLowerCase()) ||
     doc.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -476,7 +467,7 @@ const Admin = () => {
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredWorkshops.map((ws) => (
-                  <NewsCard
+                  <WorkshopCard
                     key={ws.id}
                     {...ws}
                     onDelete={handleDeleteWorkshop}
@@ -496,7 +487,7 @@ const Admin = () => {
         onClose={() => setAddWorkshopModalOpen(false)}
         title="Create Workshop"
       >
-        <AddNewsModal
+        <AddWorkshopModal
           onClose={() => setAddWorkshopModalOpen(false)}
           onSuccess={() => {
             fetchWorkshops()
@@ -528,9 +519,9 @@ const Admin = () => {
         onClose={() => setUpdateWorkshopOpen(false)}
         title="Update Workshop"
       >
-        <UpdateNewsModal
+        <UpdateWorkshopModal
           isOpen={updateWorkshopModalOpen}
-          news={selectedWorkshop!}
+          workshop={selectedWorkshop!}
           onClose={() => setUpdateWorkshopOpen(false)}
           onSuccess={() => {
             fetchWorkshops()

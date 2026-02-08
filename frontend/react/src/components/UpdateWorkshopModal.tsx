@@ -2,11 +2,11 @@ import { useState } from 'react'
 import { Upload, Image as ImageIcon, X } from 'lucide-react'
 import axios from 'axios'
 
-interface UpdateNewsModalProps {
+interface UpdateWorkshopModalProps {
   isOpen: boolean
   onClose: () => void
   onSuccess: () => void
-  news: {
+  workshop: {
     id: number
     title: string
     content: string
@@ -14,10 +14,10 @@ interface UpdateNewsModalProps {
   }
 }
 
-const UpdateNewsModal = ({ isOpen, onClose, onSuccess, news }: UpdateNewsModalProps) => {
+const UpdateWorkshopModal = ({ isOpen, onClose, onSuccess, workshop }: UpdateWorkshopModalProps) => {
   const [form, setForm] = useState({
-    title: news.title,
-    content: news.content,
+    title: workshop.title,
+    content: workshop.content,
     images: [] as File[]
   })
   const [removedExistingImages, setRemovedExistingImages] = useState<Set<string>>(new Set())
@@ -25,7 +25,7 @@ const UpdateNewsModal = ({ isOpen, onClose, onSuccess, news }: UpdateNewsModalPr
   const [error, setError] = useState('')
   const [previewImages, setPreviewImages] = useState<string[]>([])
 
-  const existingImages = news.images.filter(img => !removedExistingImages.has(img))
+  const existingImages = workshop.images.filter(img => !removedExistingImages.has(img))
 
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault()
@@ -120,7 +120,7 @@ const UpdateNewsModal = ({ isOpen, onClose, onSuccess, news }: UpdateNewsModalPr
       // Send the list of existing images to keep
       formData.append('keepExistingImages', JSON.stringify(finalImages))
 
-      await axios.put(`/api/admin/workshops/${news.id}`, formData, {
+      await axios.put(`/api/admin/workshops/${workshop.id}`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           Authorization: `Bearer ${token}`
@@ -156,7 +156,7 @@ const UpdateNewsModal = ({ isOpen, onClose, onSuccess, news }: UpdateNewsModalPr
             type="text"
             value={form.title}
             onChange={(e) => setForm({ ...form, title: e.target.value })}
-            placeholder="Enter press release title"
+            placeholder="Enter workshop title"
             className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl font-body text-sm focus:outline-none focus:border-secondary focus:ring-2 focus:ring-secondary/20 transition-all duration-200 placeholder:text-text-muted"
           />
         </div>
@@ -169,7 +169,7 @@ const UpdateNewsModal = ({ isOpen, onClose, onSuccess, news }: UpdateNewsModalPr
           <textarea
             value={form.content}
             onChange={(e) => setForm({ ...form, content: e.target.value })}
-            placeholder="Enter press release content"
+            placeholder="Enter workshop content"
             rows={6}
             className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl font-body text-sm focus:outline-none focus:border-secondary focus:ring-2 focus:ring-secondary/20 transition-all duration-200 placeholder:text-text-muted resize-none"
           />
@@ -182,13 +182,13 @@ const UpdateNewsModal = ({ isOpen, onClose, onSuccess, news }: UpdateNewsModalPr
           </label>
 
           {/* Existing Images */}
-          {news.images.length > 0 && (
+          {workshop.images.length > 0 && (
             <div className="mb-4">
               <p className="font-body text-xs text-text-muted mb-2">
-                {news.images.length} existing image{news.images.length !== 1 ? 's' : ''}
+                {workshop.images.length} existing image{workshop.images.length !== 1 ? 's' : ''}
               </p>
               <div className="grid grid-cols-4 gap-3">
-                {news.images.map((imageName, index) => {
+                {workshop.images.map((imageName, index) => {
                   const isRemoved = removedExistingImages.has(imageName)
                   return (
                     <div
@@ -200,7 +200,7 @@ const UpdateNewsModal = ({ isOpen, onClose, onSuccess, news }: UpdateNewsModalPr
                       }`}
                     >
                       <img
-                        src={`/news-imgs/${imageName}`}
+                        src={`/workshop-imgs/${imageName}`}
                         alt={`Existing image ${index + 1}`}
                         className="w-full h-20 object-cover rounded-lg border-2 border-gray-200"
                       />
@@ -326,4 +326,4 @@ const UpdateNewsModal = ({ isOpen, onClose, onSuccess, news }: UpdateNewsModalPr
   )
 }
 
-export default UpdateNewsModal
+export default UpdateWorkshopModal

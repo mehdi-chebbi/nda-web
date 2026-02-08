@@ -232,7 +232,7 @@ const WorkshopDetail = () => {
                     {/* Image */}
                     <img
                       key={currentImageIndex}
-                      src={`/news-imgs/${workshop.images[currentImageIndex]}`}
+                      src={`/workshop-imgs/${workshop.images[currentImageIndex]}`}
                       alt={`${workshop.title} ${currentImageIndex + 1}`}
                       className="slideshow-image w-full h-full object-cover"
                     />
