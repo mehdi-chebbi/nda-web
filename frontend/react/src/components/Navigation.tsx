@@ -143,37 +143,6 @@ const Navigation = () => {
               Coordination and Partners
             </Link>
 
-            {/* Others Dropdown */}
-            <div className="relative group">
-              <button
-                className={`${
-                  othersLinks.some(link => location.pathname === link.path)
-                    ? 'text-secondary-light'
-                    : 'text-white hover:text-secondary-light'
-                } font-body text-sm font-medium transition-colors duration-200 flex items-center space-x-1`}
-              >
-                <span>Others</span>
-                <svg className="w-4 h-4 transition-transform duration-200 group-hover:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
-
-              <div className="absolute left-0 mt-2 w-64 bg-white rounded-lg shadow-xl border border-gray-200 overflow-hidden opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-                {othersLinks.map((link) => (
-                  <Link
-                    key={link.path}
-                    to={link.path}
-                    className={`${
-                      location.pathname === link.path
-                        ? 'bg-primary-light text-white'
-                        : 'text-gray-700 hover:bg-gray-100'
-                    } block px-4 py-3 font-body text-sm font-medium transition-colors duration-200`}
-                  >
-                    {link.label}
-                  </Link>
-                ))}
-              </div>
-            </div>
 
             {/* Workspace Link */}
             <Link
