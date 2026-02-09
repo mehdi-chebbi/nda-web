@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { Plus, FileText, Newspaper, Search, LogOut, Sparkles, Upload, Trash2 } from 'lucide-react'
+import { Plus, FileText, Newspaper, Search, LogOut, Sparkles } from 'lucide-react'
 import axios from 'axios'
 import Modal from '../components/Modal'
 import AddWorkshopModal from '../components/AddWorkshopModal'

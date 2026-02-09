@@ -485,7 +485,6 @@ const About = () => {
 
        {/* Governance Structure Section (New Addition) */}
 <section className="py-24 bg-gradient-to-b from-gray-50 to-white relative overflow-hidden">
-  {/* Decorative Background Elements */}
   <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
     <div className="absolute top-20 left-10 w-72 h-72 bg-green-100/50 rounded-full blur-3xl" />
     <div className="absolute bottom-20 right-10 w-96 h-96 bg-yellow-100/40 rounded-full blur-3xl" />
@@ -504,118 +503,7 @@ const About = () => {
       </p>
     </div>
 
-    {/* Governance Tree Visualization */}
-    <div className="animate-on-scroll delay-200 bg-white rounded-3xl p-8 md:p-16 shadow-2xl border border-gray-100 relative">
-
-      {/* Level 1: Climate Finance Committee (Top) */}
-      <div className="flex flex-col items-center justify-center relative z-20">
-        <div className="glass-dark px-8 py-6 rounded-2xl shadow-lg border border-yellow-400/30 max-w-lg w-full text-center hover:scale-105 transition-transform duration-300">
-          <h3 className="font-heading text-2xl font-bold text-white mb-2">Climate Finance Committee</h3>
-          <p className="text-gray-300 text-sm">Strategic Decision Making Body</p>
-        </div>
-
-        {/* Connector Line Down */}
-        <div className="w-0.5 h-12 bg-gradient-to-b from-yellow-400 to-green-400" />
-      </div>
-
-      {/* Level 2: NDA Secretariat and Advisory Bodies (Side by Side) */}
-      <div className="flex flex-col items-center relative z-10">
-        {/* Horizontal Line connecting to both boxes */}
-        <div className="relative w-full max-w-4xl">
-          <div className="absolute left-1/4 right-1/4 h-0.5 bg-green-400">
-            {/* Vertical connectors down to boxes */}
-            <div className="absolute left-0 top-0 w-0.5 h-8 bg-green-400 transform -translate-x-1/2" />
-            <div className="absolute right-0 top-0 w-0.5 h-8 bg-green-400 transform translate-x-1/2" />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-4xl mt-8">
-          {/* NDA Secretariat */}
-          <div className="flex flex-col items-center">
-            <div className="glass-card px-8 py-6 rounded-2xl shadow-lg border-l-4 border-yellow-500 w-full text-center hover:shadow-xl transition-shadow duration-300">
-              <div className="flex items-center justify-center gap-3 mb-2">
-                <svg className="w-6 h-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                </svg>
-                <h3 className="font-heading text-xl font-bold text-primary">NDA Secretariat</h3>
-              </div>
-              <p className="text-gray-600 text-sm">Ministry of Land, Water and Environment</p>
-            </div>
-          </div>
-
-          {/* Advisory and Coordination Bodies */}
-          <div className="flex flex-col items-center">
-            <div className="glass-card px-8 py-6 rounded-2xl shadow-lg border-l-4 border-green-500 w-full text-center hover:shadow-xl transition-shadow duration-300">
-              <div className="flex items-center justify-center gap-3 mb-2">
-                <svg className="w-6 h-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                </svg>
-                <h3 className="font-heading text-xl font-bold text-primary">Advisory and Coordination Bodies</h3>
-              </div>
-              <p className="text-gray-600 text-sm">Multi-stakeholder Coordination</p>
-            </div>
-
-            {/* Connector Line Down from Advisory Bodies ONLY */}
-            <div className="w-0.5 h-12 bg-gradient-to-b from-green-400 to-green-300 mt-0" />
-          </div>
-        </div>
-      </div>
-
-      {/* Level 3: Branches from Advisory Bodies */}
-      <div className="flex flex-col items-center w-full">
-        {/* Horizontal Branch Line - full width */}
-        <div className="relative w-full max-w-5xl mb-8">
-          <div className="absolute left-0 right-0 h-0.5 bg-green-300">
-            {/* REMOVED THE CENTER DOT HERE */}
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 w-full max-w-6xl">
-          {[
-            {
-              title: 'National Climate Change Steering Committee',
-              desc: 'Provides high-level strategic guidance and policy direction.',
-              icon: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z'
-            },
-            {
-              title: 'Technical Review Committee',
-              desc: 'Reviews technical aspects of funding proposals and ensures compliance.',
-              icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01'
-            },
-            {
-              title: 'Accredited Entities / Implementing Entities',
-              desc: 'National and international organizations accredited to implement projects.',
-              icon: 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4'
-            },
-            {
-              title: 'Non - Government Stakeholders',
-              desc: 'Civil society, private sector, and community groups.',
-              icon: 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z'
-            }
-          ].map((item, index) => (
-            <div
-              key={index}
-              className={`glass-card rounded-xl p-6 shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 animate-on-scroll delay-${(index + 3) * 100} relative group`}
-            >
-              {/* Vertical connector to horizontal line */}
-              <div className="absolute -top-8 left-1/2 w-0.5 h-8 bg-green-300 transform -translate-x-1/2 hidden lg:block" />
-
-              <div className="w-12 h-12 rounded-full bg-green-50 text-primary flex items-center justify-center mb-4 group-hover:bg-primary group-hover:text-white transition-colors duration-300">
-                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={item.icon} />
-                </svg>
-              </div>
-              <h5 className="font-heading text-lg font-bold text-gray-800 mb-2 leading-snug">
-                {item.title}
-              </h5>
-              <p className="text-sm text-gray-600 leading-relaxed">
-                {item.desc}
-              </p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
+<img src='/tree.png' className="mx-auto" />
   </div>
 </section>
         {/* Readiness Program Section */}

@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useState, useEffect, useRef } from 'react'
 import Slideshow from '../components/Slideshow'
-import Carousel from '../components/Carousel'
 
 interface StatType {
   label: string;
