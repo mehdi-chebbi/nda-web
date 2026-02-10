@@ -583,7 +583,7 @@ const Slideshow = () => {
                   </div>
                 </div>
                 <div className="image-container">
-                  <img src="/readiness eritrea.jpg" alt="" className="image" />
+                  <img src="/lands3.jpg" alt="" className="image" />
                 </div>
               </div>
               <div className="slide">
@@ -599,7 +599,7 @@ const Slideshow = () => {
                   </div>
                 </div>
                 <div className="image-container">
-                  <img src="/climate finance.jpg" alt="" className="image" />
+                  <img src="/lands.jpg" alt="" className="image" />
                 </div>
               </div>
               <div className="slide">
@@ -615,7 +615,7 @@ const Slideshow = () => {
                   </div>
                 </div>
                 <div className="image-container">
-                  <img src="/Sustainable Development.jpg" alt="" className="image" />
+                  <img src="/lands2.jpg" alt="" className="image" />
                 </div>
               </div>
             </div>

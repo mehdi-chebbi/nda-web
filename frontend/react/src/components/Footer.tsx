@@ -21,7 +21,7 @@ const Footer = () => {
             </h3>
             <ul className="space-y-2">
               <li>
-                <a href="/resources" className="text-gray-300 hover:text-secondary-light font-body text-sm transition-colors">
+                <a href="/gcf-policies" className="text-gray-300 hover:text-secondary-light font-body text-sm transition-colors">
                   Resources
                 </a>
               </li>
