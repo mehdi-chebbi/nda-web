@@ -19,7 +19,18 @@ const THUMBNAILS_DIR = path.join(__dirname, 'thumbnails');
 
 // Initialize Poppler for PDF thumbnail generation
 const poppler = new Poppler();
-
+async function moveFile(src, dest) {
+  try {
+    await fs.rename(src, dest);
+  } catch (err) {
+    if (err.code === 'EXDEV') {
+      await fs.copyFile(src, dest);
+      await fs.unlink(src);
+    } else {
+      throw err;
+    }
+  }
+}
 // PostgreSQL connection
 const pool = new Pool({
   host: process.env.DB_HOST || 'localhost',
@@ -547,7 +558,7 @@ app.post('/api/admin/documents', authenticateToken, upload.single('file'), async
     // Move file from uploads/ to final destination
     const sourcePath = req.file.path;
     const destPath = path.join(categoryDir, filename);
-    await fs.rename(sourcePath, destPath);
+    await moveFile(sourcePath, destPath);
 
     // Get file stats
     const fileStats = await fs.stat(destPath);
@@ -621,7 +632,7 @@ app.post('/api/admin/documents/bulk', authenticateToken, upload.array('files', 5
       return res.status(400).json({ error: 'No files uploaded.' });
     }
 
-    const { category = 'gcf' } = req.body;
+    const { category = 'gcf', displayNames } = req.body;
 
     if (!['policy', 'project-readiness', 'templates', 'deliverable'].includes(category)) {
       // Delete all uploaded files
@@ -633,6 +644,16 @@ app.post('/api/admin/documents/bulk', authenticateToken, upload.array('files', 5
       return res.status(400).json({ error: 'Invalid category. Must be "policy", "project-readiness", "templates", or "deliverable".' });
     }
 
+    // Parse displayNames if provided as JSON string
+    let displayNamesMap = {};
+    if (displayNames) {
+      try {
+        displayNamesMap = typeof displayNames === 'string' ? JSON.parse(displayNames) : displayNames;
+      } catch (e) {
+        console.error('Error parsing displayNames:', e);
+      }
+    }
+
     // Create category directory
     const categoryDir = path.join(DOCS_DIR, category);
     await fs.mkdir(categoryDir, { recursive: true });
@@ -640,17 +661,20 @@ app.post('/api/admin/documents/bulk', authenticateToken, upload.array('files', 5
     // Process each file
     for (const file of req.files) {
       try {
-        // Extract display name from filename (remove extension and clean up)
+        // Use provided displayName or extract from filename
         const baseName = path.basename(file.originalname, path.extname(file.originalname));
-        const displayName = baseName
+        const defaultDisplayName = baseName
           .replace(/[-_]/g, ' ')
           .replace(/\s+/g, ' ')
           .trim();
+        
+        // Use custom displayName if provided, otherwise use default
+        const displayName = displayNamesMap[file.originalname] || displayNamesMap[baseName] || defaultDisplayName;
 
         // Generate unique ID
         const id = generateId(category);
 
-        // Generate stable filename
+        // Generate stable filename from displayName
         const ext = path.extname(file.originalname);
         const sanitizedName = displayName
           .toLowerCase()
@@ -662,7 +686,7 @@ app.post('/api/admin/documents/bulk', authenticateToken, upload.array('files', 5
         // Move file from uploads/ to final destination
         const sourcePath = file.path;
         const destPath = path.join(categoryDir, filename);
-        await fs.rename(sourcePath, destPath);
+        await moveFile(sourcePath, destPath);
 
         // Get file stats
         const fileStats = await fs.stat(destPath);
@@ -799,7 +823,7 @@ app.post('/api/admin/documents/with-descriptions', authenticateToken, upload.arr
 
         const sourcePath = file.path;
         const destPath = path.join(categoryDir, filename);
-        await fs.rename(sourcePath, destPath);
+        await moveFile(sourcePath, destPath);
 
         const fileStats = await fs.stat(destPath);
         const modified = new Date().toISOString();
@@ -1014,7 +1038,7 @@ app.put('/api/admin/documents/:id', authenticateToken, upload.single('file'), as
       }
 
       // Move new file
-      await fs.rename(req.file.path, destPath);
+      await moveFile(req.file.path, destPath);
 
       // Update filename and size
       const fileStats = await fs.stat(destPath);
@@ -1190,7 +1214,7 @@ app.post('/api/admin/workshops', authenticateToken, uploadImages.array('images',
         const ext = path.extname(file.originalname);
         const filename = `${generateWorkshopImageName()}${ext}`;
         const destPath = path.join(WORKSHOP_IMAGES_DIR, filename);
-        await fs.rename(file.path, destPath);
+        await moveFile(file.path, destPath);
         imagePaths.push(filename);
       }
     }
@@ -1360,7 +1384,7 @@ app.put('/api/admin/workshops/:id', authenticateToken, uploadImages.array('image
       for (const file of req.files) {
         const imageName = generateWorkshopImageName() + path.extname(file.originalname);
         const destPath = path.join(WORKSHOP_IMAGES_DIR, imageName);
-        await fs.rename(file.path, destPath);
+        await moveFile(file.path, destPath);
         finalImages.push(imageName);
       }
 
