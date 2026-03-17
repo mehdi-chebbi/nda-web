@@ -7,7 +7,7 @@ interface StatType {
   value: string;
 }
 
-const AnimatedStat = ({ stat, index }: { stat: StatType; index: number }) => {
+const AnimatedStat = ({ stat, index, onClick }: { stat: StatType; index: number; onClick: () => void }) => {
   const [count, setCount] = useState(0)
   const [isVisible, setIsVisible] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
@@ -69,10 +69,11 @@ const AnimatedStat = ({ stat, index }: { stat: StatType; index: number }) => {
   return (
     <div
       ref={ref}
-      className="relative group cursor-default"
+      className="relative group cursor-pointer"
       style={{
         animation: isVisible ? `fadeInUp 0.6s ease-out ${index * 0.1}s both` : 'none'
       }}
+      onClick={onClick}
     >
       <div className="relative bg-gradient-to-br from-white to-gray-50 p-8 rounded-2xl border border-gray-100 shadow-sm transition-all duration-500 group-hover:shadow-2xl group-hover:border-secondary/20 group-hover:-translate-y-2">
         <div className="absolute inset-0 bg-gradient-to-br from-secondary/5 to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl" />
@@ -103,6 +104,65 @@ const Home = () => {
     { label: 'Key Sectors', value: '6' },
     { label: 'Strategic Partners', value: '8' }
   ]
+
+  const [selectedStat, setSelectedStat] = useState<string | null>(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+
+  const STAT_INFO: { [key: string]: { title: string; text: string } } = {
+    projects: {
+      title: 'Projects Initiated',
+      text: 'Eritrea has initiated over 15 climate-related projects in partnership with the Green Climate Fund and other international organizations. These projects span across adaptation, mitigation, and capacity building sectors, contributing to the country\'s sustainable development goals.'
+    },
+    funding: {
+      title: 'Funding Mobilized',
+      text: 'Over $2.5 million has been mobilized for climate action in Eritrea through various funding mechanisms including the GCF Readiness Programme, adaptation funds, and bilateral partnerships. This funding supports institutional strengthening, project development, and climate resilience initiatives.'
+    },
+    sectors: {
+      title: 'Key Sectors',
+      text: 'Eritrea focuses on 6 key sectors for climate action: Agriculture & Food Security, Water Resources, Energy, Health, Coastal Zones, and Ecosystems. These sectors are prioritized in the National Adaptation Plan and Nationally Determined Contributions.'
+    },
+    partners: {
+      title: 'Strategic Partners',
+      text: 'Eritrea collaborates with 8 strategic partners including the Green Climate Fund, UNDP, FAO, UNEP, African Development Bank, GIZ, IGAD, and OSS. These partnerships enable knowledge sharing, technical assistance, and financial support for climate initiatives.'
+    }
+  }
+
+  const getStatKey = (label: string): string => {
+    if (label.includes('Projects')) return 'projects'
+    if (label.includes('Funding')) return 'funding'
+    if (label.includes('Sectors')) return 'sectors'
+    if (label.includes('Partners')) return 'partners'
+    return ''
+  }
+
+  const handleStatClick = (label: string) => {
+    const statKey = getStatKey(label)
+    if (statKey && STAT_INFO[statKey]) {
+      setSelectedStat(statKey)
+      setIsModalOpen(true)
+    }
+  }
+
+  const closeModal = () => {
+    setIsModalOpen(false)
+    setSelectedStat(null)
+  }
+
+  const handleOverlayClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      closeModal()
+    }
+  }
+
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        closeModal()
+      }
+    }
+    document.addEventListener('keydown', handleEscape)
+    return () => document.removeEventListener('keydown', handleEscape)
+  }, [])
 
   return (
     <div className="bg-bg-primary">
@@ -311,7 +371,12 @@ const Home = () => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {statistics.map((stat, index) => (
-              <AnimatedStat key={index} stat={stat} index={index} />
+              <AnimatedStat
+                key={index}
+                stat={stat}
+                index={index}
+                onClick={() => handleStatClick(stat.label)}
+              />
             ))}
           </div>
         </div>
@@ -327,13 +392,53 @@ const Home = () => {
             Explore our resources to learn more about Eritrea's climate readiness initiatives
             and how you can contribute to our shared vision of a sustainable future.
           </p>
-          <Link to="/resources">
+          <Link to="/deliverables">
             <button className="bg-secondary hover:bg-secondary-light text-white font-body font-medium px-8 py-3 rounded-md transition-colors duration-200 shadow-md">
               Browse Documents
             </button>
           </Link>
         </div>
       </section>
+
+      {/* Stat Modal */}
+      {isModalOpen && selectedStat && STAT_INFO[selectedStat] && (
+        <div
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-[10000] transition-opacity duration-300"
+          onClick={handleOverlayClick}
+        >
+          <div className="bg-white rounded-2xl p-10 max-w-[480px] w-[90%] relative shadow-2xl transform transition-transform duration-300 scale-100">
+            {/* Close Button */}
+            <button
+              onClick={closeModal}
+              className="absolute top-4 right-4 bg-none border-none cursor-pointer p-2 text-text-muted hover:text-primary transition-colors duration-200"
+            >
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+
+            {/* Icon */}
+            <div className="w-16 h-16 mx-auto mb-6 bg-gradient-to-br from-primary to-primary-light rounded-full flex items-center justify-center">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-8 h-8 text-white">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+              </svg>
+            </div>
+
+            {/* Title */}
+            <h3 className="font-heading text-2xl font-bold text-primary text-center mb-4">
+              {STAT_INFO[selectedStat].title}
+            </h3>
+
+            {/* Text */}
+            <p className="font-body text-base leading-relaxed text-text-secondary text-center">
+              {STAT_INFO[selectedStat].text}
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

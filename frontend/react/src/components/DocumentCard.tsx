@@ -44,6 +44,28 @@ const DocumentCard = ({ document, onDelete, onUpdate }: DocumentCardProps) => {
     }
   }
 
+  const getCategoryLabel = (category: string) => {
+    const labels: { [key: string]: string } = {
+      'policy': 'Policy Document',
+      'project-readiness': 'Project Readiness',
+      'templates': 'Template',
+      'deliverable': 'Deliverable',
+      'gcf': 'GCF Document'
+    }
+    return labels[category] || 'Document'
+  }
+
+  const getCategoryStyles = (category: string) => {
+    const styles: { [key: string]: string } = {
+      'policy': 'bg-gradient-to-r from-primary/20 to-primary/10 text-primary border border-primary/20',
+      'project-readiness': 'bg-gradient-to-r from-secondary/20 to-secondary/10 text-secondary border border-secondary/20',
+      'templates': 'bg-gradient-to-r from-blue-500/20 to-blue-400/10 text-blue-600 border border-blue-500/20',
+      'deliverable': 'bg-gradient-to-r from-purple-500/20 to-purple-400/10 text-purple-600 border border-purple-500/20',
+      'gcf': 'bg-gradient-to-r from-primary/20 to-primary/10 text-primary border border-primary/20'
+    }
+    return styles[category] || 'bg-gradient-to-r from-gray-200/20 to-gray-100/10 text-gray-600 border border-gray-200/20'
+  }
+
   return (
     <div className="group relative bg-gradient-to-br from-white to-gray-50 rounded-2xl border-2 border-gray-100 hover:border-primary/30 transition-all duration-300 overflow-hidden shadow-sm hover:shadow-xl">
       {/* Hover Gradient Overlay */}
@@ -54,13 +76,9 @@ const DocumentCard = ({ document, onDelete, onUpdate }: DocumentCardProps) => {
         {/* Category Badge */}
         <div className="mb-4">
           <span
-            className={`inline-block px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider ${
-              document.category === 'gcf'
-                ? 'bg-gradient-to-r from-primary/20 to-primary/10 text-primary border border-primary/20'
-                : 'bg-gradient-to-r from-secondary/20 to-secondary/10 text-secondary border border-secondary/20'
-            }`}
+            className={`inline-block px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider ${getCategoryStyles(document.category)}`}
           >
-            {document.category === 'gcf' ? 'GCF Document' : 'Policy Document'}
+            {getCategoryLabel(document.category)}
           </span>
         </div>
 
