@@ -1,0 +1,44 @@
+{
+  "policy": [
+    {
+      "id": "pol-1234567890-abc123",
+      "name": "climate-policy-2024.pdf",
+      "displayName": "Climate Policy 2024",
+      "size": 1048576,
+      "modified": "2024-01-15T10:30:00.000Z",
+      "category": "policy",
+      "description": "National climate policy document",
+      "thumbnail": "/thumbnails/pol-1234567890-abc123.png"
+    }
+  ],
+  "project-readiness": [],
+  "templates": [],
+  "deliverable": [],
+  "workshops": [
+    {
+      "id": 1,
+      "title": "Climate Finance Workshop",
+      "description": "This comprehensive workshop covers the fundamentals of climate finance, including Green Climate Fund (GCF) mechanisms, funding cycles, and application processes. Participants will learn how to navigate the GCF project pipeline and understand the readiness program requirements.",
+      "date": "2024-01-15T10:30:00.000Z",
+      "images": [
+        "/workshop-imgs/workshop-1705320600-abc123.jpg",
+        "/workshop-imgs/workshop-1705320600-def456.jpg",
+        "/workshop-imgs/workshop-1705320600-ghi789.jpg"
+      ],
+      "createdAt": "2024-01-15T10:30:00.000Z",
+      "createdBy": "admin"
+    },
+    {
+      "id": 2,
+      "title": "Project Development Training",
+      "description": "Hands-on training for project development in the context of climate change mitigation and adaptation. The workshop includes practical exercises on project concept notes, feasibility studies, and funding proposal development.",
+      "date": "2024-01-14T14:20:00.000Z",
+      "images": [
+        "/workshop-imgs/workshop-1705234800-xyz123.png"
+      ],
+      "createdAt": "2024-01-14T14:20:00.000Z",
+      "createdBy": "admin"
+    }
+  ],
+  "lastUpdated": "2024-01-15T10:35:00.000Z"
+}
