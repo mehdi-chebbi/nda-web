@@ -577,7 +577,7 @@ const Slideshow = () => {
                     <div className="text">
                       <p>National Designated Authority - Advancing climate action, building resilience, and securing a sustainable future for Eritrea through Green Climate Fund</p>
                     </div>
-                    <a href="/mission" className="btn">
+                    <a href="/about" className="btn">
                       <span className="btn-inner">Learn More</span>
                     </a>
                   </div>
