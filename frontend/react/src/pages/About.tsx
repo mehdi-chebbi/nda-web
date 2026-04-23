@@ -302,10 +302,10 @@ const About = () => {
             {/* Stats Banner */}
             <div className="animate-on-scroll delay-400 mt-20 grid grid-cols-2 md:grid-cols-4 gap-6">
               {[
-                { value: '8+', label: 'Years of Experience' },
-                { value: '15+', label: 'Climate Projects' },
-                { value: '$2.5M', label: 'Finance Mobilized' },
-                { value: '12+', label: 'Strategic Partners' }
+                { value: '2', label: 'No. of Projects' },
+                { value: '$21.1M', label: 'Total GCF Financing' },
+                { value: '3', label: 'No. of Readiness Activities' },
+                { value: '$3.5M', label: 'Readiness Support Approved' }
               ].map((stat, index) => (
                 <div
                   key={index}

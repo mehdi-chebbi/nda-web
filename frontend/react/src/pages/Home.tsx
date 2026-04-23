@@ -99,10 +99,10 @@ const AnimatedStat = ({ stat, index, onClick }: { stat: StatType; index: number;
 
 const Home = () => {
   const statistics = [
-    { label: 'Projects Initiated', value: '15+' },
-    { label: 'Funding Mobilized', value: '$2.5M' },
-    { label: 'Key Sectors', value: '6' },
-    { label: 'Strategic Partners', value: '8' }
+    { label: 'No. of Projects', value: '2' },
+    { label: 'Total GCF Financing', value: '$21.1M' },
+    { label: 'No. of Readiness Activities', value: '3' },
+    { label: 'Readiness Support Approved', value: '$3.5M' }
   ]
 
   const [selectedStat, setSelectedStat] = useState<string | null>(null)
@@ -110,28 +110,28 @@ const Home = () => {
 
   const STAT_INFO: { [key: string]: { title: string; text: string } } = {
     projects: {
-      title: 'Projects Initiated',
-      text: 'Eritrea has initiated over 15 climate-related projects in partnership with the Green Climate Fund and other international organizations. These projects span across adaptation, mitigation, and capacity building sectors, contributing to the country\'s sustainable development goals.'
+      title: 'No. of Projects',
+      text: 'Eritrea has developed 2 climate-related projects with the Green Climate Fund. These projects focus on building climate resilience and supporting national adaptation priorities.'
     },
     funding: {
-      title: 'Funding Mobilized',
-      text: 'Over $2.5 million has been mobilized for climate action in Eritrea through various funding mechanisms including the GCF Readiness Programme, adaptation funds, and bilateral partnerships. This funding supports institutional strengthening, project development, and climate resilience initiatives.'
+      title: 'Total GCF Financing',
+      text: 'Total GCF financing of $21.1 million has been secured for Eritrea\'s climate projects. This substantial funding supports transformative climate action and resilience-building initiatives across the country.'
     },
-    sectors: {
-      title: 'Key Sectors',
-      text: 'Eritrea focuses on 6 key sectors for climate action: Agriculture & Food Security, Water Resources, Energy, Health, Coastal Zones, and Ecosystems. These sectors are prioritized in the National Adaptation Plan and Nationally Determined Contributions.'
+    activities: {
+      title: 'No. of Readiness Activities',
+      text: 'Eritrea has implemented 3 key readiness activities to strengthen institutional capacity, governance frameworks, and stakeholder engagement for effective climate finance management.'
     },
-    partners: {
-      title: 'Strategic Partners',
-      text: 'Eritrea collaborates with 8 strategic partners including the Green Climate Fund, UNDP, FAO, UNEP, African Development Bank, GIZ, IGAD, and OSS. These partnerships enable knowledge sharing, technical assistance, and financial support for climate initiatives.'
+    support: {
+      title: 'Readiness Support Approved',
+      text: 'The GCF has approved $3.5 million in readiness support for Eritrea. This funding enables capacity building, institutional strengthening, and the development of a robust climate finance pipeline.'
     }
   }
 
   const getStatKey = (label: string): string => {
     if (label.includes('Projects')) return 'projects'
-    if (label.includes('Funding')) return 'funding'
-    if (label.includes('Sectors')) return 'sectors'
-    if (label.includes('Partners')) return 'partners'
+    if (label.includes('Financing')) return 'funding'
+    if (label.includes('Activities')) return 'activities'
+    if (label.includes('Support')) return 'support'
     return ''
   }
 
