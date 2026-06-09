@@ -273,9 +273,10 @@ const Slideshow = () => {
     };
 
     gsapScript.onload = () => {
-      jqueryScript.onload = () => {
-        initSlideshow();
-      };
+      initSlideshow();
+    };
+    jqueryScript.onload = () => {
+      initSlideshow();
     };
 
     return () => {
