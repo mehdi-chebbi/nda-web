@@ -25,6 +25,7 @@ import TemplateDocuments from './pages/TemplateDocuments'
 import TemplateDetail from './pages/TemplateDetail'
 import Deliverables from './pages/Deliverables'
 import DeliverableDetail from './pages/DeliverableDetail'
+import ChatBubble from './components/ChatBubble'
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -70,6 +71,7 @@ function App() {
           </Routes>
         </main>
         <Footer />
+        <ChatBubble />
       </div>
     </Router>
   )

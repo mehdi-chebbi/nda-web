@@ -8,10 +8,17 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const cors = require('cors');
 const { Poppler } = require('node-poppler');
+const pdfParse = require('pdf-parse');
+
+const MODEL_CACHE_DIR = process.env.MODEL_CACHE_DIR || path.join(__dirname, '.model-cache');
+let _transformers = null;
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
+const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || '';
+const OPENROUTER_MODEL = process.env.OPENROUTER_MODEL || 'openai/gpt-4o-mini';
+const EMBEDDING_MODEL_ID = process.env.EMBEDDING_MODEL_ID || 'Xenova/all-MiniLM-L6-v2';
 const DOCS_DIR = path.join(__dirname, 'docs');
 const MANIFEST_PATH = path.join(DOCS_DIR, 'manifest.json');
 const WORKSHOP_IMAGES_DIR = path.join(__dirname, 'workshop-imgs');
@@ -19,6 +26,245 @@ const THUMBNAILS_DIR = path.join(__dirname, 'thumbnails');
 
 // Initialize Poppler for PDF thumbnail generation
 const poppler = new Poppler();
+
+// ================= AI / EMBEDDING PIPELINE =================
+
+let embedder = null;
+let embedderReady = false;
+
+/** Warm up the embedding model on startup so it's ready before any requests */
+async function initializeEmbeddingModel() {
+  try {
+    console.log(`Loading @xenova/transformers ...`);
+    _transformers = await import('@xenova/transformers');
+
+    // Configure cache directory
+    _transformers.env.cacheDir = MODEL_CACHE_DIR;
+    _transformers.env.allowLocalModels = false;
+
+    console.log(`Loading embedding model: ${EMBEDDING_MODEL_ID} ...`);
+    embedder = await _transformers.pipeline('feature-extraction', EMBEDDING_MODEL_ID, {
+      quantized: true,
+    });
+    embedderReady = true;
+    console.log('Embedding model loaded and ready.');
+  } catch (err) {
+    console.error('Failed to load embedding model:', err);
+    // Non-fatal — the chat endpoint will return errors if this isn't loaded
+  }
+}
+
+/** Embed a single text string into a normalized vector */
+async function embedText(text) {
+  if (!embedderReady || !embedder) {
+    throw new Error('Embedding model not loaded yet');
+  }
+  const output = await embedder(text, { pooling: 'mean', normalize: true });
+  // output.data is a Float32Array or regular array
+  return Array.from(output.data);
+}
+
+/** Embed multiple texts in sequence (not batched — keeps memory low on CPU) */
+async function embedTexts(texts) {
+  const embeddings = [];
+  for (const text of texts) {
+    const vec = await embedText(text);
+    embeddings.push(vec);
+  }
+  return embeddings;
+}
+
+/** Extract text from a PDF file path */
+async function extractTextFromPDF(filePath) {
+  const buffer = await fs.readFile(filePath);
+  const data = await pdfParse(buffer);
+  return data.text || '';
+}
+
+/** Split text into overlapping chunks */
+function chunkText(text, chunkSize = 500, overlapSize = 100) {
+  // Normalize whitespace
+  text = text.replace(/\r\n/g, '\n').replace(/\t/g, ' ');
+  const paragraphs = text.split(/\n\n+/).map(p => p.trim()).filter(p => p.length > 0);
+
+  if (paragraphs.length === 0) return [];
+
+  const chunks = [];
+  let currentChunk = '';
+
+  for (const para of paragraphs) {
+    // If the paragraph itself is larger than chunkSize, split it further
+    if (para.length > chunkSize) {
+      // Flush what we have first
+      if (currentChunk.length > 0) {
+        chunks.push(currentChunk.trim());
+        currentChunk = '';
+      }
+      // Split large paragraph by sentences (rough)
+      const sentences = para.match(/[^.!?]+[.!?]+/g) || [para];
+      let sentenceBuffer = '';
+      for (const sentence of sentences) {
+        if (sentenceBuffer.length + sentence.length > chunkSize && sentenceBuffer.length > 0) {
+          chunks.push(sentenceBuffer.trim());
+          // Keep overlap
+          const overlapText = sentenceBuffer.slice(-overlapSize);
+          sentenceBuffer = overlapText + ' ' + sentence;
+        } else {
+          sentenceBuffer += ' ' + sentence;
+        }
+      }
+      if (sentenceBuffer.trim().length > 0) {
+        currentChunk = sentenceBuffer;
+      }
+    } else {
+      if (currentChunk.length + para.length + 2 > chunkSize && currentChunk.length > 0) {
+        chunks.push(currentChunk.trim());
+        const overlapText = currentChunk.slice(-overlapSize);
+        currentChunk = overlapText + '\n\n' + para;
+      } else {
+        currentChunk = currentChunk ? currentChunk + '\n\n' + para : para;
+      }
+    }
+  }
+
+  if (currentChunk.trim().length > 0) {
+    chunks.push(currentChunk.trim());
+  }
+
+  return chunks;
+}
+
+/** Full pipeline: extract text from PDF → chunk → embed → store in DB */
+async function processDocument(documentId) {
+  try {
+    console.log(`[AI] Processing document: ${documentId}`);
+
+    // 1. Get document info from DB
+    const docResult = await pool.query(
+      'SELECT id, name, category, display_name FROM documents WHERE id = $1',
+      [documentId]
+    );
+    if (docResult.rows.length === 0) {
+      console.error(`[AI] Document ${documentId} not found in DB`);
+      return;
+    }
+    const doc = docResult.rows[0];
+
+    // 2. Extract text from PDF
+    const pdfPath = path.join(DOCS_DIR, doc.category, doc.name);
+    let text;
+    try {
+      text = await extractTextFromPDF(pdfPath);
+    } catch (err) {
+      console.error(`[AI] Failed to extract text from ${pdfPath}:`, err);
+      return;
+    }
+
+    if (!text || text.trim().length < 20) {
+      console.log(`[AI] Document ${documentId} has too little text to process (${text?.length || 0} chars). Skipping.`);
+      return;
+    }
+
+    // 3. Chunk the text
+    const chunks = chunkText(text);
+    if (chunks.length === 0) {
+      console.log(`[AI] No chunks generated for document ${documentId}`);
+      return;
+    }
+    console.log(`[AI] Generated ${chunks.length} chunks for document ${documentId}`);
+
+    // 4. Delete existing chunks for this document (in case of re-processing)
+    await pool.query('DELETE FROM document_chunks WHERE document_id = $1', [documentId]);
+
+    // 5. Embed and store each chunk
+    for (let i = 0; i < chunks.length; i++) {
+      try {
+        const embedding = await embedText(chunks[i]);
+        const vectorStr = '[' + embedding.join(',') + ']';
+        await pool.query(
+          `INSERT INTO document_chunks (document_id, chunk_index, content, embedding)
+           VALUES ($1, $2, $3, $4)`,
+          [documentId, i, chunks[i], vectorStr]
+        );
+      } catch (err) {
+        console.error(`[AI] Failed to embed chunk ${i} of document ${documentId}:`, err);
+      }
+    }
+
+    console.log(`[AI] Document ${documentId} processed: ${chunks.length} chunks embedded and stored`);
+  } catch (err) {
+    console.error(`[AI] Error processing document ${documentId}:`, err);
+  }
+}
+
+/** Search for relevant chunks given a question embedding */
+async function searchChunks(questionEmbedding, topK = 5) {
+  const vectorStr = '[' + questionEmbedding.join(',') + ']';
+  const result = await pool.query(
+    `SELECT dc.document_id, dc.chunk_index, dc.content, d.display_name, d.category
+     FROM document_chunks dc
+     JOIN documents d ON d.id = dc.document_id
+     ORDER BY dc.embedding <=> $1::vector
+     LIMIT $2`,
+    [vectorStr, topK]
+  );
+  return result.rows;
+}
+
+/** Stream a chat completion from OpenRouter */
+async function* streamOpenRouter(messages, res) {
+  const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+      'Content-Type': 'application/json',
+      'HTTP-Referer': 'https://eritrea-nda-readiness.org',
+      'X-Title': 'Eritrea NDA Readiness Platform',
+    },
+    body: JSON.stringify({
+      model: OPENROUTER_MODEL,
+      messages,
+      stream: true,
+    }),
+  });
+
+  if (!response.ok) {
+    const errorBody = await response.text();
+    throw new Error(`OpenRouter API error ${response.status}: ${errorBody}`);
+  }
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split('\n');
+    buffer = lines.pop() || '';
+
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed || !trimmed.startsWith('data:')) continue;
+      const data = trimmed.slice(5).trim();
+      if (data === '[DONE]') return;
+      try {
+        const parsed = JSON.parse(data);
+        const content = parsed.choices?.[0]?.delta?.content;
+        if (content) {
+          yield content;
+        }
+      } catch {
+        // Skip malformed lines
+      }
+    }
+  }
+}
+
+// ================= END AI / EMBEDDING PIPELINE =================
+
 async function moveFile(src, dest) {
   try {
     await fs.rename(src, dest);
@@ -257,6 +503,10 @@ async function generateThumbnail(pdfPath, documentId) {
 // Database initialization
 async function initializeDatabase() {
   try {
+    // Enable pgvector extension
+    await pool.query('CREATE EXTENSION IF NOT EXISTS vector');
+    console.log('pgvector extension enabled');
+
     // Create tables if they don't exist
     await pool.query(`
       CREATE TABLE IF NOT EXISTS documents (
@@ -372,6 +622,34 @@ async function initializeDatabase() {
     await pool.query(`
       CREATE INDEX IF NOT EXISTS idx_workshops_created_at ON workshops(created_at DESC)
     `);
+
+    // Create document_chunks table for AI/RAG
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS document_chunks (
+        id SERIAL PRIMARY KEY,
+        document_id VARCHAR(50) NOT NULL,
+        chunk_index INTEGER NOT NULL,
+        content TEXT NOT NULL,
+        embedding vector(384),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (document_id) REFERENCES documents(id) ON DELETE CASCADE
+      )
+    `);
+
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_document_chunks_document_id ON document_chunks(document_id)
+    `);
+
+    // HNSW index for fast vector similarity search (cosine distance)
+    try {
+      await pool.query(`
+        CREATE INDEX IF NOT EXISTS idx_document_chunks_embedding
+        ON document_chunks USING hnsw (embedding vector_cosine_ops)
+      `);
+    } catch (err) {
+      // HNSW index creation can fail on some pgvector versions, non-critical
+      console.warn('Warning: Could not create HNSW index on embeddings:', err.message);
+    }
 
     console.log('Database tables initialized');
   } catch (error) {
@@ -586,6 +864,11 @@ app.post('/api/admin/documents', authenticateToken, upload.single('file'), async
       console.error(`Failed to generate thumbnail for ${id}:`, err);
     });
 
+    // Process document for AI/RAG (non-blocking)
+    processDocument(id).catch(err => {
+      console.error(`Failed to process document ${id} for AI:`, err);
+    });
+
     // Update manifest
     const manifest = await regenerateManifestFromDB();
 
@@ -739,6 +1022,13 @@ app.post('/api/admin/documents/bulk', authenticateToken, upload.array('files', 5
       });
     }
 
+    // Process all documents for AI/RAG (non-blocking)
+    for (const file of uploadedFiles) {
+      processDocument(file.id).catch(err => {
+        console.error(`Failed to process document ${file.id} for AI:`, err);
+      });
+    }
+
     // Update manifest
     await regenerateManifestFromDB();
 
@@ -885,6 +1175,13 @@ app.post('/api/admin/documents/with-descriptions', authenticateToken, upload.arr
       const pdfPath = path.join(DOCS_DIR, file.category, file.name);
       generateThumbnail(pdfPath, file.id).catch(err => {
         console.error(`Failed to generate thumbnail for ${file.id}:`, err);
+      });
+    }
+
+    // Process all documents for AI/RAG (non-blocking)
+    for (const file of uploadedFiles) {
+      processDocument(file.id).catch(err => {
+        console.error(`Failed to process document ${file.id} for AI:`, err);
       });
     }
 
@@ -1482,6 +1779,174 @@ app.get('/api/documents/:id', async (req, res) => {
   }
 });
 
+// ================= AI CHAT ENDPOINTS =================
+
+// Chat endpoint with source mode + streaming
+app.post('/api/chat', async (req, res) => {
+  try {
+    const { question, sourceMode = true } = req.body;
+
+    if (!question || typeof question !== 'string' || question.trim().length === 0) {
+      return res.status(400).json({ error: 'Question is required.' });
+    }
+
+    if (!OPENROUTER_API_KEY) {
+      return res.status(500).json({ error: 'AI chat is not configured. OPENROUTER_API_KEY is missing.' });
+    }
+
+    // Set up SSE headers for streaming
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+
+    let contextChunks = [];
+    let sources = [];
+
+    // Source mode ON: search document chunks
+    if (sourceMode) {
+      if (!embedderReady) {
+        res.write(`data: ${JSON.stringify({ error: 'Embedding model is still loading. Please try again in a moment.' })}\n\n`);
+        res.end();
+        return;
+      }
+
+      try {
+        const questionEmbedding = await embedText(question.trim());
+        contextChunks = await searchChunks(questionEmbedding, 5);
+
+        // Deduplicate sources by document_id
+        const seenDocs = new Set();
+        sources = contextChunks
+          .filter(c => {
+            if (seenDocs.has(c.document_id)) return false;
+            seenDocs.add(c.document_id);
+            return true;
+          })
+          .map(c => ({
+            documentId: c.document_id,
+            displayName: c.display_name,
+            category: c.category,
+          }));
+      } catch (err) {
+        console.error('[AI] Error searching chunks:', err);
+        // Fall through to general chat if search fails
+      }
+    }
+
+    // Build messages for the LLM
+    const systemPrompt = sourceMode && contextChunks.length > 0
+      ? `You are a helpful assistant for Eritrea's National Designated Authority (NDA) under the Green Climate Fund (GCF) Readiness Programme.
+
+You answer questions based ONLY on the provided document excerpts. If the excerpts don't contain enough information to answer the question, say so honestly — do not make up information.
+
+When referencing information, mention which document it came from when possible.
+
+Document excerpts:
+${contextChunks.map((c, i) => `[${i + 1}] From "${c.display_name}" (${c.category}):\n${c.content}`).join('\n\n---\n\n')}`
+      : `You are a helpful assistant for Eritrea's National Designated Authority (NDA) under the Green Climate Fund (GCF) Readiness Programme.
+
+You provide helpful, accurate information about climate finance, the Green Climate Fund, project readiness, and related topics. If you're unsure about something, say so.
+
+Keep your answers concise and relevant.`;
+
+    const messages = [
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: question.trim() },
+    ];
+
+    // Send sources first
+    res.write(`data: ${JSON.stringify({ type: 'sources', sources })}\n\n`);
+
+    // Stream the LLM response
+    try {
+      for await (const token of streamOpenRouter(messages, res)) {
+        res.write(`data: ${JSON.stringify({ type: 'token', content: token })}\n\n`);
+      }
+      res.write(`data: ${JSON.stringify({ type: 'done' })}\n\n`);
+    } catch (err) {
+      console.error('[AI] Streaming error:', err);
+      res.write(`data: ${JSON.stringify({ type: 'error', error: 'Failed to get AI response.' })}\n\n`);
+    }
+
+    res.end();
+  } catch (error) {
+    console.error('[AI] Chat error:', error);
+    if (!res.headersSent) {
+      res.status(500).json({ error: 'Failed to process chat request.' });
+    } else {
+      res.write(`data: ${JSON.stringify({ type: 'error', error: 'Internal server error.' })}\n\n`);
+      res.end();
+    }
+  }
+});
+
+// Reprocess a single document for AI (admin only)
+app.post('/api/admin/documents/:id/reprocess', authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const docResult = await pool.query('SELECT id FROM documents WHERE id = $1', [id]);
+    if (docResult.rows.length === 0) {
+      return res.status(404).json({ error: 'Document not found.' });
+    }
+
+    if (!embedderReady) {
+      return res.status(503).json({ error: 'Embedding model is still loading. Please try again in a moment.' });
+    }
+
+    // Process in background (non-blocking)
+    processDocument(id).catch(err => {
+      console.error(`Failed to reprocess document ${id}:`, err);
+    });
+
+    res.json({ message: 'Document queued for AI processing.' });
+  } catch (error) {
+    console.error('Reprocess error:', error);
+    res.status(500).json({ error: 'Failed to reprocess document.' });
+  }
+});
+
+// Reprocess ALL documents for AI (admin only)
+app.post('/api/admin/documents/reprocess-all', authenticateToken, async (req, res) => {
+  try {
+    const result = await pool.query('SELECT id FROM documents');
+    const documentIds = result.rows.map(r => r.id);
+
+    if (documentIds.length === 0) {
+      return res.json({ message: 'No documents to process.' });
+    }
+
+    if (!embedderReady) {
+      return res.status(503).json({ error: 'Embedding model is still loading. Please try again in a moment.' });
+    }
+
+    // Process all in background (non-blocking, sequentially to avoid memory spikes)
+    (async () => {
+      for (const docId of documentIds) {
+        await processDocument(docId);
+      }
+      console.log(`[AI] Batch processing complete: ${documentIds.length} documents`);
+    })();
+
+    res.json({ message: `${documentIds.length} documents queued for AI processing.` });
+  } catch (error) {
+    console.error('Reprocess all error:', error);
+    res.status(500).json({ error: 'Failed to start batch processing.' });
+  }
+});
+
+// Check AI status (public)
+app.get('/api/ai/status', (req, res) => {
+  res.json({
+    embeddingModel: EMBEDDING_MODEL_ID,
+    embeddingReady: embedderReady,
+    chatConfigured: !!OPENROUTER_API_KEY,
+    chatModel: OPENROUTER_MODEL,
+  });
+});
+
+// ================= END AI CHAT ENDPOINTS =================
+
 // Catch all - serve React app for any other route
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'frontend', 'react', 'dist', 'index.html'));
@@ -1520,6 +1985,15 @@ async function startServer() {
 
     // Regenerate manifest from database
     await regenerateManifestFromDB();
+
+    // Initialize embedding model (non-blocking — loads in background)
+    // This is async and may take 10-30 seconds on first run (model download)
+    initializeEmbeddingModel().catch(err => {
+      console.error('Background embedding model init failed:', err);
+    });
+
+    // Create model cache directory
+    await fs.mkdir(MODEL_CACHE_DIR, { recursive: true });
 
     // Start server
     app.listen(PORT, () => {
