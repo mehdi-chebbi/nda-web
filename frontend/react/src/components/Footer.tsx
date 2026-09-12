@@ -44,7 +44,7 @@ const Footer = () => {
               Contact
             </h3>
             <address className="not-italic text-gray-300 font-body text-sm leading-relaxed">
-              <p className="mb-2">Ministry of Land, Water and Environment</p>
+              <p className="mb-2">Ministry of Finance</p>
               <p className="mb-2">Asmara, Eritrea</p>
               <p className="mb-2">Email: info@readiness-eritrea.er</p>
               <p>Phone: +291 1 123456</p>

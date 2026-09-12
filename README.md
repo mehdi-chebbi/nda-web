@@ -387,7 +387,7 @@ The server will:
 ## Support
 
 For issues or questions:
-- Contact: Ministry of Land, Water and Environment, Asmara, Eritrea
+- Contact: Ministry of Finance, Asmara, Eritrea
 - Email: info@readiness-eritrea.er
 
 ## License

@@ -225,6 +225,7 @@ async function* streamOpenRouter(messages, res) {
       model: OPENROUTER_MODEL,
       messages,
       stream: true,
+      max_tokens: 1500,
     }),
   });
 

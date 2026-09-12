@@ -77,7 +77,7 @@ const Contact = () => {
       ),
       title: 'Office Address',
       details: [
-        'Ministry of Land, Water and Environment',
+        'Ministry of Finance',
         'National Designated Authority',
         'Asmara, Eritrea'
       ]
@@ -528,7 +528,7 @@ const Contact = () => {
                     <Marker position={[15.3225, 38.9233]} icon={icon}>
                       <Popup>
                         <div className="font-sans text-gray-800">
-                          <strong className="block text-lg mb-1">Ministry of Land, Water and Environment</strong>
+                          <strong className="block text-lg mb-1">Ministry of Finance</strong>
                           <span className="text-sm">National Designated Authority</span><br/>
                           <span className="text-sm">Asmara, Eritrea</span>
                         </div>

@@ -349,7 +349,7 @@ const About = () => {
               <div className="grid md:grid-cols-2 gap-12 items-center">
                 <div className="animate-on-scroll delay-100 space-y-6">
                   <p className="text-lg text-gray-700 leading-relaxed">
-                    Operating under the Ministry of Land, Water and Environment, the NDA Secretariat serves as its operational arm, coordinating readiness support, reviewing funding proposals, issuing No-Objection Letters, and maintaining the GCF Country Programme and project pipeline.
+                    Operating under the Ministry of Finance, the NDA Secretariat serves as its operational arm, coordinating readiness support, reviewing funding proposals, issuing No-Objection Letters, and maintaining the GCF Country Programme and project pipeline.
                   </p>
                   <p className="text-lg text-gray-700 leading-relaxed">
                     Eritrea's governance framework includes a high-level inter-ministerial steering committee for strategic guidance and a technical review mechanism to ensure proposals meet national strategies, environmental and social safeguards, and GCF criteria. The NDA also promotes inclusive stakeholder engagement with government agencies, civil society, private sector, and vulnerable groups. Supported by the Readiness Programme, this framework strengthens national ownership, transparency, and capacity to effectively access and manage international climate finance for sustainable climate action.

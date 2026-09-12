@@ -271,7 +271,7 @@ const PartnersCoordination = () => {
                 <ul className="space-y-2">
                   <li className="flex items-start gap-2 text-gray-700">
                     <div className="w-2 h-2 rounded-full bg-secondary flex-shrink-0 mt-2"></div>
-                    <span>Ministry of Land, Water and Environment</span>
+                    <span>Ministry of Finance</span>
                   </li>
                   <li className="flex items-start gap-2 text-gray-700">
                     <div className="w-2 h-2 rounded-full bg-secondary flex-shrink-0 mt-2"></div>
